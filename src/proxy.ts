@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // 1. PERFORMANCE: Refresh the session at the Edge
   // This keeps the user logged in as they navigate without hitting the DB heavily
   const response = await updateSession(request)

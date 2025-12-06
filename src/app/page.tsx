@@ -17,10 +17,10 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-black/80 backdrop-blur-md">
+      {/* <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-black/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <span className="text-xl font-bold">
-            TechSolstice<span className="text-blue-500">'26</span>
+            TechSolstice<span className="text-blue-500">&apos;26</span>
           </span>
           <div className="flex items-center gap-4">
             <Link href="#events" className="hidden text-sm text-gray-400 hover:text-white sm:block">
@@ -46,7 +46,7 @@ export default async function Home() {
             )}
           </div>
         </div>
-      </nav>
+      </nav> */}
 
       {/* Hero Section */}
       <section className="flex min-h-screen flex-col items-center justify-center px-6 pt-20 text-center">
@@ -65,7 +65,7 @@ export default async function Home() {
         {/* Main Title */}
         <h1 className="relative text-6xl font-extrabold tracking-tight sm:text-8xl">
           Tech<span className="text-blue-500">Solstice</span>
-          <span className="text-blue-600">'26</span>
+          <span className="text-blue-600">&apos;26</span>
         </h1>
         <p className="relative mt-6 max-w-xl text-xl text-gray-400">
           The largest techno-cultural fest of Manipal is back. 
@@ -149,7 +149,7 @@ export default async function Home() {
               </p>
               <p className="mt-4 text-lg text-gray-400">
                 From intense hackathons to electrifying music nights, from robotics battles 
-                to creative workshops — there's something for every passion.
+                to creative workshops — there&apos;s something for every passion.
               </p>
               <div className="mt-8">
                 <Link
@@ -187,7 +187,7 @@ export default async function Home() {
         <div className="mx-auto max-w-6xl px-6 py-12">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span className="text-xl font-bold">
-              TechSolstice<span className="text-blue-500">'26</span>
+              TechSolstice<span className="text-blue-500">&apos;26</span>
             </span>
             <p className="text-sm text-gray-500">
               © 2026 TechSolstice. Manipal University.
