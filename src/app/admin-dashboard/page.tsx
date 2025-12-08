@@ -58,16 +58,18 @@ export default function AdminDashboard() {
 
   const handleSave = async (formData: Omit<Event, "id">) => {
     const isUpdating = !!selectedEvent;
-    const url = isUpdating ? `/api/events/${selectedEvent.id}` : "/api/events";
-    const method = isUpdating ? "PUT" : "POST";
+    const url = "/api/events";
+    const method = isUpdating ? "PATCH" : "POST";
 
-    console.log(formData);
-    
+    const payload = isUpdating
+      ? { ...formData, id: selectedEvent.id }
+      : formData;
+
     try {
       const response = await fetch(url, {
         method: method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -88,15 +90,17 @@ export default function AdminDashboard() {
 
   const handleDeleteEvent = async (id: string) => {
     if (!confirm("Are you sure you want to delete this event?")) return;
+    console.log("CLIENT DELETE ID : ", id);
+  
 
     try {
-      const response = await fetch(`/api/events/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/events/${id}`, { method: "DELETE", body: JSON.stringify({ id })});
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to delete event");
       }
       
-      // The delete was successful, now refetch all events
+      // Refetch post deletion
       await fetchEvents();
       alert("Event deleted successfully!");
     } catch (err) {
