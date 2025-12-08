@@ -14,7 +14,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${location.origin}/api/auth/callback`,
       },
     })
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
         {/* Header Section */}
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight text-blue-500">
-            TechSolstice'26
+            TechSolstice&apos;26
           </h1>
           <p className="mt-3 text-base text-gray-400">
             Sign in to access your passes.

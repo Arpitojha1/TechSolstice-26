@@ -28,7 +28,7 @@ export default async function PassesPage() {
       <header className="sticky top-0 z-10 border-b border-gray-800 bg-black/80 px-6 py-4 backdrop-blur-md">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-blue-500">My Passes</h1>
-          <form action="/auth/signout" method="post">
+          <form action="/api/auth/signout" method="post">
             <button className="text-sm font-medium text-gray-400 hover:text-white">
               Sign Out
             </button>
