@@ -6,9 +6,9 @@ import { Home, Calendar, Ticket, Mail } from "lucide-react"
 
 const navItems = [
   { name: "Home", url: "#home", icon: Home },
-  { name: "Events", url: "#events", icon: Calendar },
-  { name: "Passes", url: "#passes", icon: Ticket },
-  { name: "Contact", url: "#contact", icon: Mail },
+  { name: "Events", url: "events", icon: Calendar },
+  { name: "Passes", url: "passes", icon: Ticket },
+  { name: "Contact", url: "contact", icon: Mail },
 ]
 
 export function TechSolsticeNavbar() {
