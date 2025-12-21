@@ -1,8 +1,85 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+/**
+ * Responsive wrapper around FlickeringGrid which measures the available width
+ * and scales the fontSize down if the rendered text would overflow the container.
+ */
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
+
+export function FlickeringGridResponsive({
+  text,
+  baseFontSize,
+  ...props
+}: {
+  text: string;
+  baseFontSize: number;
+  [key: string]: any;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [fontSize, setFontSize] = useState<number>(baseFontSize);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    let raf = 0;
+
+    const measure = () => {
+      const container = containerRef.current!;
+      const containerWidth = container.clientWidth;
+
+      // Create an offscreen canvas to measure text width accurately
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      // Use same font stack as FlickeringGrid
+      const fontWeight = "600";
+      ctx.font = `${fontWeight} ${baseFontSize}px "Doto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+      const metrics = ctx.measureText(text);
+      const textWidth = metrics.width || 0;
+
+      if (textWidth > containerWidth) {
+        // Scale down proportionally with a small margin
+        const scale = (containerWidth * 0.9) / textWidth;
+        const newSize = Math.max(12, Math.floor(baseFontSize * scale));
+        setFontSize(newSize);
+      } else {
+        setFontSize(baseFontSize);
+      }
+    };
+
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(measure);
+    };
+
+    // Initial measure
+    measure();
+
+    window.addEventListener("resize", onResize);
+
+    const ro = new ResizeObserver(onResize);
+    ro.observe(containerRef.current as Element);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+      ro.disconnect();
+    };
+  }, [text, baseFontSize]);
+
+  return (
+    <div ref={containerRef} className="h-full w-full">
+      <FlickeringGrid text={text} fontSize={fontSize} {...props} />
+    </div>
+  );
+}
+
+
+// FlickeringGrid implementation
+// Lightweight, imperative canvas rendering with sampling and DPR handling
 
 // Helper function to convert hex to rgba
 const hexToRgb = (hex: string) => {
@@ -64,15 +141,17 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       dpr: number,
     ) => {
       ctx.clearRect(0, 0, width, height);
+      // Fill a solid black background so the flicker is visible and opaque
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, width, height);
 
-      // Create a separate canvas for the text mask
+      // Create a separate canvas for the text mask and draw text once
       const maskCanvas = document.createElement("canvas");
       maskCanvas.width = width;
       maskCanvas.height = height;
-      const maskCtx = maskCanvas.getContext("2d", { willReadFrequently: true });
+      const maskCtx = maskCanvas.getContext("2d");
       if (!maskCtx) return;
 
-      // Draw text on mask canvas
       if (text) {
         maskCtx.save();
         maskCtx.scale(dpr, dpr);
@@ -84,31 +163,36 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
         maskCtx.restore();
       }
 
+      // Read mask pixels once (cheaper than getImageData per-square)
+      let maskData: Uint8ClampedArray | null = null;
+      try {
+        maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
+      } catch (e) {
+        // getImageData can throw on some cross-origin/tainted canvases; fallback to no masking
+        maskData = null;
+      }
+
       // Convert color to RGB
       const rgb = hexToRgb(color) || { r: 107, g: 114, b: 128 };
 
-      // Draw flickering squares
+      // Draw flickering squares — sample a single pixel at the center of each square from maskData
       for (let i = 0; i < cols; i++) {
         for (let j = 0; j < rows; j++) {
           const x = i * (squareSize + gridGap) * dpr;
           const y = j * (squareSize + gridGap) * dpr;
-          const squareWidth = squareSize * dpr;
-          const squareHeight = squareSize * dpr;
+          const squareWidth = Math.max(1, Math.floor(squareSize * dpr));
+          const squareHeight = Math.max(1, Math.floor(squareSize * dpr));
 
-          const maskData = maskCtx.getImageData(
-            x,
-            y,
-            squareWidth,
-            squareHeight,
-          ).data;
-          const hasText = maskData.some(
-            (value, index) => index % 4 === 0 && value > 0,
-          );
+          let hasText = false;
+          if (maskData) {
+            const sampleX = Math.min(maskCanvas.width - 1, Math.floor(x + squareWidth / 2));
+            const sampleY = Math.min(maskCanvas.height - 1, Math.floor(y + squareHeight / 2));
+            const idx = (sampleY * maskCanvas.width + sampleX) * 4;
+            hasText = maskData[idx] > 0;
+          }
 
           const opacity = squares[i * rows + j];
-          const finalOpacity = hasText
-            ? Math.min(1, opacity * 3 + 0.4)
-            : opacity;
+          const finalOpacity = hasText ? Math.min(1, opacity * 3 + 0.4) : opacity;
 
           ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${finalOpacity})`;
           ctx.fillRect(x, y, squareWidth, squareHeight);
@@ -120,6 +204,7 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
   const setupCanvas = useCallback(
     (canvas: HTMLCanvasElement, width: number, height: number) => {
+      // Cap DPR to reduce pixel fill cost on very high-density screens
       const dpr = window.devicePixelRatio || 1;
       canvas.width = width * dpr;
       canvas.height = height * dpr;
@@ -160,6 +245,19 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
     let animationFrameId: number;
     let gridParams: ReturnType<typeof setupCanvas>;
 
+    const scrollRef = { timer: 0 as any };
+    let isScrolling = false;
+
+    const onScroll = () => {
+      isScrolling = true;
+      clearTimeout(scrollRef.timer);
+      scrollRef.timer = setTimeout(() => {
+        isScrolling = false;
+      }, 120);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     const updateCanvasSize = () => {
       const newWidth = width || container.clientWidth;
       const newHeight = height || container.clientHeight;
@@ -182,12 +280,29 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
     updateCanvasSize();
 
-    let lastTime = 0;
+    // Throttle animation to a target FPS to reduce CPU/painter cost during scroll
+    const TARGET_FPS = 18;
+    const FRAME_INTERVAL = 1000 / TARGET_FPS;
+    let lastDraw = performance.now();
     const animate = (time: number) => {
-      if (!isInView || !shouldAnimate) return;
+      if (!isInView || !shouldAnimate) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
 
-      const deltaTime = (time - lastTime) / 1000;
-      lastTime = time;
+      // Skip drawing while user is actively scrolling
+      if (isScrolling) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      if (time - lastDraw < FRAME_INTERVAL) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      const deltaTime = (time - lastDraw) / 1000;
+      lastDraw = time;
 
       updateSquares(gridParams.squares, deltaTime);
       drawGrid(
@@ -226,13 +341,15 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(scrollRef.timer);
     };
   }, [setupCanvas, updateSquares, drawGrid, width, height, isInView, shouldAnimate]);
 
   return (
     <div
       ref={containerRef}
-      className={cn(`h-full w-full ${className}`)}
+      className={cn(`h-full w-full ${className || ""}`)}
       {...props}
     >
       <canvas
@@ -246,3 +363,5 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
     </div>
   );
 };
+
+export default FlickeringGrid;

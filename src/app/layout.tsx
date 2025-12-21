@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ChatbotWidget } from "@/components/chatbot-widget";
+import ASMRStaticBackground from '@/components/ui/asmr-static-background';
+import TechSolsticeNavbar from '@/components/navbar';
+import { Footer } from '@/components/footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,10 +28,33 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
-        {children}
+        {/* Background layer - lowest z-index */}
+        <ASMRStaticBackground />
+
+        {/* Global sticky navbar - high z-index to stay on top */}
+        <div className="relative z-50">
+          <TechSolsticeNavbar />
+        </div>
+
+        {/* Main content area - medium z-index, reserve space for navbar */}
+        <div className="relative z-10 pt-20">
+          {children}
+        </div>
+
+        {/* Footer at the bottom */}
+        <div className="relative z-10">
+          <Footer />
+        </div>
+
+        {/* Chatbot widget - highest z-index */}
         <ChatbotWidget />
       </body>
     </html>
