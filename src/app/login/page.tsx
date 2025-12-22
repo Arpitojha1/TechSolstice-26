@@ -9,7 +9,7 @@ export default function LoginPage() {
   const handleLogin = async (provider: 'google' | 'azure') => {
     setLoading(true)
     const supabase = createClient()
-    
+
     // Redirects to the callback route we will create next
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
@@ -25,10 +25,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-black px-6 py-12 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-transparent px-6 py-12 text-white">
+      <div className="absolute inset-0 -z-10 bg-transparent" />
       {/* Container - Constrained for tablets/desktop, full width for mobile */}
       <div className="w-full max-w-sm space-y-8">
-        
+
         {/* Header Section */}
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight text-blue-500">
@@ -41,7 +42,7 @@ export default function LoginPage() {
 
         {/* Buttons Section - Stacking vertically for mobile */}
         <div className="mt-8 space-y-4">
-          
+
           {/* GOOGLE BUTTON */}
           <button
             onClick={() => handleLogin('google')}
@@ -60,13 +61,13 @@ export default function LoginPage() {
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-[#0078D4] px-6 py-4 text-base font-bold text-white transition-all active:scale-95 disabled:opacity-70"
           >
-             <svg className="h-5 w-5" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z" /><path fill="#00a4ef" d="M1 11h9v9H1z" /><path fill="#7fba00" d="M11 1h9v9h-9z" /><path fill="#ffb900" d="M11 11h9v9h-9z" /></svg>
+            <svg className="h-5 w-5" viewBox="0 0 21 21"><path fill="#f25022" d="M1 1h9v9H1z" /><path fill="#00a4ef" d="M1 11h9v9H1z" /><path fill="#7fba00" d="M11 1h9v9h-9z" /><path fill="#ffb900" d="M11 11h9v9h-9z" /></svg>
             Continue with Microsoft
             {loading && <span className="absolute right-4 animate-spin">⚪</span>}
           </button>
-          
+
           <p className="text-center text-xs text-gray-500 pt-4">
-             Note: Manipal Students use Microsoft Login. <br/> Guests use Google.
+            Note: Manipal Students use Microsoft Login. <br /> Guests use Google.
           </p>
         </div>
       </div>

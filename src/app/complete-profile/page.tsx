@@ -13,7 +13,7 @@ export default function CompleteProfile() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
-    
+
     setLoading(true)
 
     try {
@@ -27,16 +27,16 @@ export default function CompleteProfile() {
       // Upsert the profile in DB (insert if not exists, update if exists)
       // Get the auth provider from user metadata
       const authProvider = user.app_metadata?.provider === 'azure' ? 'microsoft' : (user.app_metadata?.provider || 'google')
-      
+
       const { error } = await supabase
         .from('profiles')
-        .upsert({ 
-          id: user.id, 
+        .upsert({
+          id: user.id,
           full_name: name.trim(),
           email: user.email,
           auth_provider: authProvider
-        }, { 
-          onConflict: 'id' 
+        }, {
+          onConflict: 'id'
         })
 
       if (error) {
@@ -44,8 +44,8 @@ export default function CompleteProfile() {
         alert('Error saving name: ' + error.message)
         setLoading(false)
       } else {
-        router.refresh() 
-        router.push('/passes') 
+        router.refresh()
+        router.push('/passes')
       }
     } catch (err) {
       console.error('Unexpected error:', err)
@@ -55,7 +55,8 @@ export default function CompleteProfile() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-6 text-white">
+    <div className="flex min-h-screen items-center justify-center bg-transparent px-6 text-white relative">
+      <div className="absolute inset-0 -z-10 bg-transparent" />
       <div className="w-full max-w-sm">
         <h1 className="mb-2 text-3xl font-bold text-blue-500">Almost there!</h1>
         <p className="mb-8 text-gray-400">

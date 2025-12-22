@@ -1,10 +1,16 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import { FlickeringGrid } from "./ui/flickering-grid";
+import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Icons } from "./ui/icons";
 import { useEffect, useRef, useState } from "react";
+
+// Dynamically load the responsive flicker component on client only
+const FlickeringGridResponsiveLazy = dynamic(
+  () => import("./ui/flickering-grid").then((m) => m.FlickeringGridResponsive),
+  { ssr: false }
+);
 
 export const siteConfig = {
   hero: {
@@ -93,94 +99,60 @@ export const Footer = () => {
       {/* Only show FlickeringGrid on tablet and larger devices */}
       {isTabletOrLarger && (
         <div className="w-full h-80 md:h-96 lg:h-[600px] relative mt-12 sm:mt-16 md:mt-24 z-0">
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent to-black z-10 from-20% sm:from-25% md:from-30%" />
-          <div className="absolute inset-0 mx-3 sm:mx-6">
-            <FlickeringGridResponsive
-              text={tablet ? "Solstice'26" : "TechSolstice'26"}
-              baseFontSize={tablet ? 90 : 140}
-              className="h-full w-full"
-              squareSize={3}
-              gridGap={tablet ? 3 : 4}
-              color="#6B7280"
-              maxOpacity={0.4}
-              flickerChance={0.15}
-            />
-          </div>
+          {/* solid black background layer beneath the flicker */}
+          <div className="absolute inset-0 bg-black z-0" />
+          {/* flicker container - we lazy-load the flicker when this container enters the viewport */}
+          <FlickerOnView
+            text={tablet ? "Solstice'26" : "TechSolstice'26"}
+            baseFontSize={tablet ? 90 : 140}
+          />
         </div>
       )}
     </footer>
   );
 };
 
-/**
- * Responsive wrapper around FlickeringGrid which measures the available width
- * and scales the fontSize down if the rendered text would overflow the container.
- */
-function FlickeringGridResponsive({
-  text,
-  baseFontSize,
-  ...props
-}: {
-  text: string
-  baseFontSize: number
-  [key: string]: any
-}) {
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [fontSize, setFontSize] = useState<number>(baseFontSize)
+function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: number }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [loadFlicker, setLoadFlicker] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return
+    const el = containerRef.current;
+    if (!el) return;
 
-    let raf = 0
+    // If already in DOM view, load immediately
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setLoadFlicker(true);
+            io.disconnect();
+            return;
+          }
+        }
+      },
+      { threshold: 0.05 }
+    );
 
-    const measure = () => {
-      const container = containerRef.current!
-      const containerWidth = container.clientWidth
+    io.observe(el);
 
-      // Create an offscreen canvas to measure text width accurately
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-
-      // Use same font stack as FlickeringGrid
-      const fontWeight = '600'
-      ctx.font = `${fontWeight} ${baseFontSize}px "Doto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`
-      const metrics = ctx.measureText(text)
-      const textWidth = metrics.width || 0
-
-      if (textWidth > containerWidth) {
-        // Scale down proportionally with a small margin
-        const scale = (containerWidth * 0.9) / textWidth
-        const newSize = Math.max(12, Math.floor(baseFontSize * scale))
-        setFontSize(newSize)
-      } else {
-        setFontSize(baseFontSize)
-      }
-    }
-
-    const onResize = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(measure)
-    }
-
-    // Initial measure
-    measure()
-
-    window.addEventListener('resize', onResize)
-
-    const ro = new ResizeObserver(onResize)
-    ro.observe(containerRef.current)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', onResize)
-      ro.disconnect()
-    }
-  }, [text, baseFontSize])
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <div ref={containerRef} className="h-full w-full">
-      <FlickeringGrid text={text} fontSize={fontSize} {...props} />
+    <div ref={containerRef} className="absolute inset-0 mx-3 sm:mx-6 z-10">
+      {loadFlicker ? (
+        <FlickeringGridResponsiveLazy
+          text={text}
+          baseFontSize={baseFontSize}
+          className="h-full w-full"
+          squareSize={3}
+          gridGap={3}
+          color="#6B7280"
+          maxOpacity={0.4}
+          flickerChance={0.15}
+        />
+      ) : null}
     </div>
-  )
+  );
 }

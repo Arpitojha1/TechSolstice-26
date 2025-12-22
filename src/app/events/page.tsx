@@ -47,12 +47,13 @@ const EventsPage = async ({
     .filter((event) => event.name.toLowerCase().includes(searchTerm));
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-gray-900 via-black to-gray-900 text-white relative overflow-hidden">
-      {/* Starfield Background */}
-      {/* <StarfieldBackground /> */}
-
+    <div className="min-h-screen w-full">
       {/* Client Component handles filtering UI and display */}
-      <Suspense fallback={<div className="p-8">Loading events...</div>}>
+      <Suspense fallback={
+        <div className="flex items-center justify-center p-8">
+          <div className="text-white text-lg">Loading events...</div>
+        </div>
+      }>
         <EventsClient
           initialEvents={filteredEvents}
           initialCategory={category}

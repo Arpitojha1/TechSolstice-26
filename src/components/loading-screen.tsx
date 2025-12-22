@@ -12,39 +12,108 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
   const [isComplete, setIsComplete] = useState(false)
 
   useEffect(() => {
-    // Smooth progress animation
-    const duration = minDuration
-    const steps = 60 // 60 frames for smooth animation
-    const interval = duration / steps
-    let currentStep = 0
+    let mounted = true
+    const startTime = Date.now()
 
-    const progressTimer = setInterval(() => {
-      currentStep++
-      const newProgress = Math.min((currentStep / steps) * 100, 100)
-      setProgress(newProgress)
+    // Track actual loading states
+    const loadingStates = {
+      fonts: false,
+      document: false,
+      images: false
+    }
 
-      if (newProgress >= 100) {
-        clearInterval(progressTimer)
-        setIsComplete(true)
-        // Small delay before fade out
+    const updateProgress = () => {
+      if (!mounted) return
+      
+      const loaded = Object.values(loadingStates).filter(Boolean).length
+      const total = Object.keys(loadingStates).length
+      const actualProgress = (loaded / total) * 100
+      
+      // Smooth progress updates
+      setProgress(prev => {
+        const diff = actualProgress - prev
+        return prev + Math.min(diff * 0.3, 10)
+      })
+
+      if (actualProgress >= 100) {
+        const elapsed = Date.now() - startTime
+        const remaining = Math.max(0, minDuration - elapsed)
+        
         setTimeout(() => {
-          onLoadingComplete()
-        }, 300)
+          if (!mounted) return
+          setProgress(100)
+          setIsComplete(true)
+          setTimeout(() => {
+            if (!mounted) return
+            onLoadingComplete()
+          }, 300)
+        }, remaining)
       }
-    }, interval)
+    }
 
-    return () => clearInterval(progressTimer)
+    // Wait for fonts
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        loadingStates.fonts = true
+        updateProgress()
+      })
+    } else {
+      loadingStates.fonts = true
+    }
+
+    // Wait for DOM
+    if (document.readyState === 'complete') {
+      loadingStates.document = true
+    } else {
+      window.addEventListener('load', () => {
+        loadingStates.document = true
+        updateProgress()
+      })
+    }
+
+    // Wait for images (check after a small delay to let page render)
+    const checkImages = () => {
+      const images = Array.from(document.images)
+      if (images.length === 0) {
+        loadingStates.images = true
+        updateProgress()
+        return
+      }
+
+      Promise.all(
+        images.map(img => {
+          if (img.complete) return Promise.resolve()
+          return new Promise(resolve => {
+            img.onload = () => resolve(undefined)
+            img.onerror = () => resolve(undefined) // Don't block on errors
+          })
+        })
+      ).then(() => {
+        loadingStates.images = true
+        updateProgress()
+      })
+    }
+
+    // Start checking images after a brief delay
+    setTimeout(checkImages, 100)
+
+    // Progressive updates
+    const interval = setInterval(updateProgress, 100)
+
+    return () => {
+      mounted = false
+      clearInterval(interval)
+    }
   }, [minDuration, onLoadingComplete])
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
-        isComplete ? 'opacity-0' : 'opacity-100'
-      }`}
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md transition-opacity duration-500 ${isComplete ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
     >
       {/* Logo or Title */}
       <div className="mb-8 text-center">
-        <h1 
+        <h1
           className="text-5xl sm:text-6xl md:text-7xl font-bold bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent"
           style={{ fontFamily: '"Doto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
         >

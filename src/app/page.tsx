@@ -1,38 +1,29 @@
 "use client";
 
 import { HeroRobot } from "../components/hero-robot";
-import { Footer } from "../components/footer";
-import TechSolsticeNavbar from "../components/navbar";
 import { LoadingScreen } from "../components/loading-screen";
 import { useState, useEffect } from "react";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      setShowContent(true);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
 
   return (
     <>
-      {isLoading && <LoadingScreen onLoadingComplete={() => {}} minDuration={1500} />}
+      {isLoading && <LoadingScreen onLoadingComplete={handleLoadingComplete} minDuration={2000} />}
 
-      {!isLoading && <TechSolsticeNavbar />}
-
-      <main
-        className={`w-full max-w-full overflow-x-hidden bg-black transition-opacity duration-700 ${
-          showContent ? "opacity-100" : "opacity-0"
-        }`}
+      <div
+        className={`w-full transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"
+          }`}
       >
+        {/* Hero section with robot - no background here, let global bg show */}
         <HeroRobot />
 
-        <div className="min-h-screen bg-gradient-to-b from-black to-neutral-900 p-4 sm:p-6 md:p-10">
+        {/* Content section with gradient overlay to separate from hero */}
+        <div className="min-h-screen bg-gradient-to-b from-black/80 via-neutral-900/80 to-black/80 backdrop-blur-sm p-4 sm:p-6 md:p-10">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
             Welcome to TechSolstice'26
           </h2>
@@ -40,9 +31,7 @@ export default function Home() {
             Explore, innovate, and create with us.
           </p>
         </div>
-
-        <Footer />
-      </main>
+      </div>
     </>
   );
 }

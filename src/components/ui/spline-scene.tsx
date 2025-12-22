@@ -58,7 +58,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
     <div ref={containerRef} className={className} style={{ touchAction: 'pan-y' }}>
       {shouldLoad ? (
         <Suspense fallback={
-          <div className="h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+          <div className="h-full w-full bg-transparent flex items-center justify-center">
             <div className="text-center text-white/20">
               <div className="text-lg font-semibold mb-2">Loading 3D Scene...</div>
               <div className="animate-spin w-8 h-8 border-2 border-white/20 border-t-white/40 rounded-full mx-auto"></div>
@@ -71,7 +71,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
           />
         </Suspense>
       ) : (
-        <div className="h-full w-full bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
+        <div className="h-full w-full bg-transparent flex items-center justify-center">
           <div className="text-center text-white/10">
             <div className="text-lg font-semibold mb-2">3D Scene Ready</div>
             <div className="text-sm">Scroll to load</div>
