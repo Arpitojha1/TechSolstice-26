@@ -71,6 +71,11 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
       })
     }
 
+    // Prevent page scroll and mark loading active so other UI can hide
+    const previousOverflow = document.documentElement.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.dataset.loading = 'true'
+
     // Wait for images (check after a small delay to let page render)
     const checkImages = () => {
       const images = Array.from(document.images)
@@ -80,18 +85,48 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
         return
       }
 
-      Promise.all(
-        images.map(img => {
-          if (img.complete) return Promise.resolve()
-          return new Promise(resolve => {
-            img.onload = () => resolve(undefined)
-            img.onerror = () => resolve(undefined) // Don't block on errors
-          })
-        })
-      ).then(() => {
+      let resolved = false
+      const safeResolve = () => {
+        if (resolved) return
+        resolved = true
         loadingStates.images = true
         updateProgress()
+      }
+
+      // If images are already complete, resolve quickly
+      if (images.every(img => img.complete)) {
+        safeResolve()
+        return
+      }
+
+      // Otherwise wait for onload/onerror but cap wait with timeout to avoid stuck state
+      const watchers: Array<() => void> = []
+      images.forEach(img => {
+        if (img.complete) return
+        const onLoad = () => {
+          img.removeEventListener('load', onLoad)
+          img.removeEventListener('error', onLoad)
+          // if all images complete, resolve
+          if (Array.from(document.images).every(i => i.complete)) safeResolve()
+        }
+        img.addEventListener('load', onLoad)
+        img.addEventListener('error', onLoad)
+        watchers.push(() => {
+          img.removeEventListener('load', onLoad)
+          img.removeEventListener('error', onLoad)
+        })
       })
+
+      // Timeout fallback: don't block loading indefinitely on images
+      const imgTimeout = setTimeout(() => {
+        watchers.forEach(w => w())
+        safeResolve()
+      }, 1200)
+
+      // Ensure we clear timeout when resolved by other means
+      const stop = () => clearTimeout(imgTimeout)
+        // store to cleanup later via closure
+        ; (checkImages as any)._stop = stop
     }
 
     // Start checking images after a brief delay
@@ -100,9 +135,26 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
     // Progressive updates
     const interval = setInterval(updateProgress, 100)
 
+    // Safety: overall maximum wait so loading never hangs indefinitely
+    const overallTimeout = setTimeout(() => {
+      if (!mounted) return
+      loadingStates.fonts = true
+      loadingStates.document = true
+      loadingStates.images = true
+      updateProgress()
+    }, Math.max(minDuration, 8000))
+
     return () => {
       mounted = false
       clearInterval(interval)
+      clearTimeout(overallTimeout)
+      // restore document styles
+      document.documentElement.style.overflow = previousOverflow || ''
+      delete document.documentElement.dataset.loading
+      // stop any image timeout
+      try {
+        ; (checkImages as any)._stop?.()
+      } catch { }
     }
   }, [minDuration, onLoadingComplete])
 

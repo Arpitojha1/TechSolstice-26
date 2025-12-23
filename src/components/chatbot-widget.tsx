@@ -105,7 +105,7 @@ export function ChatbotWidget() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-110"
+        className="chatbot-widget fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-linear-to-r from-purple-600 to-blue-600 shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-110"
         aria-label="Open chatbot"
       >
         <Bot className="h-6 w-6 text-white" />
@@ -118,9 +118,9 @@ export function ChatbotWidget() {
 
   // Fullscreen chat on mobile, large panel on desktop
   return (
-    <div className="fixed inset-0 md:inset-auto md:bottom-6 md:right-6 md:w-[400px] md:h-[600px] z-50 flex flex-col bg-white dark:bg-gray-900 md:rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800">
+    <div className="chatbot-widget fixed inset-0 md:inset-auto md:bottom-6 md:right-6 md:w-100 md:h-150 z-50 flex flex-col bg-white dark:bg-gray-900 md:rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-600 to-blue-600">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-linear-to-r from-purple-600 to-blue-600">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
             <Bot className="h-6 w-6 text-white" />
@@ -165,8 +165,8 @@ export function ChatbotWidget() {
           >
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-2 ${message.role === 'user'
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                ? 'bg-linear-to-r from-purple-600 to-blue-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                 }`}
             >
               <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -220,7 +220,7 @@ export function ChatbotWidget() {
           <Button
             onClick={sendMessage}
             disabled={!input.trim() || isLoading}
-            className="rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            className="rounded-full bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             size="icon"
           >
             {isLoading ? (

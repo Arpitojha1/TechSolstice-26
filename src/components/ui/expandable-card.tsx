@@ -67,14 +67,14 @@ export function ExpandableCard({
         {active && (
           <div
             className={cn(
-              "fixed inset-0 grid place-items-center z-[100] sm:mt-16 before:pointer-events-none",
+              "fixed inset-0 grid place-items-center z-100 sm:mt-16 before:pointer-events-none",
             )}
           >
             <motion.div
               layoutId={`card-${title}-${id}`}
               ref={cardRef}
               className={cn(
-                "w-full max-w-[850px] h-full flex flex-col overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] sm:rounded-t-3xl bg-white/5 shadow-sm relative",
+                "w-full max-w-212.5 h-full flex flex-col overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] sm:rounded-t-3xl bg-white/5 shadow-sm relative",
                 classNameExpanded,
               )}
               {...props}

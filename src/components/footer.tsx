@@ -2,8 +2,9 @@
 
 import { ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { Icons } from "./ui/icons";
 import { useEffect, useRef, useState } from "react";
 
 // Dynamically load the responsive flicker component on client only
@@ -59,10 +60,12 @@ export const Footer = () => {
     <footer id="footer" className="w-full pb-0">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between p-6 sm:p-8 md:p-10 gap-8 md:gap-4">
         <div className="flex flex-col items-start justify-start gap-y-4 max-w-xs mx-0">
-          <a href="#" className="flex items-center gap-2">
-            <Icons.logo className="size-6 sm:size-8 text-white" />
-            <p className="text-lg sm:text-xl font-semibold text-white">TechSolstice</p>
-          </a>
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Image src="/logos/logo.png" alt="TechSolstice logo" width={40} height={40} className="block" />
+              <Image src="/logos/text-logo.png" alt="TechSolstice wordmark" width={140} height={36} className="hidden sm:block" />
+            </div>
+          </Link>
           <p className="tracking-tight text-neutral-300 font-medium text-sm sm:text-base">
             {siteConfig.hero.description}
           </p>
