@@ -8,7 +8,7 @@ export function HeroRobot() {
     <section className="relative h-screen w-full overflow-hidden">
       {/* Dark base to contrast against background particles */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-      
+
       {/* Spline 3D Scene - Touch-enabled for mobile */}
       <div className="absolute inset-0 z-10">
         <SplineScene

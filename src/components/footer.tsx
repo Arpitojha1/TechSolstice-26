@@ -79,7 +79,7 @@ export const Footer = () => {
                     key={link.id}
                     className="group inline-flex cursor-pointer items-center justify-start gap-1 text-[13px] sm:text-[15px]/snug"
                   >
-                    <a 
+                    <a
                       href={link.url}
                       className="text-neutral-400 hover:text-white transition-colors no-underline"
                     >
@@ -95,7 +95,7 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Only show FlickeringGrid on tablet and larger devices */}
       {isTabletOrLarger && (
         <div className="w-full h-80 md:h-96 lg:h-[600px] relative mt-12 sm:mt-16 md:mt-24 z-0">

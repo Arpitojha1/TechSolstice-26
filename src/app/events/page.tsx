@@ -27,10 +27,10 @@ const EventsPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const params = await searchParams;
-  
+
   const allEvents = await getEvents();
   console.log("EVENTS ON CLIENT : ", allEvents);
-  
+
 
   const category =
     typeof params?.category === "string"

@@ -9,11 +9,11 @@ export default function AboutPage() {
         </h1>
         <div className="space-y-6 text-neutral-300">
           <p className="text-lg sm:text-xl leading-relaxed">
-            Welcome to TechSolstice — the premier technical festival that brings together innovators, 
+            Welcome to TechSolstice — the premier technical festival that brings together innovators,
             creators, and tech enthusiasts from across the region.
           </p>
           <p className="text-base sm:text-lg leading-relaxed">
-            Our mission is to foster innovation, collaboration, and creativity through cutting-edge 
+            Our mission is to foster innovation, collaboration, and creativity through cutting-edge
             competitions, workshops, and networking opportunities.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
