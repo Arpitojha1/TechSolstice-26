@@ -1,4 +1,3 @@
-// ui/Teamregform.tsx
 "use client";
 
 import React, { useState } from "react";
@@ -27,7 +26,6 @@ export default function Teamregform({
   useEmails = true,
   onBack,
 }: TeamregformProps) {
-  // Frontend-only (mock) mode: no backend endpoints used.
 
   const [teamName, setTeamName] = useState("");
   const [members, setMembers] = useState<string[]>(
@@ -38,7 +36,6 @@ export default function Teamregform({
     useState<{ ok: boolean; message?: string } | null>(null);
   const [isPending, setIsPending] = useState(false);
 
-  // Initialize leader email locally for frontend-only testing
   React.useEffect(() => {
     if (captainName) setLeaderEmail(captainName);
   }, [captainName]);

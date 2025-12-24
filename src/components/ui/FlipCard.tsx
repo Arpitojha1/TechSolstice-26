@@ -1,4 +1,4 @@
-// components/FlipCard.tsx
+
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ export function FlipCard({ front, back }: FlipCardProps) {
             isFlipped ? "transform-[rotateY(180deg)]" : ""
           }`}
         >
-          {/* FRONT */}
           <div
             className="absolute inset-0 backface-hidden"
           >
@@ -27,7 +26,6 @@ export function FlipCard({ front, back }: FlipCardProps) {
             <Button onClick={() => setIsFlipped(true)} size="lg" className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-bold">Registration</Button>
           </div>
 
-          {/* BACK */}
           <div
             className="absolute inset-0 backface-hidden transform-[rotateY(180deg)]"
           >
