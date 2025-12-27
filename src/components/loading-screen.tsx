@@ -24,11 +24,11 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
 
     const updateProgress = () => {
       if (!mounted) return
-      
+
       const loaded = Object.values(loadingStates).filter(Boolean).length
       const total = Object.keys(loadingStates).length
       const actualProgress = (loaded / total) * 100
-      
+
       // Smooth progress updates
       setProgress(prev => {
         const diff = actualProgress - prev
@@ -38,7 +38,7 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 1500 }: Loading
       if (actualProgress >= 100) {
         const elapsed = Date.now() - startTime
         const remaining = Math.max(0, minDuration - elapsed)
-        
+
         setTimeout(() => {
           if (!mounted) return
           setProgress(100)

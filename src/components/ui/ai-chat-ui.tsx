@@ -83,8 +83,7 @@ const ColorOrb: React.FC<OrbProps> = ({ dimension = "192px", className, tones })
 
 // --- MAIN CHAT PANEL ---
 
-const OPEN_WIDTH = 380
-const OPEN_HEIGHT = 600
+const DESKTOP_OPEN_WIDTH = 380
 const CLOSED_SIZE = 48
 
 export function MorphChatPanel({ messages, isLoading, onSendMessage, isOpen, setIsOpen }: ChatUIProps) {
@@ -92,6 +91,24 @@ export function MorphChatPanel({ messages, isLoading, onSendMessage, isOpen, set
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = React.useRef<HTMLDivElement>(null)
   const [inputValue, setInputValue] = React.useState("")
+  const [width, setWidth] = React.useState(DESKTOP_OPEN_WIDTH)
+
+  // 1. DYNAMIC WIDTH CALCULATION
+  React.useEffect(() => {
+    const updateWidth = () => {
+      // On mobile, subtract margins (32px total for 16px left/right)
+      // On desktop, cap at DESKTOP_OPEN_WIDTH
+      const newWidth = Math.min(window.innerWidth - 32, DESKTOP_OPEN_WIDTH)
+      setWidth(newWidth)
+    }
+
+    // Run immediately
+    updateWidth()
+
+    // Run on resize
+    window.addEventListener("resize", updateWidth)
+    return () => window.removeEventListener("resize", updateWidth)
+  }, [])
 
   // Auto-scroll
   React.useEffect(() => {
@@ -123,10 +140,8 @@ export function MorphChatPanel({ messages, isLoading, onSendMessage, isOpen, set
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-end justify-end">
-      {/* REMOVED <style jsx> BLOCK TO FIX HYDRATION ERROR 
-         Using Tailwind classes below instead.
-      */}
+    // 2. ADJUSTED PARENT MARGINS: bottom-4 right-4 on mobile, bottom-6 right-6 on desktop
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-end justify-end">
 
       <motion.div
         ref={wrapperRef}
@@ -137,8 +152,10 @@ export function MorphChatPanel({ messages, isLoading, onSendMessage, isOpen, set
         )}
         initial={false}
         animate={{
-          width: isOpen ? OPEN_WIDTH : CLOSED_SIZE,
-          height: isOpen ? OPEN_HEIGHT : CLOSED_SIZE,
+          // 3. USE DYNAMIC WIDTH STATE
+          width: isOpen ? width : CLOSED_SIZE,
+          // 4. DYNAMIC HEIGHT (Optional: Make it shorter on very small screens)
+          height: isOpen ? Math.min(600, typeof window !== 'undefined' ? window.innerHeight - 80 : 600) : CLOSED_SIZE,
           borderRadius: isOpen ? 24 : 999,
         }}
         transition={{
@@ -186,7 +203,6 @@ export function MorphChatPanel({ messages, isLoading, onSendMessage, isOpen, set
               {/* Messages Area */}
               <div className={cn(
                 "flex-1 overflow-y-auto pt-14 px-4 pb-2",
-                // TAILWIND ARBITRARY VALUES FOR HIDING SCROLLBAR
                 "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
               )}>
                 {messages.length === 0 && (
