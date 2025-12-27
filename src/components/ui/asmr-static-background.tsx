@@ -60,7 +60,8 @@ const ASMRStaticBackground: React.FC = () => {
         this.vx = (Math.random() - 0.5) * 0.2;
         this.vy = (Math.random() - 0.5) * 0.2;
         const isGlass = Math.random() > 0.7;
-        this.color = isGlass ? "240, 245, 255" : "80, 80, 85";
+        // Cyberpunk palette: glassy pink highlights vs deeper neon red shards
+        this.color = isGlass ? "255,160,180" : "255,20,80";
         this.alpha = Math.random() * 0.35 + 0.08;
         this.rotation = Math.random() * Math.PI * 2;
         this.rotationSpeed = (Math.random() - 0.5) * 0.05;
@@ -105,12 +106,12 @@ const ASMRStaticBackground: React.FC = () => {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
 
-        const finalAlpha = Math.min(this.alpha + this.frictionGlow, 0.9);
+        const finalAlpha = Math.min(this.alpha + this.frictionGlow, 0.98);
         ctx.fillStyle = `rgba(${this.color}, ${finalAlpha})`;
 
-        if (this.frictionGlow > 0.3) {
-          ctx.shadowBlur = 8 * this.frictionGlow;
-          ctx.shadowColor = `rgba(180, 220, 255, ${this.frictionGlow})`;
+        if (this.frictionGlow > 0.2) {
+          ctx.shadowBlur = 18 * this.frictionGlow;
+          ctx.shadowColor = `rgba(255,60,140, ${Math.min(this.frictionGlow * 1.2, 0.95)})`;
         } else {
           ctx.shadowBlur = 0;
         }
@@ -145,10 +146,8 @@ const ASMRStaticBackground: React.FC = () => {
     };
 
     const render = () => {
-      // slight motion blur for depth
-      // Reduce the global wash so the page background and navbar blend more seamlessly
-      // Keep a very subtle wash for depth on large screens
-      ctx.fillStyle = isMobile ? "rgba(10,10,12,0.06)" : "rgba(10,10,12,0.04)";
+      // subtle red wash for cyberpunk atmosphere (shortens trails)
+      ctx.fillStyle = isMobile ? "rgba(25,6,12,0.06)" : "rgba(25,6,12,0.04)";
       ctx.fillRect(0, 0, width, height);
 
       // Draw particles (limit per frame for performance on mobile)
@@ -197,7 +196,11 @@ const ASMRStaticBackground: React.FC = () => {
 
   return (
     <div className="fixed inset-0 -z-10 pointer-events-none">
-      <canvas ref={canvasRef} className="w-full h-full block" />
+      <canvas
+        ref={canvasRef}
+        className="w-full h-full block"
+        style={{ transform: "translateZ(0)", filter: "blur(2px)" }}
+      />
     </div>
   );
 };
