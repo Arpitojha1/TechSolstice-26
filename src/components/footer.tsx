@@ -39,78 +39,172 @@ export const siteConfig = {
 export type SiteConfig = typeof siteConfig;
 
 export const Footer = () => {
-  const isTabletOrLarger = useMediaQuery("(min-width: 768px)"); // 768px = tablet breakpoint
-  const tablet = useMediaQuery("(max-width: 1024px)");
+  const isTabletOrLarger = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   return (
     <footer
       id="footer"
-      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 pt-16 relative z-10 overflow-hidden"
+      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10 overflow-hidden"
     >
-      {/* subtle centered glow above the top border to separate footer from content */}
+      {/* Subtle top border glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 pointer-events-none">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-500/20 to-transparent opacity-70" />
       </div>
 
-      <div className="w-full relative z-20 py-6 md:py-10">
-        {/* Left content: full-width on mobile, pinned to left edge on md+ */}
-        <div className="w-full md:absolute md:left-0 md:top-0 md:bottom-0 md:flex md:items-start md:pl-0">
-          <div className="px-6 md:px-[5px]">
-            <h2 className="text-3xl md:text-4xl font-semibold text-white">{siteConfig.contactData.eventName}</h2>
-            <div className="mt-2 text-sm text-neutral-400">
-              {siteConfig.contactData.address.map((l, i) => (
-                <div key={i}>{l}</div>
+      {/* Main Content Container */}
+      <div className="w-full relative z-20 px-4 sm:px-6 lg:px-8 py-10 md:py-14 lg:py-16">
+
+        {/* Mobile Layout (< 768px) */}
+        <div className="block md:hidden space-y-8">
+          {/* Logos Section - Mobile */}
+          <div className="space-y-6">
+            {/* Horizontal Logos */}
+            <div className="flex items-center justify-center gap-4">
+              <Image
+                src="/logos/logo.png"
+                alt="TechSolstice Logo"
+                width={80}
+                height={80}
+                className="h-20 w-auto"
+              />
+              <Image
+                src="/logos/font-logo.png"
+                alt="TechSolstice Wordmark"
+                width={200}
+                height={60}
+                className="h-18 w-auto translate-y-1"
+              />
+            </div>
+
+            {/* Address below logos */}
+            <div className="text-center text-sm text-neutral-400 space-y-0.5">
+              {siteConfig.contactData.address.map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px w-16 mx-auto bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
+
+          {/* Contact Info - Mobile */}
+          <div className="text-center space-y-5">
+            <h3 className="text-lg font-semibold text-white">Contact Us</h3>
+
+            {/* Email */}
+            <a
+              href={`mailto:${siteConfig.contactData.generalEmail}`}
+              className="flex items-center justify-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors"
+            >
+              <Mail className="h-4 w-4 flex-shrink-0" />
+              <span>{siteConfig.contactData.generalEmail}</span>
+            </a>
+
+            {/* Contacts Grid */}
+            <div className="grid grid-cols-1 gap-4 pt-2">
+              {siteConfig.contactData.contacts.map((contact, idx) => (
+                <div key={idx} className="space-y-1.5">
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="flex items-center justify-center gap-2 text-white font-medium hover:text-neutral-300 transition-colors"
+                  >
+                    <Phone className="h-4 w-4 text-neutral-400" />
+                    <span>{contact.phone}</span>
+                  </a>
+                  <div className="text-sm text-neutral-400">
+                    {contact.name} <span className="text-neutral-500">•</span> {contact.role}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Center Logos: centered within page width */}
-        <div className="mx-auto w-full max-w-7xl flex items-center justify-center py-4 hidden md:flex">
-          <div className="flex items-center gap-8">
-            <Image src="/logos/logo.png" alt="ts-logo" width={160} height={160} className="h-28 md:h-32 lg:h-36 w-auto" />
-            <Image src="/logos/font-logo.png" alt="ts-wordmark" width={320} height={96} className="h-20 md:h-24 lg:h-28 w-auto" />
-          </div>
-        </div>
+        {/* Desktop Layout (>= 768px) */}
+        <div className="hidden md:block">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-8 lg:gap-16 items-start">
 
-        {/* Right content: full-width on mobile, pinned to right edge on md+ */}
-        <div className="w-full md:absolute md:right-0 md:top-0 md:bottom-0 md:flex md:items-start md:pr-0">
-          <div className="px-6 md:px-[5px] w-full">
-            <div className="text-right">
-              <h3 className="text-xl font-semibold text-white">Contact Us</h3>
-              <div className="mt-2 text-sm text-neutral-400 w-full max-w-sm ml-auto">
-                <div className="flex items-center justify-end gap-2"><Mail className="h-4 w-4 text-neutral-400" /> <span className="text-right">{siteConfig.contactData.generalEmail}</span></div>
+              {/* Left: Logos + Address */}
+              <div className="space-y-5 lg:space-y-6">
+                {/* Horizontal Logos */}
+                <div className="flex items-center gap-3 lg:gap-4 -ml-2">
+                  <Image
+                    src="/logos/logo.png"
+                    alt="TechSolstice Logo"
+                    width={isDesktop ? 100 : 80}
+                    height={isDesktop ? 100 : 80}
+                    className={`${isDesktop ? 'h-24' : 'h-20'} w-auto`}
+                  />
+                  <Image
+                    src="/logos/font-logo.png"
+                    alt="TechSolstice Wordmark"
+                    width={isDesktop ? 200 : 180}
+                    height={isDesktop ? 60 : 54}
+                    className={`${isDesktop ? 'h-18' : 'h-16'} w-auto translate-y-1`}
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="text-sm lg:text-base text-neutral-400 space-y-1 leading-relaxed">
+                  {siteConfig.contactData.address.map((line, i) => (
+                    <div key={i}>{line}</div>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-end gap-8 w-full max-w-md ml-auto">
-                {siteConfig.contactData.contacts.map((c, idx) => (
-                  <div key={idx} className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Phone className="h-4 w-4 text-neutral-400" />
-                      <span className="text-white font-medium">{c.phone}</span>
+              {/* Center: Vertical Divider */}
+              <div className="h-full w-px bg-gradient-to-b from-transparent via-neutral-700 to-transparent" />
+
+              {/* Right: Contact Info */}
+              <div className="space-y-6 lg:space-y-7 text-right">
+                <h3 className="text-xl lg:text-2xl font-semibold text-white">Contact Us</h3>
+
+                {/* Email */}
+                <a
+                  href={`mailto:${siteConfig.contactData.generalEmail}`}
+                  className="flex items-center justify-end gap-2.5 text-sm lg:text-base text-neutral-400 hover:text-white transition-colors group"
+                >
+                  <span>{siteConfig.contactData.generalEmail}</span>
+                  <Mail className="h-4 w-4 lg:h-5 lg:w-5 flex-shrink-0 group-hover:text-white transition-colors" />
+                </a>
+
+                {/* Contacts */}
+                <div className="space-y-5 lg:space-y-6 pt-1">
+                  {siteConfig.contactData.contacts.map((contact, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <a
+                        href={`tel:${contact.phone}`}
+                        className="flex items-center justify-end gap-2.5 text-white font-medium hover:text-neutral-300 transition-colors group"
+                      >
+                        <span className="text-sm lg:text-base">{contact.phone}</span>
+                        <Phone className="h-4 w-4 lg:h-5 lg:w-5 text-neutral-400 group-hover:text-white transition-colors" />
+                      </a>
+                      <div className="text-sm lg:text-base text-neutral-400">
+                        {contact.name} <span className="text-neutral-600">•</span> {contact.role}
+                      </div>
                     </div>
-                    <div className="text-sm text-neutral-400">{c.name} — {c.role}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Only show FlickeringGrid on tablet and larger devices */}
+      {/* Flickering Grid Background - Only on tablet+ */}
       {isTabletOrLarger && (
         <div
-          className="w-full h-48 md:h-[60vh] relative mt-4 md:mt-8 z-0"
+          className="w-full h-48 md:h-[50vh] lg:h-[60vh] relative mt-8 md:mt-12 z-0"
           style={{
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%)",
             maskImage: "linear-gradient(to bottom, transparent, black 20%)",
           }}
         >
-          {/* flicker container - we lazy-load the flicker when this container enters the viewport */}
           <FlickerOnView
-            text={tablet ? "Solstice'26" : "TechSolstice'26"}
-            baseFontSize={tablet ? 80 : 160}
+            text={isDesktop ? "TechSolstice'26" : "Solstice'26"}
+            baseFontSize={isDesktop ? 160 : 80}
           />
         </div>
       )}
@@ -126,7 +220,6 @@ function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: num
     const el = containerRef.current;
     if (!el) return;
 
-    // If already in DOM view, load immediately
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -141,24 +234,23 @@ function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: num
     );
 
     io.observe(el);
-
     return () => io.disconnect();
   }, []);
 
   return (
     <div ref={containerRef} className="absolute inset-0 z-10 w-full">
-      {loadFlicker ? (
+      {loadFlicker && (
         <FlickeringGridResponsiveLazy
           text={text}
           baseFontSize={baseFontSize}
           className="h-full w-full"
           squareSize={3}
           gridGap={3}
-          color="#6B7280"
+          color="#D33A4A"
           maxOpacity={0.4}
           flickerChance={0.15}
         />
-      ) : null}
+      )}
     </div>
   );
 }
