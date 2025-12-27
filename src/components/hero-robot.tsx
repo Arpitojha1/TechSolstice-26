@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { SplineScene } from "./ui/spline-scene";
+import dynamic from "next/dynamic";
+import { useMediaQuery } from "@/hooks/use-media-query";
+
+const SplineScene = dynamic(() => import("./ui/spline-scene").then((m) => m.SplineScene), { ssr: false });
 
 export function HeroRobot() {
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [fontSize, setFontSize] = useState<number>(120);
+  const isLaptopOrLarger = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     if (!containerRef.current || !titleRef.current) return;
@@ -65,13 +69,15 @@ export function HeroRobot() {
           Cover the entire hero area so the navbar blends seamlessly */}
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
 
-      {/* Spline 3D Scene - Touch-enabled for mobile */}
-      <div className="absolute inset-0 z-10">
-        <SplineScene
-          scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          className="w-full h-full touch-none"
-        />
-      </div>
+      {/* Spline 3D Scene - only render on laptop+ to avoid loading heavy assets on small screens */}
+      {isLaptopOrLarger && (
+        <div className="absolute inset-0 z-10">
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="w-full h-full touch-none"
+          />
+        </div>
+      )}
 
       {/* Centered Text Overlay - Above Spline scene */}
       <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-2 sm:px-4 md:px-6 lg:px-8">
