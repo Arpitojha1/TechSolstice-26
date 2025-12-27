@@ -20,13 +20,19 @@ export default function Home() {
         className={`w-full transition-opacity duration-700 ${isLoading ? "opacity-0" : "opacity-100"
           }`}
       >
-        {/* Hero section with robot - no background here, let global bg show */}
-        <HeroRobot />
-
-        {/* Add spacing below the robot, then the scroll-expanding video */}
-        <div className="mt-12 md:mt-20 lg:mt-28">
-          <ScrollExpansionVideo mediaSrc="/videos/logo-reveal.mp4" title="TechSolstice'26 — Reveal" scrollToExpand="Scroll to expand" />
+        {/* Hero section - ensure it takes full viewport */}
+        <div className="min-h-screen">
+          <HeroRobot />
         </div>
+
+        {/* Video section - no margin needed, it's already full height */}
+        <ScrollExpansionVideo
+          mediaSrc="/videos/logo-reveal.mp4"
+          title="TechSolstice'26 — Reveal"
+          scrollToExpand="Scroll to expand"
+        />
+
+        {/* Next section placeholder removed — global Footer is provided by layout */}
       </div>
     </>
   );
