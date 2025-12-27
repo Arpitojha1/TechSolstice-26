@@ -1,25 +1,33 @@
 /**
  * PDF Ingestion Script
- * 
- * This script processes PDF files containing event rules and fest information,
+ * * This script processes PDF files containing event rules and fest information,
  * chunks them into smaller pieces, generates embeddings, and stores them in Supabase.
- * 
- * Usage:
- *   npx tsx scripts/ingest-pdf.ts <path-to-pdf-file>
- * 
- * Prerequisites:
- *   1. Enable pgvector extension in Supabase
- *   2. Create knowledge_base table (see SQL below)
- *   3. Set GEMINI_API_KEY and Supabase credentials in .env.local
+ * * Usage:
+ * npx tsx scripts/ingest-pdf.ts <path-to-pdf-file>
+ * * Prerequisites:
+ * 1. Enable pgvector extension in Supabase
+ * 2. Create knowledge_base table (see SQL below)
+ * 3. Set GEMINI_API_KEY and Supabase credentials in .env.local
  */
+
+import * as dotenv from 'dotenv';
+import { resolve } from 'path';
+
+// 1. LOAD ENV VARS BEFORE ANYTHING ELSE
+dotenv.config({ path: resolve(process.cwd(), '.env.local') });
 
 import { readFileSync } from 'fs';
 import { parse } from 'path';
-// The `pdf-parse` package uses CommonJS; TypeScript may complain about default export.
-// @ts-ignore
-import pdf from 'pdf-parse';
 import { createClient } from '@supabase/supabase-js';
 import { generateEmbeddingsBatch } from '../src/lib/chatbot/gemini-client';
+import { createRequire } from 'module';
+
+// 2. ROBUST IMPORT FOR PDF-PARSE
+// The library behaves differently depending on the environment.
+// We force a 'require' and then unwrap the default export if needed.
+const require = createRequire(import.meta.url);
+const pdfLib = require('pdf-parse');
+const pdf = pdfLib.default || pdfLib;
 
 // Check for PDF file argument
 if (process.argv.length < 3) {
@@ -160,43 +168,39 @@ ingestPDF();
 
 /**
  * SQL to create knowledge_base table in Supabase:
- * 
- * -- Enable pgvector extension
+ * * -- Enable pgvector extension
  * CREATE EXTENSION IF NOT EXISTS vector;
- * 
- * -- Create knowledge_base table
+ * * -- Create knowledge_base table
  * CREATE TABLE IF NOT EXISTS public.knowledge_base (
- *   id BIGSERIAL PRIMARY KEY,
- *   content TEXT NOT NULL,
- *   embedding vector(768),
- *   metadata JSONB,
- *   created_at TIMESTAMPTZ DEFAULT NOW()
+ * id BIGSERIAL PRIMARY KEY,
+ * content TEXT NOT NULL,
+ * embedding vector(768),
+ * metadata JSONB,
+ * created_at TIMESTAMPTZ DEFAULT NOW()
  * );
- * 
- * -- Create index for faster vector search
+ * * -- Create index for faster vector search
  * CREATE INDEX ON public.knowledge_base USING ivfflat (embedding vector_cosine_ops)
  * WITH (lists = 100);
- * 
- * -- Create the matching function
+ * * -- Create the matching function
  * CREATE OR REPLACE FUNCTION match_knowledge_base(
- *   query_embedding vector(768),
- *   match_threshold float,
- *   match_count int
+ * query_embedding vector(768),
+ * match_threshold float,
+ * match_count int
  * )
  * RETURNS TABLE (
- *   content text,
- *   similarity float,
- *   metadata jsonb
+ * content text,
+ * similarity float,
+ * metadata jsonb
  * )
  * LANGUAGE sql STABLE
  * AS $$
- *   SELECT
- *     content,
- *     1 - (embedding <=> query_embedding) as similarity,
- *     metadata
- *   FROM knowledge_base
- *   WHERE 1 - (embedding <=> query_embedding) > match_threshold
- *   ORDER BY embedding <=> query_embedding
- *   LIMIT match_count;
+ * SELECT
+ * content,
+ * 1 - (embedding <=> query_embedding) as similarity,
+ * metadata
+ * FROM knowledge_base
+ * WHERE 1 - (embedding <=> query_embedding) > match_threshold
+ * ORDER BY embedding <=> query_embedding
+ * LIMIT match_count;
  * $$;
  */

@@ -45,7 +45,7 @@ export const Footer = () => {
   return (
     <footer
       id="footer"
-      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10 overflow-hidden"
+      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10 overflow-hidden md:max-h-[67vh]"
     >
       {/* Subtle top border glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 pointer-events-none">
@@ -53,7 +53,7 @@ export const Footer = () => {
       </div>
 
       {/* Main Content Container */}
-      <div className="w-full relative z-20 px-4 sm:px-6 lg:px-8 py-10 md:py-14 lg:py-16">
+      <div className="w-full relative z-20 px-4 sm:px-6 lg:px-8 py-10 md:py-12 lg:py-14">
 
         {/* Mobile Layout (< 768px) */}
         <div className="block md:hidden space-y-8">
@@ -196,7 +196,7 @@ export const Footer = () => {
       {/* Flickering Grid Background - Only on tablet+ */}
       {isTabletOrLarger && (
         <div
-          className="w-full h-48 md:h-[50vh] lg:h-[60vh] relative mt-8 md:mt-12 z-0"
+          className="w-full md:h-[35vh] lg:h-[40vh] relative mt-8 md:mt-10 z-0"
           style={{
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%)",
             maskImage: "linear-gradient(to bottom, transparent, black 20%)",
