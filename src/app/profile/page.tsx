@@ -2,13 +2,13 @@ import Image from "next/image";
 import { Mail, Phone, Users, BadgeCheck } from "lucide-react";
 import clsx from "clsx";
 
-/* ---------------- MOCK DATA (replace with real fetch) ---------------- */
+/* ---------------- MOCK PROFILE DATA ---------------- */
 
-const user = {
-  name: "Arpit Ojha",
-  email: "arpit.ojha@techsolstice.in",
+const profile = {
+  name: "Something ",
+  email: "Something@unkown.com",
   phone: "+91 9XXXXXXXXX",
-  avatar: "/pfp.jpg", // replace with real image
+  avatar: "/pfp.jpg",
 };
 
 const teams = [
@@ -73,8 +73,8 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               <div className="relative h-24 w-24 rounded-full overflow-hidden border border-cyan-300/40 shadow-[0_0_30px_rgba(159,246,246,0.35)]">
                 <Image
-                  src={user.avatar}
-                  alt={user.name}
+                  src={profile.avatar}
+                  alt={profile.name}
                   fill
                   className="object-cover"
                 />
@@ -82,16 +82,16 @@ export default function ProfilePage() {
 
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">
-                  {user.name}
+                  {profile.name}
                 </h1>
                 <div className="mt-3 space-y-1 text-sm text-zinc-300">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    {user.email}
+                    {profile.email}
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
-                    {user.phone}
+                    {profile.phone}
                   </div>
                 </div>
               </div>
