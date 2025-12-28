@@ -2,6 +2,7 @@
 
 import { HeroRobot } from "../components/hero-robot";
 import ScrollExpansionVideo from "@/components/ui/scroll-expansion-video";
+import { ScrollPathAnimation } from "@/components/ui/scroll-path-animation";
 import ZoomParallax from "@/components/ui/zoom-parallax";
 import FestInfo from "@/components/ui/fest-info";
 import { LoadingScreen } from "../components/loading-screen";
@@ -72,6 +73,11 @@ export default function Home() {
         {/* Fest information (placed after video, before parallax) */}
         <div className="mt-12">
           <FestInfo />
+        </div>
+
+        {/* Scroll Path Animation */}
+        <div className="mt-8">
+          <ScrollPathAnimation />
         </div>
 
         {/* Zoom parallax demo (integrates client component) */}

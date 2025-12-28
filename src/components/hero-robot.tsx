@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -12,7 +12,7 @@ export function HeroRobot() {
   const [fontSize, setFontSize] = useState<number>(120);
   const isLaptopOrLarger = useMediaQuery("(min-width: 1024px)");
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!containerRef.current || !titleRef.current) return;
 
     let raf = 0;
@@ -20,6 +20,7 @@ export function HeroRobot() {
     const measure = () => {
       const container = containerRef.current!;
       const title = titleRef.current!;
+      if (container.clientWidth === 0) return;
       const available = container.clientWidth - 32; // small padding
 
       // Create offscreen canvas to measure text width
