@@ -77,7 +77,21 @@ export function ScrollPathAnimation() {
   return (
     <>
       <div className={styles.spacer}>
-        <div>Scroll down to see the path animation</div>
+        {/* --- ENGAGEMENT TEXT START --- */}
+        <div className="flex flex-col items-center justify-center h-full text-center px-4 select-none">
+          <h3 className="text-xl md:text-3xl font-bold text-white tracking-tight mb-3 drop-shadow-lg">
+            See you at the fest?
+          </h3>
+          <p className="text-red-500 font-mono text-[10px] md:text-xs uppercase tracking-widest animate-pulse">
+            (Who are we kidding. We know you're coming.)
+          </p>
+
+          {/* Visual Arrow Cue */}
+          <div className="mt-8 opacity-60">
+            <div className="w-[1px] h-16 bg-gradient-to-b from-red-600 via-red-900 to-transparent mx-auto"></div>
+          </div>
+        </div>
+        {/* --- ENGAGEMENT TEXT END --- */}
       </div>
 
       <div ref={mainRef} className={styles.main}>
@@ -86,7 +100,6 @@ export function ScrollPathAnimation() {
         </div>
 
         <div className={`${styles.container} ${styles.second}`}>
-          {/* FIXED: Added curly braces to ref callbacks */}
           <div ref={(el) => { markerRefs.current[0] = el }} className={styles.marker}></div>
         </div>
         <div className={`${styles.container} ${styles.third}`}>
