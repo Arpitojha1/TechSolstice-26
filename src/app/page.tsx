@@ -58,20 +58,20 @@ export default function Home() {
           }`}
       >
         {/* Sticky Logo in Top Left */}
-        <div className="fixed top-4 left-4 z-50 flex items-center gap-3">
+        <div className="fixed md:top-4 md:left-4 top-[15px] left-[11.5px] z-50 flex items-center gap-3">
           <Image
             src="/logos/logo.png"
             alt="TechSolstice Logo"
             width={60}
             height={60}
-            className="h-15 w-auto"
+            className="h-15 w-auto md:h-15 h-12"
           />
           <Image
             src="/logos/font-logo.png"
             alt="TechSolstice Wordmark"
             width={150}
             height={45}
-            className="h-12 w-auto translate-y-0.5"
+            className="h-12 w-auto translate-y-0.5 hidden md:block"
           />
         </div>
 
@@ -105,9 +105,9 @@ export default function Home() {
             images={[
               { src: '/photos/IMG_0162.jpg', alt: 'Landscape center image' },
               { src: '/photos/IMG_1510.jpg', alt: 'Landscape image 1' },
-              { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2' },
-              { src: '/photos/IMG-20250405-WA0141.jpg', alt: 'Landscape image 3' },
               { src: '/photos/IMG_0110.jpg', alt: 'Portrait of an artist' },
+              { src: '/photos/IMG-20250405-WA0141.jpg', alt: 'Landscape image 3' },
+              { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2' },
               { src: '/photos/IMG_1510.jpg', alt: 'Landscape image 1 (repeated)' },
               { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2 (repeated)' },
             ]}
