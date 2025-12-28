@@ -200,7 +200,7 @@ const ASMRStaticBackground: React.FC = () => {
         <canvas
           ref={canvasRef}
           className="w-full h-full block absolute inset-0"
-          style={{ transform: "translateZ(0)", filter: "blur(2px)" }}
+          style={{ transform: "translateZ(0)", filter: "blur(9px)" }}
         />
 
         {/* Black-tinted overlay with subtle backdrop blur to darken and soften the background */}
