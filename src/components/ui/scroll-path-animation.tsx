@@ -86,19 +86,20 @@ export function ScrollPathAnimation() {
         </div>
 
         <div className={`${styles.container} ${styles.second}`}>
-          <div ref={(el) => markerRefs.current[0] = el} className={styles.marker}></div>
+          {/* FIXED: Added curly braces to ref callbacks */}
+          <div ref={(el) => { markerRefs.current[0] = el }} className={styles.marker}></div>
         </div>
         <div className={`${styles.container} ${styles.third}`}>
-          <div ref={(el) => markerRefs.current[1] = el} className={styles.marker}></div>
+          <div ref={(el) => { markerRefs.current[1] = el }} className={styles.marker}></div>
         </div>
         <div className={`${styles.container} ${styles.fourth}`}>
-          <div ref={(el) => markerRefs.current[2] = el} className={styles.marker}></div>
+          <div ref={(el) => { markerRefs.current[2] = el }} className={styles.marker}></div>
         </div>
         <div className={`${styles.container} ${styles.fifth}`}>
-          <div ref={(el) => markerRefs.current[3] = el} className={styles.marker}></div>
+          <div ref={(el) => { markerRefs.current[3] = el }} className={styles.marker}></div>
         </div>
         <div className={`${styles.container} ${styles.sixth}`}>
-          <div ref={(el) => markerRefs.current[4] = el} className={styles.marker}></div>
+          <div ref={(el) => { markerRefs.current[4] = el }} className={styles.marker}></div>
         </div>
       </div>
 
