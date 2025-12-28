@@ -84,13 +84,13 @@ export default function Home() {
         <div className="mt-8">
           <ZoomParallax
             images={[
-              { src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1280&h=720&fit=crop&crop=entropy&auto=format&q=80', alt: 'Modern architecture building' },
-              { src: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1280&h=720&fit=crop&crop=entropy&auto=format&q=80', alt: 'Urban cityscape at sunset' },
-              { src: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=800&h=800&fit=crop&crop=entropy&auto=format&q=80', alt: 'Abstract geometric pattern' },
-              { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1280&h=720&fit=crop&crop=entropy&auto=format&q=80', alt: 'Mountain landscape' },
-              { src: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=800&fit=crop&crop=entropy&auto=format&q=80', alt: 'Minimalist design elements' },
-              { src: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1280&h=720&fit=crop&crop=entropy&auto=format&q=80', alt: 'Ocean waves and beach' },
-              { src: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1280&h=720&fit=crop&crop=entropy&auto=format&q=80', alt: 'Forest trees and sunlight' },
+              { src: '/photos/IMG_0162.jpg', alt: 'Landscape center image' },
+              { src: '/photos/IMG_1510.jpg', alt: 'Landscape image 1' },
+              { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2' },
+              { src: '/photos/IMG-20250405-WA0141.jpg', alt: 'Landscape image 3' },
+              { src: '/photos/IMG_0110.jpg', alt: 'Portrait of an artist' },
+              { src: '/photos/IMG_1510.jpg', alt: 'Landscape image 1 (repeated)' },
+              { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2 (repeated)' },
             ]}
           />
         </div>
