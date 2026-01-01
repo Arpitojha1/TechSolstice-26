@@ -9,6 +9,7 @@ import { LoadingScreen } from "../components/loading-screen";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Logo from "@/components/ui/logo";
+import { SponsorsSection } from "@/components/sponsors-section";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +95,11 @@ export default function Home() {
               { src: '/photos/IMG_1588.jpg', alt: 'Landscape image 2 (repeated)' },
             ]}
           />
+        </div>
+
+        {/* Sponsors Section */}
+        <div className="mt-16">
+          <SponsorsSection />
         </div>
       </div>
     </>

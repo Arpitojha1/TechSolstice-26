@@ -148,7 +148,7 @@ export default function Chat() {
           <div className="text-center text-gray-400 mt-8 space-y-6">
             <div className="relative inline-block">
               <Bot className="h-16 w-16 mx-auto text-red-500 drop-shadow-lg" />
-              <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-full" />
+              <div className="absolute inset-0 blur-xl rounded-full" style={{ backgroundColor: "rgba(125, 13, 44, 0.2)" }} />
             </div>
             <div>
               <p className="font-bold text-white text-xl mb-2">Welcome to TechSolstice'26!</p>
@@ -269,7 +269,7 @@ export default function Chat() {
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-2 text-center flex items-center justify-center gap-1">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="inline-block h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#7D0D2C" }} />
           Powered by TechSolstice AI
         </p>
       </div>

@@ -13,7 +13,7 @@ export default function FestInfo() {
 
       {/* 2. Soft, deep ambient glow (toned down) */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform opacity-40">
-        <div className="h-[30rem] w-[30rem] rounded-full bg-red-900/20 blur-[100px]"></div>
+        <div className="h-[30rem] w-[30rem] rounded-full blur-[100px]" style={{ backgroundColor: "rgba(125, 13, 44, 0.2)" }}></div>
       </div>
 
       <div className="container relative mx-auto px-6 z-10 md:px-12 text-center">
@@ -38,7 +38,7 @@ export default function FestInfo() {
           </div>
 
           {/* Divider Line */}
-          <div className="w-16 h-1 bg-red-900/30 mx-auto rounded-full mb-8"></div>
+          <div className="w-16 h-1 mx-auto rounded-full mb-8" style={{ backgroundColor: "rgba(125, 13, 44, 0.3)" }}></div>
 
           {/* Sub-header: Clean white, no gradients */}
           <p className="text-sm md:text-base font-medium tracking-[0.2em] uppercase text-neutral-400 mb-8">

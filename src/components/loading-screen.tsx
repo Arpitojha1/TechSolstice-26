@@ -94,7 +94,8 @@ export function LoadingScreen({ onLoadingComplete, minDuration = 2000 }: Loading
         {/* Cyberpunk Progress Bar */}
         <div className="mt-10 w-64 h-1 bg-neutral-900 relative overflow-hidden">
           <motion.div
-            className="absolute top-0 bottom-0 left-0 bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.8)]"
+            className="absolute top-0 bottom-0 left-0 shadow-[0_0_15px_rgba(125,13,44,0.8)]"
+            style={{ backgroundColor: "#7D0D2C" }}
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
             transition={{ ease: "linear" }}
