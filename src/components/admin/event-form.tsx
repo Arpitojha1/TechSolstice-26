@@ -1,222 +1,342 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2,
+  Plus,
+  Pencil,
+  Trash2,
+  Calendar,
+  Search,
+  Trophy,
+  Users,
+  MapPin,
+  Link as LinkIcon
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { EventForm } from "@/components/admin/event-form";
 
-// Helper to format ISO date for datetime-local input (YYYY-MM-DDTHH:mm)
-const formatDateForInput = (isoString: string | null) => {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  // Adjust for timezone offset to show local time in input
-  const offset = date.getTimezoneOffset() * 60000;
-  const localISOTime = new Date(date.getTime() - offset).toISOString().slice(0, 16);
-  return localISOTime;
+// 1. Define Exact Schema Types
+export type AdminEvent = {
+  id: string;
+  name: string;
+  shortDescription: string | null;
+  longDescription: string | null;
+  category: "Flagship" | "Technology" | "Gaming" | "Conference" | "Sports" | "Cultural" | "Workshop"; // Enum
+  mode: "Offline" | "Online" | "Hybrid"; // Enum
+  venue: string | null;
+  imageUrl: string | null;
+  prize_pool: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  min_team_size: number;
+  max_team_size: number;
+  rulebook_url: string | null;
+  is_reg_open: boolean;
+  registration_starts_at: string | null;
 };
 
-interface EventFormProps {
-  onCancel: () => void;
-  onSave: (data: any) => void;
-  event?: any; // We use 'any' here to be flexible, or you can import the AdminEvent type
-}
+export default function AdminDashboard() {
+  const supabase = createClient();
 
-export function EventForm({ onCancel, onSave, event }: EventFormProps) {
-  const [formData, setFormData] = useState({
-    name: "",
-    shortDescription: "",
-    longDescription: "",
-    category: "Flagship",
-    venue: "",
-    imageUrl: "",
-    prize_pool: "",
-    min_team_size: 1,
-    max_team_size: 1,
-    starts_at: "",
-    ends_at: "",
-    registration_starts_at: "",
-  });
+  const [events, setEvents] = useState<AdminEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Modal State
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<AdminEvent | null>(null);
+
+  // --- FETCH DATA ---
+  const fetchEvents = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("events")
+      .select("*")
+      .order("starts_at", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching events:", error);
+      alert("Failed to load events.");
+    } else {
+      setEvents(data as AdminEvent[]);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    if (event) {
-      setFormData({
-        name: event.name || "",
-        shortDescription: event.shortDescription || "",
-        longDescription: event.longDescription || "",
-        category: event.category || "Flagship",
-        venue: event.venue || "",
-        imageUrl: event.imageUrl || "",
-        prize_pool: event.prize_pool || "",
-        min_team_size: event.min_team_size || 1,
-        max_team_size: event.max_team_size || 1,
-        starts_at: formatDateForInput(event.starts_at),
-        ends_at: formatDateForInput(event.ends_at),
-        registration_starts_at: formatDateForInput(event.registration_starts_at),
-      });
+    fetchEvents();
+  }, []);
+
+  // --- ACTIONS ---
+
+  const handleToggleReg = async (id: string, currentStatus: boolean) => {
+    // Optimistic Update
+    setEvents(events.map(e => e.id === id ? { ...e, is_reg_open: !currentStatus } : e));
+
+    const { error } = await supabase
+      .from("events")
+      .update({ is_reg_open: !currentStatus })
+      .eq("id", id);
+
+    if (error) {
+      alert("Failed to update status");
+      fetchEvents(); // Revert
     }
-  }, [event]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Pass data back to parent
-    onSave(formData);
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this event? This will remove all registered teams too.")) return;
+
+    // Optimistic Delete
+    const previousEvents = [...events];
+    setEvents(events.filter(e => e.id !== id));
+
+    const { error } = await supabase.from("events").delete().eq("id", id);
+
+    if (error) {
+      alert("Error deleting event: " + error.message);
+      setEvents(previousEvents);
+    }
   };
+
+  const handleSave = async (formData: any) => {
+    try {
+      // Data Cleaning for DB
+      const payload = {
+        ...formData,
+        starts_at: formData.starts_at ? new Date(formData.starts_at).toISOString() : null,
+        ends_at: formData.ends_at ? new Date(formData.ends_at).toISOString() : null,
+        registration_starts_at: formData.registration_starts_at ? new Date(formData.registration_starts_at).toISOString() : null,
+        // Ensure integers
+        min_team_size: parseInt(formData.min_team_size),
+        max_team_size: parseInt(formData.max_team_size),
+      };
+
+      if (selectedEvent) {
+        const { error } = await supabase
+          .from("events")
+          .update(payload)
+          .eq("id", selectedEvent.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("events")
+          .insert([payload]);
+        if (error) throw error;
+      }
+
+      await fetchEvents();
+      setIsFormOpen(false);
+      setSelectedEvent(null);
+    } catch (error: any) {
+      alert("Save failed: " + error.message);
+    }
+  };
+
+  // --- FILTERING ---
+  const filteredEvents = events.filter(e =>
+    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.category && e.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  const totalEvents = events.length;
+  const activeEvents = events.filter(e => e.is_reg_open).length;
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-cyan-400">
+      <Loader2 className="animate-spin h-8 w-8" />
+    </div>
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 text-white">
-
-      {/* Name & Category */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Event Name</Label>
-          <Input
-            id="name" name="name"
-            value={formData.name} onChange={handleChange} required
-            className="bg-white/5 border-white/10"
-          />
+    <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12 font-sans">
+      {/* HEADER */}
+      <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
+            Event Control Center
+          </h1>
+          <p className="text-neutral-500 mt-1">Manage events, registrations, and logic.</p>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="category">Category</Label>
-          <Select
-            value={formData.category}
-            onValueChange={(val) => setFormData(prev => ({ ...prev, category: val }))}
-          >
-            <SelectTrigger className="bg-white/5 border-white/10">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Flagship">Flagship</SelectItem>
-              <SelectItem value="Technology">Technology</SelectItem>
-              <SelectItem value="Gaming">Gaming</SelectItem>
-              <SelectItem value="Conference">Conference</SelectItem>
-              <SelectItem value="Sports">Sports</SelectItem>
-              <SelectItem value="Cultural">Cultural</SelectItem>
-            </SelectContent>
-          </Select>
+
+        <div className="flex gap-4">
+          <div className="hidden md:flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+            <Trophy size={16} className="text-yellow-500" />
+            <span className="text-sm font-bold">{totalEvents} <span className="text-neutral-500 font-normal">Events</span></span>
+          </div>
+          <div className="hidden md:flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+            <Users size={16} className="text-green-500" />
+            <span className="text-sm font-bold">{activeEvents} <span className="text-neutral-500 font-normal">Active Regs</span></span>
+          </div>
         </div>
       </div>
 
-      {/* Team Size Logic */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="min_team_size">Min Team Size</Label>
+      {/* TOOLBAR */}
+      <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
           <Input
-            type="number" id="min_team_size" name="min_team_size"
-            value={formData.min_team_size} onChange={handleChange} min={1} required
-            className="bg-white/5 border-white/10"
+            placeholder="Search events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-white/5 border-white/10 focus:border-cyan-500/50 rounded-xl text-white"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="max_team_size">Max Team Size</Label>
-          <Input
-            type="number" id="max_team_size" name="max_team_size"
-            value={formData.max_team_size} onChange={handleChange} min={1} required
-            className="bg-white/5 border-white/10"
-          />
-        </div>
-      </div>
-
-      {/* Descriptions */}
-      <div className="space-y-2">
-        <Label htmlFor="shortDescription">Short Description (Card)</Label>
-        <Input
-          id="shortDescription" name="shortDescription"
-          value={formData.shortDescription} onChange={handleChange}
-          className="bg-white/5 border-white/10"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="longDescription">Long Description (Details)</Label>
-        <Textarea
-          id="longDescription" name="longDescription"
-          value={formData.longDescription} onChange={handleChange} rows={4}
-          className="bg-white/5 border-white/10"
-        />
-      </div>
-
-      {/* Dates */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="starts_at">Event Start Time</Label>
-          <Input
-            type="datetime-local" id="starts_at" name="starts_at"
-            value={formData.starts_at} onChange={handleChange} required
-            className="bg-white/5 border-white/10 text-neutral-400"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="ends_at">Event End Time</Label>
-          <Input
-            type="datetime-local" id="ends_at" name="ends_at"
-            value={formData.ends_at} onChange={handleChange} required
-            className="bg-white/5 border-white/10 text-neutral-400"
-          />
-        </div>
-      </div>
-
-      {/* Reg Start & Prize */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="registration_starts_at">Registration Starts</Label>
-          <Input
-            type="datetime-local" id="registration_starts_at" name="registration_starts_at"
-            value={formData.registration_starts_at} onChange={handleChange}
-            className="bg-white/5 border-white/10 text-neutral-400"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="prize_pool">Prize Pool (e.g. 5000)</Label>
-          <Input
-            id="prize_pool" name="prize_pool"
-            value={formData.prize_pool} onChange={handleChange}
-            className="bg-white/5 border-white/10"
-          />
-        </div>
-      </div>
-
-      {/* Venue & Image */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="venue">Venue</Label>
-          <Input
-            id="venue" name="venue"
-            value={formData.venue} onChange={handleChange} required
-            className="bg-white/5 border-white/10"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="imageUrl">Image URL</Label>
-          <Input
-            id="imageUrl" name="imageUrl"
-            value={formData.imageUrl} onChange={handleChange}
-            className="bg-white/5 border-white/10"
-            placeholder="/events/hackathon.jpg"
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end space-x-2 pt-4 border-t border-white/10">
-        <Button type="button" variant="ghost" onClick={onCancel} className="hover:bg-white/10">
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-cyan-500 text-black hover:bg-cyan-600 font-bold">
-          {event ? "Update Event" : "Create Event"}
+        <Button
+          onClick={() => { setSelectedEvent(null); setIsFormOpen(true); }}
+          className="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-600 text-black font-bold rounded-xl"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Create Event
         </Button>
       </div>
-    </form>
+
+      {/* TABLE */}
+      <div className="max-w-7xl mx-auto bg-[#111] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <Table>
+          <TableHeader className="bg-white/5">
+            <TableRow className="border-white/5 hover:bg-transparent">
+              <TableHead className="text-neutral-400">Event</TableHead>
+              <TableHead className="text-neutral-400">Type</TableHead>
+              <TableHead className="text-neutral-400">Info</TableHead>
+              <TableHead className="text-neutral-400">Status</TableHead>
+              <TableHead className="text-right text-neutral-400">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredEvents.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-neutral-500">
+                  No events found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredEvents.map((event) => (
+                <TableRow key={event.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                  {/* Name & Mode */}
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-white">{event.name}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px] bg-white/5 text-neutral-400 border-white/10 h-5 px-1.5">
+                          {event.mode}
+                        </Badge>
+                        {event.max_team_size === 1 && (
+                          <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-blue-500/20 h-5 px-1.5">
+                            SOLO
+                          </Badge>
+                        )}
+                        {event.rulebook_url && (
+                          <a href={event.rulebook_url} target="_blank" rel="noopener noreferrer" className="text-neutral-500 hover:text-cyan-400" title="View Rulebook">
+                            <LinkIcon size={12} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Category */}
+                  <TableCell>
+                    <Badge variant="outline" className="bg-white/5 text-neutral-300 border-white/10">
+                      {event.category}
+                    </Badge>
+                  </TableCell>
+
+                  {/* Date & Venue */}
+                  <TableCell className="text-neutral-400 text-sm">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={13} className="text-cyan-500/70" />
+                        {event.starts_at
+                          ? new Date(event.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                          : "TBA"}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={13} className="text-cyan-500/70" />
+                        <span className="truncate max-w-[120px]" title={event.venue || ""}>
+                          {event.venue || "TBA"}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
+
+                  {/* Toggle */}
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={event.is_reg_open}
+                        onCheckedChange={() => handleToggleReg(event.id, event.is_reg_open)}
+                        className="data-[state=checked]:bg-cyan-500"
+                      />
+                      <span className={`text-xs font-bold tracking-wide ${event.is_reg_open ? "text-green-400" : "text-red-400"}`}>
+                        {event.is_reg_open ? "OPEN" : "CLOSED"}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => { setSelectedEvent(event); setIsFormOpen(true); }}
+                        className="hover:bg-cyan-500/10 hover:text-cyan-400 text-neutral-400 h-8 w-8"
+                      >
+                        <Pencil size={15} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(event.id)}
+                        className="hover:bg-red-500/10 hover:text-red-400 text-neutral-400 h-8 w-8"
+                      >
+                        <Trash2 size={15} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="sm:max-w-[700px] bg-[#111] border-white/10 text-white p-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogTitle className="text-xl font-bold text-cyan-400">
+              {selectedEvent ? "Edit Event" : "Create New Event"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="px-6 pb-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <EventForm
+              onCancel={() => { setIsFormOpen(false); setSelectedEvent(null); }}
+              onSave={handleSave}
+              event={selectedEvent}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
