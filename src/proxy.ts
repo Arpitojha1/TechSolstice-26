@@ -2,19 +2,18 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 
-export async function proxy(request: NextRequest) {
-  // 1. PERFORMANCE: Refresh the session at the Edge
-  // This keeps the user logged in as they navigate without hitting the DB heavily
+export async function middleware(request: NextRequest) {
+  // 1. PERFORMANCE: Refresh session
   const response = await updateSession(request)
 
-  // 2. SECURITY: Create a client to inspect the user's role
+  // 2. SECURITY: Create client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() { return request.cookies.getAll() },
-        setAll() {} // Middleware can't set cookies directly, updateSession handled it
+        setAll() { }
       }
     }
   )
@@ -22,58 +21,57 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const url = request.nextUrl.clone()
 
-  // Define our protected zones
+  // Define protected zones
   const isAdminPage = url.pathname.startsWith('/admin-dashboard')
   const isPassesPage = url.pathname.startsWith('/passes')
   const isOnboarding = url.pathname === '/complete-profile'
   const isLoginPage = url.pathname === '/login'
 
-  // --- LOGIC GATES ---
-
-  // GATE 1: Unauthenticated Users
-  // If a stranger tries to visit Admin, Passes, or Onboarding -> Kick to Login
+  // --- GATE 1: Unauthenticated Users ---
   if (!user && (isAdminPage || isPassesPage || isOnboarding)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // GATE 2: Authenticated Users
+  // --- GATE 2: Authenticated Users ---
   if (user) {
-    // We need to fetch their profile to see if they are an Admin or need Onboarding
+    // UPDATED: Fetch 'mobile_number' too!
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name')
+      .select('full_name, mobile_number')
       .eq('id', user.id)
       .single()
 
-    // A. GOOGLE USERS (Missing Name)
-    // If they have no name and try to go anywhere else -> Force Onboarding
-    if (!profile?.full_name && !isOnboarding) {
+    // A. INCOMPLETE PROFILE CHECK
+    // If Name OR Mobile is missing -> Force Onboarding
+    const isProfileIncomplete = !profile?.full_name || !profile?.mobile_number
+
+    if (isProfileIncomplete && !isOnboarding) {
+      // Force them to complete profile
       return NextResponse.redirect(new URL('/complete-profile', request.url))
     }
-    
-    // B. COMPLETED USERS (Manipal or Fixed Google users)
-    // If they have a name but try to go to Onboarding -> Send to Passes (Don't let them get stuck)
-    if (profile?.full_name && isOnboarding) {
+
+    // B. ALREADY COMPLETE CHECK
+    // If they ARE complete but try to visit Onboarding -> Send to Passes
+    if (!isProfileIncomplete && isOnboarding) {
       return NextResponse.redirect(new URL('/passes', request.url))
     }
 
     // C. ADMIN SECURITY
     if (isAdminPage) {
-       const { data: admin } = await supabase
-         .from('admins')
-         .select('id')
-         .eq('id', user.id)
-         .single()
-       
-       // If they are not in the admins table -> Kick to Passes
-       if (!admin) {
-         return NextResponse.redirect(new URL('/passes', request.url))
-       }
+      const { data: admin } = await supabase
+        .from('admins')
+        .select('id')
+        .eq('id', user.id)
+        .single()
+
+      if (!admin) {
+        return NextResponse.redirect(new URL('/passes', request.url))
+      }
     }
 
-    // D. USER EXPERIENCE
-    // If a logged-in user visits /login -> Send to Passes
+    // D. LOGIN REDIRECT
     if (isLoginPage) {
+      // If profile incomplete, Gate A will catch them later. If complete, go to Passes.
       return NextResponse.redirect(new URL('/passes', request.url))
     }
   }
@@ -82,8 +80,15 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // PERFORMANCE: Don't run this middleware on static assets (images, fonts, etc.)
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|auth/callback|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - auth/callback (IMPORTANT: Allow auth callback to run without redirects)
+     * - api (API routes usually handle their own auth)
+     */
+    '/((?!_next/static|_next/image|favicon.ico|auth/callback|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
