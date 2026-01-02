@@ -1,38 +1,38 @@
-
 "use client";
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 
-type FlipCardProps = {
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+
+interface FlipCardProps {
   front: React.ReactNode;
   back: React.ReactNode;
-};
+  className?: string;
+}
 
-export function FlipCard({ front, back }: FlipCardProps) {
+export default function FlipCard({ front, back, className }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="w-64 h-96 perspective-[1000px]">
-        <div
-          className={`relative h-full w-full transition-transform duration-700 ease-in-out transform-3d ${
-            isFlipped ? "transform-[rotateY(180deg)]" : ""
-          }`}
-        >
-          <div
-            className="absolute inset-0 backface-hidden bg"
-          >
-            {front}
-            </div>
+    <div
+      className={cn("group perspective-[1000px] w-full h-full", className)}
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div
+        className={cn(
+          "relative h-full w-full transition-all duration-700 transform-style-3d cursor-pointer shadow-2xl rounded-2xl",
+          isFlipped ? "rotate-y-180" : ""
+        )}
+      >
+        {/* Front Face */}
+        <div className="absolute inset-0 backface-hidden">
+          {front}
+        </div>
 
-          <div
-            className="absolute inset-0 backface-hidden transform-[rotateY(180deg)]"
-          >
-            {back}
-          </div>
+        {/* Back Face */}
+        <div className="absolute inset-0 backface-hidden rotate-y-180">
+          {back}
         </div>
       </div>
     </div>
   );
 }
-export default FlipCard;

@@ -38,18 +38,23 @@ body {
    - Keeps scrolling behavior but hides the visible scrollbar across browsers
    - Ensures root elements span the full viewport width so child components can reach edges
 */
-html, body, #__next {
+html,
+body,
+#__next {
   margin: 0;
   padding: 0;
   width: 100%;
   min-width: 100%;
-  overflow-x: hidden; /* prevent horizontal scroll due to safe-area/overflow */
+  overflow-x: hidden;
+  /* prevent horizontal scroll due to safe-area/overflow */
 }
 
 /* Hide scrollbars but preserve scroll (Firefox) */
 body {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE 10+ */
 }
 
 /* Hide scrollbars for WebKit (Chrome, Safari, Edge) */
@@ -74,4 +79,22 @@ body::-webkit-scrollbar {
   font-family: "Michroma", sans-serif;
   font-weight: 400;
   font-style: normal;
+}
+
+/* 3D Transform utilities for FlipCard component */
+.perspective-\[1000px\] {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
 }

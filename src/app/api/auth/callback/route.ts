@@ -76,8 +76,8 @@ export async function GET(request: Request) {
           return NextResponse.redirect(`${origin}/admin-dashboard`)
         }
 
-        // 7. Success -> Go to Passes
-        return NextResponse.redirect(`${origin}/passes`)
+        // 7. Success -> Go to Profile
+        return NextResponse.redirect(`${origin}/profile`)
       }
     }
   }
