@@ -27,27 +27,31 @@ import {
   Calendar,
   Search,
   Trophy,
-  Users
+  Users,
+  MapPin,
+  Link as LinkIcon
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { EventForm } from "@/components/admin/event-form";
-// Note: Ensure your EventForm handles the new 'starts_at' field logic
 
-// Define the exact shape of your Event for Admin
+// Exact Schema Types
 export type AdminEvent = {
   id: string;
   name: string;
-  shortDescription: string;
-  longDescription: string;
+  shortDescription: string | null;
+  longDescription: string | null;
   category: string;
-  venue: string;
-  imageUrl: string;
-  prize_pool: string;
-  starts_at: string | null; // ISO String
-  ends_at: string | null;   // ISO String
+  mode: "Offline" | "Online" | "Hybrid";
+  venue: string | null;
+  imageUrl: string | null;
+  prize_pool: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
   min_team_size: number;
   max_team_size: number;
+  rulebook_url: string | null;
   is_reg_open: boolean;
+  registration_starts_at: string | null;
 };
 
 export default function AdminDashboard() {
@@ -61,7 +65,7 @@ export default function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<AdminEvent | null>(null);
 
-  // --- 1. FETCH DATA ---
+  // --- FETCH DATA ---
   const fetchEvents = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -82,11 +86,10 @@ export default function AdminDashboard() {
     fetchEvents();
   }, []);
 
-  // --- 2. ACTIONS ---
+  // --- ACTIONS ---
 
-  // Toggle Registration Open/Closed instantly
   const handleToggleReg = async (id: string, currentStatus: boolean) => {
-    // Optimistic Update (Update UI before DB responds)
+    // Optimistic Update
     setEvents(events.map(e => e.id === id ? { ...e, is_reg_open: !currentStatus } : e));
 
     const { error } = await supabase
@@ -96,12 +99,12 @@ export default function AdminDashboard() {
 
     if (error) {
       alert("Failed to update status");
-      fetchEvents(); // Revert on error
+      fetchEvents(); // Revert
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure? This will delete the event and all associated teams.")) return;
+    if (!confirm("Delete this event? This will remove all registered teams too.")) return;
 
     // Optimistic Delete
     const previousEvents = [...events];
@@ -111,31 +114,34 @@ export default function AdminDashboard() {
 
     if (error) {
       alert("Error deleting event: " + error.message);
-      setEvents(previousEvents); // Revert
+      setEvents(previousEvents);
     }
   };
 
   const handleSave = async (formData: any) => {
-    // This function is passed to your EventForm. 
-    // It assumes EventForm returns a clean object ready for insertion.
-
     try {
+      // --- CRITICAL FIX: Data Cleaning ---
+      // Convert "" to null for Timestamps
+      // Convert strings to Integers for Numbers
       const payload = {
         ...formData,
-        // Ensure dates are ISO strings or null
         starts_at: formData.starts_at ? new Date(formData.starts_at).toISOString() : null,
         ends_at: formData.ends_at ? new Date(formData.ends_at).toISOString() : null,
+        registration_starts_at: formData.registration_starts_at ? new Date(formData.registration_starts_at).toISOString() : null,
+        min_team_size: parseInt(formData.min_team_size) || 1,
+        max_team_size: parseInt(formData.max_team_size) || 1,
+        prize_pool: formData.prize_pool || null, // Convert empty prize to null
+        imageUrl: formData.imageUrl || null,
+        venue: formData.venue || null,
       };
 
       if (selectedEvent) {
-        // UPDATE
         const { error } = await supabase
           .from("events")
           .update(payload)
           .eq("id", selectedEvent.id);
         if (error) throw error;
       } else {
-        // CREATE
         const { error } = await supabase
           .from("events")
           .insert([payload]);
@@ -150,13 +156,12 @@ export default function AdminDashboard() {
     }
   };
 
-  // --- 3. FILTERING ---
+  // --- FILTERING ---
   const filteredEvents = events.filter(e =>
     e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    e.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (e.category && e.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Stats
   const totalEvents = events.length;
   const activeEvents = events.filter(e => e.is_reg_open).length;
 
@@ -168,29 +173,28 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 md:p-12 font-sans">
-      {/* HEADER SECTION */}
+      {/* HEADER */}
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
             Event Control Center
           </h1>
-          <p className="text-neutral-500 mt-1">Manage events, registrations, and schedules.</p>
+          <p className="text-neutral-500 mt-1">Manage events, registrations, and logic.</p>
         </div>
 
         <div className="flex gap-4">
-          {/* Quick Stats */}
           <div className="hidden md:flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
             <Trophy size={16} className="text-yellow-500" />
-            <span className="text-sm font-bold">{totalEvents} <span className="text-neutral-500 font-normal">Total</span></span>
+            <span className="text-sm font-bold">{totalEvents} <span className="text-neutral-500 font-normal">Events</span></span>
           </div>
           <div className="hidden md:flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
             <Users size={16} className="text-green-500" />
-            <span className="text-sm font-bold">{activeEvents} <span className="text-neutral-500 font-normal">Active</span></span>
+            <span className="text-sm font-bold">{activeEvents} <span className="text-neutral-500 font-normal">Active Regs</span></span>
           </div>
         </div>
       </div>
 
-      {/* CONTROLS */}
+      {/* TOOLBAR */}
       <div className="max-w-7xl mx-auto mb-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative w-full sm:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
@@ -198,7 +202,7 @@ export default function AdminDashboard() {
             placeholder="Search events..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-white/5 border-white/10 focus:border-cyan-500/50 rounded-xl"
+            className="pl-10 bg-white/5 border-white/10 focus:border-cyan-500/50 rounded-xl text-white"
           />
         </div>
         <Button
@@ -214,11 +218,11 @@ export default function AdminDashboard() {
         <Table>
           <TableHeader className="bg-white/5">
             <TableRow className="border-white/5 hover:bg-transparent">
-              <TableHead className="text-neutral-400 font-medium">Event Name</TableHead>
-              <TableHead className="text-neutral-400 font-medium">Category</TableHead>
-              <TableHead className="text-neutral-400 font-medium">Date & Time</TableHead>
-              <TableHead className="text-neutral-400 font-medium">Reg. Status</TableHead>
-              <TableHead className="text-right text-neutral-400 font-medium">Actions</TableHead>
+              <TableHead className="text-neutral-400">Event</TableHead>
+              <TableHead className="text-neutral-400">Type</TableHead>
+              <TableHead className="text-neutral-400">Info</TableHead>
+              <TableHead className="text-neutral-400">Status</TableHead>
+              <TableHead className="text-right text-neutral-400">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -231,29 +235,54 @@ export default function AdminDashboard() {
             ) : (
               filteredEvents.map((event) => (
                 <TableRow key={event.id} className="border-white/5 hover:bg-white/5 transition-colors">
-                  <TableCell className="font-medium text-white">
-                    {event.name}
-                    {event.max_team_size === 1 && (
-                      <span className="ml-2 text-[10px] bg-neutral-800 text-neutral-400 px-1.5 py-0.5 rounded border border-neutral-700">SOLO</span>
-                    )}
+                  {/* Name & Mode */}
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-white">{event.name}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-[10px] bg-white/5 text-neutral-400 border-white/10 h-5 px-1.5">
+                          {event.mode}
+                        </Badge>
+                        {event.max_team_size === 1 && (
+                          <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-blue-500/20 h-5 px-1.5">
+                            SOLO
+                          </Badge>
+                        )}
+                        {event.rulebook_url && (
+                          <a href={event.rulebook_url} target="_blank" rel="noopener noreferrer" className="text-neutral-500 hover:text-cyan-400" title="View Rulebook">
+                            <LinkIcon size={12} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </TableCell>
 
+                  {/* Category */}
                   <TableCell>
-                    <Badge variant="outline" className="bg-white/5 text-neutral-300 border-white/10 hover:bg-white/10">
+                    <Badge variant="outline" className="bg-white/5 text-neutral-300 border-white/10">
                       {event.category}
                     </Badge>
                   </TableCell>
 
+                  {/* Date & Venue */}
                   <TableCell className="text-neutral-400 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-cyan-500/70" />
-                      {event.starts_at
-                        ? new Date(event.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-                        : <span className="text-neutral-600 italic">TBA</span>}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={13} className="text-cyan-500/70" />
+                        {event.starts_at
+                          ? new Date(event.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                          : "TBA"}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={13} className="text-cyan-500/70" />
+                        <span className="truncate max-w-[120px]" title={event.venue || ""}>
+                          {event.venue || "TBA"}
+                        </span>
+                      </div>
                     </div>
                   </TableCell>
 
-                  {/* TOGGLE SWITCH */}
+                  {/* Toggle */}
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Switch
@@ -267,24 +296,24 @@ export default function AdminDashboard() {
                     </div>
                   </TableCell>
 
-                  {/* ACTIONS */}
+                  {/* Actions */}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => { setSelectedEvent(event); setIsFormOpen(true); }}
-                        className="hover:bg-cyan-500/10 hover:text-cyan-400 text-neutral-400"
+                        className="hover:bg-cyan-500/10 hover:text-cyan-400 text-neutral-400 h-8 w-8"
                       >
-                        <Pencil size={16} />
+                        <Pencil size={15} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(event.id)}
-                        className="hover:bg-red-500/10 hover:text-red-400 text-neutral-400"
+                        className="hover:bg-red-500/10 hover:text-red-400 text-neutral-400 h-8 w-8"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </Button>
                     </div>
                   </TableCell>
@@ -295,22 +324,21 @@ export default function AdminDashboard() {
         </Table>
       </div>
 
-      {/* MODAL */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#111] border-white/10 text-white">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[700px] bg-[#111] border-white/10 text-white p-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-2">
             <DialogTitle className="text-xl font-bold text-cyan-400">
               {selectedEvent ? "Edit Event" : "Create New Event"}
             </DialogTitle>
           </DialogHeader>
 
-          {/* Ensure your EventForm supports the new dark theme/props */}
-          <EventForm
-            onCancel={() => { setIsFormOpen(false); setSelectedEvent(null); }}
-            onSave={handleSave}
-            // @ts-ignore (We map the types inside the form usually, or update EventForm type)
-            event={selectedEvent}
-          />
+          <div className="px-6 pb-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <EventForm
+              onCancel={() => { setIsFormOpen(false); setSelectedEvent(null); }}
+              onSave={handleSave}
+              event={selectedEvent}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
