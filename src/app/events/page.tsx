@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Suspense } from "react";
 import { type Event } from "@/components/event-card";
 import { EventsClient } from "@/components/events-client";
@@ -12,17 +13,17 @@ async function getData() {
   const { data: { user } } = await supabase.auth.getUser();
 
   // 1. Fetch Events
-  const { data: events, error } = await supabase
+  const { data: events } = await supabase
     .from("events")
     .select("*")
     .order("starts_at", { ascending: true });
 
-  if (error) console.error("Error fetching events:", error);
-
-  // 2. Fetch User's Registrations (if logged in)
+  // 2. Fetch registrations
   let registeredEventIds: string[] = [];
+  let accessibleEventIds: string[] = [];
 
   if (user) {
+    // Already registered
     const { data: regs } = await supabase
       .from("team_members")
       .select("event_id")
@@ -31,11 +32,37 @@ async function getData() {
     if (regs) {
       registeredEventIds = regs.map(r => r.event_id);
     }
+
+    const { data: passEvents } = await supabase
+      .from("user_passes")
+      .select(`
+        passes (
+          event_passes (
+            event_id
+          )
+        )
+      `)
+      .eq("user_id", user.id)
+      .eq("ticket_cut", false);
+
+
+      console.log("DATA : ", passEvents);
+
+    if (passEvents) {
+      accessibleEventIds = passEvents
+        .flatMap(p => {
+          const passes = Array.isArray(p.passes) ? p.passes : (p.passes ? [p.passes] : []);
+          return passes.flatMap((pass: any) => pass.event_passes || []);
+        })
+        .map((e: any) => e.event_id);
+    }
+
   }
 
   return {
     events: (events || []) as Event[],
-    registeredEventIds
+    registeredEventIds,
+    accessibleEventIds
   };
 }
 
@@ -45,7 +72,8 @@ const EventsPage = async ({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
   const params = await searchParams;
-  const { events: allEvents, registeredEventIds } = await getData();
+  const { events: allEvents, registeredEventIds, accessibleEventIds } = await getData();
+
 
   // "Coming Soon" Screen (Only if DB is empty)
   if (allEvents.length === 0) {
@@ -86,11 +114,12 @@ const EventsPage = async ({
     <div className="min-h-screen w-full">
       <Suspense fallback={<div className="flex items-center justify-center min-h-screen text-cyan-400">Loading events...</div>}>
         <EventsClient
-          initialEvents={filteredEvents}
-          initialCategory={category}
-          initialSearch={searchTerm}
-          registeredEventIds={registeredEventIds}
-        />
+        initialEvents={filteredEvents}
+        initialCategory={category}
+        initialSearch={searchTerm}
+        registeredEventIds={registeredEventIds}
+        accessibleEventIds={accessibleEventIds}
+      />
       </Suspense>
     </div>
   );

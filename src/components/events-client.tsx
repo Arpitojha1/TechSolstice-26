@@ -8,6 +8,15 @@ import { Search, Rocket, Cpu, Code, Gamepad2, Star, Medal } from "lucide-react";
 import { motion } from "framer-motion";
 import { EventCard, type Event } from "@/components/event-card";
 
+interface EventsClientProps {
+  initialEvents: Event[];
+  initialCategory: string;
+  initialSearch: string;
+  registeredEventIds: string[];
+  accessibleEventIds: string[];   
+}
+
+
 const filterCategories = [
   { name: "All", icon: <Rocket size={16} /> },
   { name: "Flagship", icon: <Star size={16} /> },
@@ -22,12 +31,8 @@ export function EventsClient({
   initialCategory,
   initialSearch,
   registeredEventIds,
-}: {
-  initialEvents: Event[];
-  initialCategory: string;
-  initialSearch: string;
-  registeredEventIds: string[];
-}) {
+  accessibleEventIds
+}: EventsClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -99,13 +104,18 @@ export function EventsClient({
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10 px-4 pb-20"
       >
         {initialEvents.length > 0 ? (
-          initialEvents.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              isRegistered={registeredEventIds.includes(event.id)}
-            />
-          ))
+          initialEvents.map((event) => {
+          const isRegistered = registeredEventIds.includes(event.id);
+          const hasAccess = accessibleEventIds.includes(event.id);
+            return (
+              <EventCard
+                key={event.id}
+                event={event}
+                isRegistered={isRegistered}
+                hasAccess={hasAccess}   
+              />
+            );
+          })
         ) : (
           <div className="col-span-full text-center text-neutral-500 py-20">
             <p className="text-xl">No events found matching your criteria.</p>
