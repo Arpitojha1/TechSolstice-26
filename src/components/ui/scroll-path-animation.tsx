@@ -64,7 +64,9 @@ export function ScrollPathAnimation() {
       ctx = gsap.context(() => {
         const box = boxRef.current;
         const container = containerRef.current;
-        const markers = markerRefs.current.filter(Boolean);
+
+        // FIX: Added Type Guard (m is HTMLDivElement) so TS knows 'markers' has no nulls
+        const markers = markerRefs.current.filter((m): m is HTMLDivElement => m !== null);
 
         if (!box || !container || markers.length === 0) return;
 
@@ -90,9 +92,8 @@ export function ScrollPathAnimation() {
             // START: When the top of the container hits the CENTER of the viewport
             start: "top center",
             // END: When the bottom of the container hits the CENTER of the viewport
-            // This ensures the diamond stays strictly in the visual center!
             end: "bottom center",
-            scrub: 0.5, // Lower scrub for snappier response to scroll direction changes
+            scrub: 0.5,
           }
         });
 
