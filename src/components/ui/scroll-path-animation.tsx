@@ -64,8 +64,6 @@ export function ScrollPathAnimation() {
       ctx = gsap.context(() => {
         const box = boxRef.current;
         const container = containerRef.current;
-
-        // FIX: Added Type Guard (m is HTMLDivElement) so TS knows 'markers' has no nulls
         const markers = markerRefs.current.filter((m): m is HTMLDivElement => m !== null);
 
         if (!box || !container || markers.length === 0) return;
@@ -80,7 +78,7 @@ export function ScrollPathAnimation() {
           return { x, y };
         });
 
-        // 2. Set Initial Position (Start at the first point)
+        // 2. Set Initial Position
         if (pathPoints.length > 0) {
           gsap.set(box, { x: pathPoints[0].x, y: pathPoints[0].y });
         }
@@ -89,10 +87,8 @@ export function ScrollPathAnimation() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: container,
-            // START: When the top of the container hits the CENTER of the viewport
             start: "top center",
-            // END: When the bottom of the container hits the CENTER of the viewport
-            end: "bottom center",
+            end: "bottom center", // Keeps diamond centered in viewport
             scrub: 0.5,
           }
         });
@@ -120,13 +116,14 @@ export function ScrollPathAnimation() {
     };
   }, []);
 
-  // SPACING: 45vh per item
-  const totalHeight = zones.length * 45;
+  // FIX: Added +50vh buffer to total height.
+  // This prevents the last card (which is at top:100%) from overlapping the footer.
+  const totalHeight = (zones.length * 45) + 50;
 
   return (
     <div className={styles.mainWrapper}>
 
-      {/* Intro */}
+      {/* Top Intro Section */}
       <div className={styles.introSpacer}>
         <h3 className="text-3xl md:text-5xl font-bold text-white mb-3 tracking-tight">
           Explore Categories
@@ -137,22 +134,20 @@ export function ScrollPathAnimation() {
         <div className="w-[1px] h-16 bg-gradient-to-b from-red-600 via-red-900 to-transparent mx-auto mt-8" />
       </div>
 
+      {/* Path Container */}
       <div
         ref={containerRef}
         className={styles.pathContainer}
         style={{ height: `${totalHeight}vh` }}
       >
-        {/* The Moving Object */}
         <div ref={boxRef} className={styles.box}></div>
 
         {zones.map((zone, index) => {
           const isRight = index % 2 === 0;
-
-          // Distribution Logic:
-          const topPos = (index / (zones.length - 1)) * 100;
-
-          // Number Formatting (01, 02...)
           const indexStr = (index + 1).toString().padStart(2, '0');
+
+          // Position Logic (0% to 100% of the calculated height)
+          const topPos = (index / (zones.length - 1)) * 100;
 
           return (
             <div
@@ -160,7 +155,6 @@ export function ScrollPathAnimation() {
               className={`${styles.stepContainer} ${isRight ? styles.alignRight : styles.alignLeft}`}
               style={{ top: `${topPos}%` }}
             >
-              {/* TEXT CARD */}
               <div className={styles.textCard}>
                 <h4 className={styles.categoryTitle}>{zone.title}</h4>
                 <p className={styles.categoryDesc}>{zone.description}</p>
@@ -169,7 +163,6 @@ export function ScrollPathAnimation() {
                 </Link>
               </div>
 
-              {/* MARKER (Target for Diamond) */}
               <div
                 ref={(el) => { markerRefs.current[index] = el }}
                 className={styles.marker}
@@ -181,14 +174,19 @@ export function ScrollPathAnimation() {
         })}
       </div>
 
-      {/* Final Spacer */}
-      <div className={styles.introSpacer}>
-        <h2 className="text-3xl font-bold text-white mb-6">Ready to Compete?</h2>
+      {/* Bottom CTA Section */}
+      {/* Added z-10 and relative positioning to ensure it sits ON TOP of any stray background elements */}
+      <div className="relative z-10 py-24 flex flex-col items-center justify-center text-center px-4 bg-gradient-to-t from-black via-black/80 to-transparent">
+        <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 drop-shadow-lg">
+          Ready to Compete?
+        </h2>
         <Link
           href="/events"
-          className="px-10 py-4 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-all hover:scale-105 shadow-[0_0_20px_rgba(220,38,38,0.5)]"
+          className="group relative inline-flex items-center justify-center px-10 py-4 bg-red-600 text-white font-bold text-lg rounded-full overflow-hidden transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-[0_0_30px_rgba(220,38,38,0.6)]"
         >
-          View All Events
+          <span className="relative z-10">View All Events</span>
+          {/* Shine Effect on Button */}
+          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </Link>
       </div>
 
