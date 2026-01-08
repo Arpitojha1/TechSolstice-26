@@ -46,7 +46,7 @@ export const Footer = () => {
   return (
     <footer
       id="footer"
-      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10 overflow-hidden md:max-h-[67vh]"
+      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10"
     >
       {/* Subtle top border glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 pointer-events-none">
@@ -171,7 +171,7 @@ export const Footer = () => {
       {/* Flickering Grid Background - Only on tablet+ */}
       {isTabletOrLarger && (
         <div
-          className="w-full md:h-[35vh] lg:h-[40vh] relative mt-8 md:mt-10 z-0"
+          className="w-full md:min-h-[35vh] lg:min-h-[40vh] relative mt-8 md:mt-10 z-0 pb-8 md:pb-10"
           style={{
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%)",
             maskImage: "linear-gradient(to bottom, transparent, black 20%)",
@@ -205,7 +205,10 @@ function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: num
           }
         }
       },
-      { threshold: 0.05 }
+      { 
+        threshold: 0,
+        rootMargin: '200px'
+      }
     );
 
     io.observe(el);
