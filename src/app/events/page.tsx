@@ -1,8 +1,32 @@
+"use client";
+
+import { useEffect } from "react";
 import { EVENT_CATEGORIES } from "@/lib/constants/categories";
 import { CategoryCard } from "@/components/categories/category-card";
 import { PatternText } from "@/components/ui/pattern-text";
 
-const EventsPage = async () => {
+const EventsPage = () => {
+  useEffect(() => {
+    let rafId: number;
+    (async () => {
+      try {
+        const Lenis = (await import('@studio-freight/lenis')).default;
+        const lenis = new Lenis();
+        function raf(time: number) {
+          lenis.raf(time);
+          rafId = requestAnimationFrame(raf);
+        }
+        rafId = requestAnimationFrame(raf);
+      } catch (e) {
+        console.warn("Lenis failed to load", e);
+      }
+    })();
+
+    return () => {
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen w-full relative">
       {/* Hero Section - Fixed height to prevent CLS */}
