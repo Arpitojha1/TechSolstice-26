@@ -5,11 +5,8 @@ import { PatternText } from "@/components/ui/pattern-text";
 const EventsPage = async () => {
   return (
     <div className="min-h-screen w-full relative">
-      {/* Minimal overlay to match homepage */}
-      <div className="fixed inset-0 bg-black/10 z-0" />
-      
       {/* Hero Section */}
-      <div className="relative pt-32 pb-20 px-4 overflow-hidden z-10">
+      <div className="relative pt-32 pb-20 px-4 overflow-hidden z-10 bg-black/10">\
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto text-center space-y-6">
@@ -23,7 +20,7 @@ const EventsPage = async () => {
       </div>
 
       {/* Categories Grid */}
-      <div className="max-w-6xl mx-auto px-4 pb-32 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 pb-32 relative z-10 bg-black/10">\
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {EVENT_CATEGORIES.map((category, index) => (
             <CategoryCard key={category.id} category={category} index={index} />
