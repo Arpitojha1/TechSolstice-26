@@ -96,15 +96,15 @@ export function CategoryCard({ category, index, size = 'md' }: CategoryCardProps
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.08, ease: [0.21, 1, 0.45, 1] }}
-      className="group relative w-full"
+      className="group relative w-full h-full"
     >
-      <Link href={`/events/${category.slug}`} className="block">
+      <Link href={`/events/${category.slug}`} className="block h-full">
         <PixelCard
           variant={pixelConfig.variant}
           colors={pixelConfig.colors}
           speed={pixelConfig.speed}
           gap={pixelConfig.gap}
-          className={`w-full ${heightClasses[size]} transition-all duration-500 group-hover:scale-[1.02] group-active:scale-[0.98] shadow-xl hover:shadow-2xl border-white/30`}
+          className="w-full h-full transition-all duration-500 group-hover:scale-[1.02] group-active:scale-[0.98] shadow-xl hover:shadow-2xl border-white/30"
         >
           {/* Enhanced glass overlay with gradient tint */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-black/[0.15] rounded-3xl pointer-events-none" />

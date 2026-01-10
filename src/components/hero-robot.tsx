@@ -72,10 +72,13 @@ export function HeroRobot() {
       {/* Spline 3D Scene - only render on laptop+ to avoid loading heavy assets on small screens */}
       {isLaptopOrLarger && (
         <div className="absolute inset-0 z-10">
-          <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="w-full h-full touch-none"
-          />
+          {/* Add priority loading optimization for LCP */}
+          <React.Suspense fallback={<div className="w-full h-full bg-black/10" />}>
+            <SplineScene
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full touch-none"
+            />
+          </React.Suspense>
         </div>
       )}
 

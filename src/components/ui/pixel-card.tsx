@@ -290,11 +290,17 @@ export default function PixelCard({
       onFocus={finalNoFocus ? undefined : onFocus}
       onBlur={finalNoFocus ? undefined : onBlur}
       tabIndex={finalNoFocus ? -1 : 0}
+      style={{ aspectRatio: '1', minHeight: '280px' }}
     >
       {/* Glass fog overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent rounded-3xl pointer-events-none" />
       
-      <canvas className="w-full h-full block" ref={canvasRef} />
+      {/* Fixed canvas dimensions to prevent CLS */}
+      <canvas 
+        className="w-full h-full block" 
+        ref={canvasRef}
+        style={{ display: 'block', width: '100%', height: '100%' }}
+      />
       {children}
     </div>
   );

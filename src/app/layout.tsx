@@ -21,6 +21,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TechSolstice'26",
   description: "Official website for TechSolstice - 2026",
+  // Performance optimization
+  other: {
+    'preload': 'true'
+  }
 };
 
 export default function RootLayout({
@@ -31,9 +35,36 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Critical resource preloading for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://prod.spline.design" />
         <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet" />
+        {/* Critical font optimization to prevent FOUT */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            .michroma-regular { 
+              font-family: 'Michroma', monospace; 
+              font-display: swap;
+              font-variation-settings: normal;
+            }
+            /* Prevent layout shift during font load */
+            .michroma-regular::before {
+              content: '';
+              display: block;
+              height: 0;
+              width: 0;
+            }
+            /* Reduce animation on reduced motion */
+            @media (prefers-reduced-motion: reduce) {
+              *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+              }
+            }
+          `
+        }} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
