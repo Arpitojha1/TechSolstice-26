@@ -29,6 +29,7 @@ async function getData(categorySlug: string) {
 
   // Fetch User's Registrations (if logged in)
   let registeredEventIds: string[] = [];
+  let accessibleEventIds: string[] = [];
 
   if (user) {
     const { data: regs } = await supabase
@@ -39,12 +40,35 @@ async function getData(categorySlug: string) {
     if (regs) {
       registeredEventIds = regs.map(r => r.event_id);
     }
+
+    // Get accessible events from user passes
+    const { data: passEvents } = await supabase
+      .from("user_passes")
+      .select(`
+        passes (
+          event_passes (
+            event_id
+          )
+        )
+      `)
+      .eq("user_id", user.id)
+      .eq("ticket_cut", false);
+
+    if (passEvents) {
+      accessibleEventIds = passEvents
+        .flatMap(p => {
+          const passes = Array.isArray(p.passes) ? p.passes : (p.passes ? [p.passes] : []);
+          return passes.flatMap((pass: any) => pass.event_passes || []);
+        })
+        .map((e: any) => e.event_id);
+    }
   }
 
   return {
     category,
     events: (events || []) as Event[],
-    registeredEventIds
+    registeredEventIds,
+    accessibleEventIds
   };
 }
 
@@ -60,7 +84,7 @@ export default async function CategoryPage({
     notFound();
   }
 
-  const { category, events, registeredEventIds } = data;
+  const { category, events, registeredEventIds, accessibleEventIds } = data;
 
   return (
     <div className="min-h-screen w-full bg-black">
@@ -105,6 +129,7 @@ export default async function CategoryPage({
           <CategoryEventsClient
             events={events}
             registeredEventIds={registeredEventIds}
+            accessibleEventIds={accessibleEventIds}
             categoryTitle={category.title}
           />
         </Suspense>

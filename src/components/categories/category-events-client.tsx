@@ -9,10 +9,12 @@ import { EventCard, type Event } from "@/components/event-card";
 export function CategoryEventsClient({
   events,
   registeredEventIds,
+  accessibleEventIds,
   categoryTitle,
 }: {
   events: Event[];
   registeredEventIds: string[];
+  accessibleEventIds: string[];
   categoryTitle: string;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,6 +50,7 @@ export function CategoryEventsClient({
               key={event.id}
               event={event}
               isRegistered={registeredEventIds.includes(event.id)}
+              hasAccess={accessibleEventIds.includes(event.id)}
             />
           ))
         ) : (
