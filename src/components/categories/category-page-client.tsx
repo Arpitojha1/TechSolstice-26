@@ -5,18 +5,11 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { type Event } from "@/components/event-card";
+import { type EventCategory } from "@/lib/constants/categories";
 import { CategoryEventsClient } from "./category-events-client";
 
 interface CategoryPageClientProps {
-  category: {
-    id: string;
-    title: string;
-    description: string;
-    gradient: string;
-    dbValue: string;
-    icon: string;
-    slug: string;
-  };
+  category: EventCategory;
   events: Event[];
   registeredEventIds: string[];
   accessibleEventIds: string[];
