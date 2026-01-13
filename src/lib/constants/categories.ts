@@ -50,14 +50,6 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     gradient: "from-pink-500 via-rose-500 to-red-500",
   },
   {
-    id: "innovation-ideation",
-    title: "Innovation & Ideation",
-    slug: "innovation-ideation",
-    dbValue: "Innovation and Ideation",
-    description: "Startup prototypes and research. The launchpad for the next big disruption.",
-    gradient: "from-yellow-500 via-amber-500 to-orange-500",
-  },
-  {
     id: "gaming-zone",
     title: "Gaming Zone",
     slug: "gaming-zone",
@@ -65,14 +57,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     description: "Valorant, FIFA, and Tekken tournaments for ultimate bragging rights.",
     gradient: "from-indigo-500 via-blue-500 to-cyan-500",
   },
-  {
-    id: "other-events",
-    title: "Other Events",
-    slug: "other-events",
-    dbValue: "Other",
-    description: "Treasure hunts, fun stalls, and informal events. Because a fest is nothing without vibes.",
-    gradient: "from-gray-500 via-slate-500 to-zinc-500",
-  },
+
 ];
 
 export function getCategoryBySlug(slug: string): EventCategory | undefined {

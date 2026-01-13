@@ -26,7 +26,7 @@ export function CategoryEventsClient({
   return (
     <>
       {/* Search Bar */}
-      <div className="flex justify-center items-center mb-12 px-4">
+      <div className="flex justify-center items-center mb-12 px-4 pt-8">
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
           <Input

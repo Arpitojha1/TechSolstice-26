@@ -11,6 +11,7 @@ interface ExpandableCardProps {
   title: string;
   src?: string;
   description?: string;
+  collapsedChildren?: React.ReactNode;
   children?: React.ReactNode;
   backContent?: React.ReactNode;
   isFlipped?: boolean;
@@ -28,6 +29,7 @@ export function ExpandableCard({
   isFlipped = false,
   className,
   classNameExpanded,
+  collapsedChildren,
   ...props
 }: ExpandableCardProps) {
   const [active, setActive] = React.useState(false);
@@ -88,50 +90,47 @@ export function ExpandableCard({
               ref={cardRef}
               onClick={(e) => e.stopPropagation()}
               className={cn(
-  "w-full max-w-[90vw] sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-175 h-[85vh] relative perspective-[1000px] pointer-events-auto",
-  classNameExpanded
-)}
+                "w-full max-w-[90vw] sm:max-w-[85vw] md:max-w-[75vw] lg:max-w-175 h-[85vh] relative perspective-[1000px] pointer-events-auto",
+                classNameExpanded
+              )}
 
               {...props}
             >
               {/* 3D flip wrapper */}
-              
+
               <div
-                className="absolute inset-0 bg-zinc-900 rounded-2xl transition-transform duration-700 ease-in-out"
+                className="absolute inset-0 bg-black/40 backdrop-blur-md rounded-3xl transition-transform duration-500 ease-out border border-white/10 shadow-2xl"
                 style={{
                   transformStyle: "preserve-3d",
                   transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 }}
               >
-                
+
                 {/* FRONT face */}
                 <div
-                  className="absolute inset-0 rounded-3xl shadow-2xl border border-white/10 overflow-hidden flex flex-col"
+                  className="absolute inset-0 rounded-3xl shadow-2xl border border-white/10 overflow-hidden flex flex-col bg-black/40 backdrop-blur-md"
                   style={{ backfaceVisibility: "hidden" }}
                 >
-                  <ASMRStaticBackground/>
-                  {/* Image Section */}
-                  <motion.div layoutId={`image-${title}-${id}`}>
-                    <div className="relative">
-                      {src ? (
+                  <ASMRStaticBackground />
+                  {/* Image Section - only show if src exists */}
+                  {src && (
+                    <motion.div layoutId={`image-${title}-${id}`}>
+                      <div className="relative">
                         <img
                           src={src}
                           alt={title}
                           className="w-full h-48 sm:h-56 object-cover object-center"
                         />
-                      ) : (
-                        <div className="w-full h-48 sm:h-56 bg-linear-to-br from-gray-800 to-zinc-900" />
-                      )}
-                    </div>
-                  </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
                   {/* Header + Content */}
                   <div className="relative flex-1 flex flex-col">
-                    <div className="flex justify-between items-start p-4 sm:p-6">
+                    <div className="flex justify-between items-start p-3 sm:p-6">
                       <div className="flex-1">
-                        
                         <motion.h3
                           layoutId={`title-${title}-${id}`}
-                          className="font-bold text-white text-xl sm:text-3xl mt-1"
+                          className="michroma-regular font-bold text-white text-xl sm:text-2xl md:text-3xl drop-shadow-sm leading-tight"
                         >
                           {title}
                         </motion.h3>
@@ -167,11 +166,11 @@ export function ExpandableCard({
                     </div>
 
                     {/* Scrollable front content */}
-                    <div className="flex-1 px-4 sm:px-6 pb-6 overflow-auto">
+                    <div className="flex-1 px-3 sm:px-6 pb-3 sm:pb-6 overflow-auto flex items-center justify-center">
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-zinc-300 text-sm sm:text-base flex flex-col items-start gap-4"
+                        className="text-zinc-300 text-sm sm:text-base flex flex-col items-center gap-4 w-full"
                       >
                         {children}
                       </motion.div>
@@ -181,13 +180,13 @@ export function ExpandableCard({
 
                 {/* BACK face */}
                 <div
-                  className="absolute inset-0 rounded-3xl bg-zinc shadow-2xl border border-white/10 overflow-hidden flex flex-col"
+                  className="absolute inset-0 rounded-3xl bg-black/40 backdrop-blur-md shadow-2xl border border-white/10 overflow-hidden flex flex-col"
                   style={{
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
                   }}
                 >
-                  <div className="flex-1 overflow-auto px-4 sm:px-6 py-6">
+                  <div className="flex-1 overflow-auto px-3 sm:px-6 py-3 sm:py-6">
                     {backContent}
                   </div>
                 </div>
@@ -208,37 +207,35 @@ export function ExpandableCard({
         layoutId={`card-${title}-${id}`}
         onClick={() => setActive(true)}
         className={cn(
-          "p-3 flex flex-col bg-white/5 hover:bg-white/10 transition-colors shadow-sm rounded-2xl cursor-pointer border border-white/10",
+          "p-5 flex flex-col bg-white/5 hover:bg-white/10 transition-colors shadow-sm rounded-2xl cursor-pointer border border-white/10 min-h-[220px]",
           className
         )}
       >
-        <div className="flex gap-4 flex-col sm:flex-row items-center sm:items-start">
-          <motion.div layoutId={`image-${title}-${id}`} className="w-full sm:w-auto">
-            {src ? (
-              <img
-                src={src}
-                alt={title}
-                className="w-full sm:w-64 h-40 sm:h-48 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="w-full sm:w-64 h-40 sm:h-48 rounded-lg bg-zinc-800" />
-            )}
-          </motion.div>
-          <div className="flex-1 text-center sm:text-left py-2">
+        <div className="flex gap-4 flex-col sm:flex-row items-center sm:items-start flex-1">
+          {src && (
+            <motion.div layoutId={`image-${title}-${id}`} className="w-full sm:w-auto">
+              <img src={src} alt={title} className="w-full sm:w-64 h-40 sm:h-48 rounded-lg object-cover" />
+            </motion.div>
+          )}
+
+          <div className={`flex-1 ${src ? "text-center sm:text-left" : "text-center"} flex flex-col justify-between h-full`}>
             <motion.h3
               layoutId={`title-${title}-${id}`}
-              className="text-white font-semibold text-lg sm:text-xl"
+              className="michroma-regular text-white font-semibold text-lg sm:text-xl md:text-2xl mb-4"
             >
               {title}
             </motion.h3>
             <motion.p
               layoutId={`description-${description}-${id}`}
-              className="text-zinc-400 text-sm font-medium"
+              className="text-zinc-400 text-sm font-medium hidden"
             >
               {description}
             </motion.p>
           </div>
         </div>
+
+        {/* Collapsed summary area (meta) */}
+        {collapsedChildren ? <div className="mt-auto pt-3">{collapsedChildren}</div> : null}
       </motion.div>
     </>
   );

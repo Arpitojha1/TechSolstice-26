@@ -186,7 +186,7 @@ export type Event = {
 interface EventCardProps {
   event: Event;
   isRegistered: boolean;
-  hasAccess: boolean; 
+  hasAccess: boolean;
 }
 
 export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
@@ -231,9 +231,40 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
   return (
     <ExpandableCard
       title={event.name}
-      src={event.imageUrl || "/placeholder.jpg"}
-      description={event.shortDescription || ""}
+      description=""
       isFlipped={isFlipped}
+      className="bg-black/40 backdrop-blur-md border-white/10 hover:bg-black/50 transition-all duration-300"
+      collapsedChildren={
+        <div className="space-y-3">
+          {/* Meta Grid - Always 3 columns */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-col items-center gap-1 p-2 bg-white/5 rounded-lg">
+              <Calendar size={16} className="text-cyan-400 shrink-0" />
+              <span className="text-neutral-200 text-xs truncate w-full text-center">{eventDate}</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 p-2 bg-white/5 rounded-lg">
+              <Clock size={16} className="text-cyan-400 shrink-0" />
+              <span className="text-neutral-200 text-xs truncate w-full text-center">{eventTime}</span>
+            </div>
+            <div className="flex flex-col items-center gap-1 p-2 bg-white/5 rounded-lg">
+              <MapPin size={16} className="text-cyan-400 shrink-0" />
+              <span className="text-neutral-200 text-xs truncate w-full text-center" title={event.venue || "TBA"}>
+                {event.venue || "TBA"}
+              </span>
+            </div>
+          </div>
+          
+          {/* Prize Pool - Fixed position */}
+          <div className="flex items-center justify-center min-h-[28px]">
+            {event.prize_pool && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 rounded-lg">
+                <Trophy size={14} className="text-yellow-400 shrink-0" />
+                <span className="text-xs font-semibold text-yellow-300">₹{event.prize_pool}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      }
       backContent={
         isRegistered ? (
           <TeamDashboard
@@ -273,73 +304,95 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
         )
       }
     >
-      <div className="space-y-6 pt-2 w-full">
-        <p className="text-neutral-300 leading-relaxed line-clamp-4">
-          {event.longDescription}
-        </p>
-
-        {/* STATUS BADGES */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {isRegistered && (
-            <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 p-2 rounded-lg">
-              <CheckCircle2 className="text-green-500" size={16} />
-              <span className="text-green-400 font-bold text-sm">Registered</span>
-            </div>
-          )}
-
-          {isPassLocked && (
-            <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 p-2 rounded-lg">
-              <Lock className="text-yellow-400" size={16} />
-              <span className="text-yellow-300 font-bold text-sm">Pass Required</span>
-            </div>
-          )}
-
-          {isLocked && !isRegistered && !isComingSoon && (
-            <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 p-2 rounded-lg">
-              <Lock className="text-red-500" size={16} />
-              <span className="text-red-400 font-bold text-sm">Closed</span>
-            </div>
-          )}
-        </div>
-
+      <div className="flex flex-col items-center justify-center space-y-3 sm:space-y-4 w-full max-w-2xl mx-auto py-4">
+        {/* Prize Pool - Top position */}
         {event.prize_pool && (
-          <div className="flex items-center justify-center gap-2 w-fit mx-auto px-4 py-2 border-2 border-[#C9A227] bg-gradient-to-r from-[#FF9500] via-[#FFCC00] to-[#FFCC00] rounded-2xl shadow-lg">
-            <Trophy size={17} className="text-white shrink-0" />
-            <span className="text-base font-bold text-black">Prize: ₹{event.prize_pool}</span>
+          <div className="flex items-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-2 sm:py-2.5 bg-gradient-to-r from-yellow-500/25 to-amber-500/25 rounded-xl border border-yellow-500/30 shadow-lg">
+            <Trophy size={18} className="text-yellow-400 shrink-0 sm:w-[20px] sm:h-[20px]" />
+            <span className="text-sm sm:text-lg font-bold text-yellow-300">₹{event.prize_pool}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
-            <Calendar size={18} className="text-cyan-400" />
-            <span className="text-sm text-neutral-200">{eventDate}</span>
+        {/* Meta Grid - Centered */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full">
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+            <Calendar size={20} className="text-cyan-400 shrink-0 sm:w-[24px] sm:h-[24px]" />
+            <div className="text-center">
+              <p className="text-xs text-neutral-400 mb-0.5">Date</p>
+              <p className="text-xs sm:text-sm font-semibold text-neutral-200">{eventDate}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
-            <Clock size={18} className="text-cyan-400" />
-            <span className="text-sm text-neutral-200">{eventTime}</span>
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+            <Clock size={20} className="text-cyan-400 shrink-0 sm:w-[24px] sm:h-[24px]" />
+            <div className="text-center">
+              <p className="text-xs text-neutral-400 mb-0.5">Time</p>
+              <p className="text-xs sm:text-sm font-semibold text-neutral-200">{eventTime}</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2 p-3 bg-white/5 rounded-lg border border-white/10">
-            <MapPin size={18} className="text-cyan-400" />
-            <span className="text-sm text-neutral-200">{event.venue || "TBA"}</span>
+          <div className="flex flex-col items-center gap-1.5 sm:gap-2 p-2.5 sm:p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+            <MapPin size={20} className="text-cyan-400 shrink-0 sm:w-[24px] sm:h-[24px]" />
+            <div className="text-center">
+              <p className="text-xs text-neutral-400 mb-0.5">Venue</p>
+              <p className="text-xs sm:text-sm font-semibold text-neutral-200 truncate w-full" title={event.venue || "TBA"}>
+                {event.venue || "TBA"}
+              </p>
+            </div>
           </div>
         </div>
+        
+        {/* Description - Centered */}
+        {event.longDescription && (
+          <div className="w-full p-3 sm:p-4 bg-white/5 rounded-xl border border-white/10">
+            <h4 className="text-white font-semibold text-sm sm:text-base mb-2 text-center">About This Event</h4>
+            <p className="text-neutral-300 text-xs sm:text-sm leading-relaxed line-clamp-4 sm:line-clamp-6 text-center">
+              {event.longDescription}
+            </p>
+          </div>
+        )}
 
-        <div className="w-full flex items-center justify-center pt-4">
+        {/* STATUS BADGES - Centered */}
+        {(isRegistered || isPassLocked || (isLocked && !isRegistered && !isComingSoon)) && (
+          <div className="flex flex-wrap gap-2 justify-center">
+            {isRegistered && (
+              <div className="flex items-center gap-2 bg-green-500/15 px-4 py-2 rounded-lg border border-green-500/30">
+                <CheckCircle2 className="text-green-400" size={16} />
+                <span className="text-green-400 font-semibold text-xs sm:text-sm">Registered</span>
+              </div>
+            )}
+
+            {isPassLocked && (
+              <div className="flex items-center gap-2 bg-yellow-500/15 px-4 py-2 rounded-lg border border-yellow-500/30">
+                <Lock className="text-yellow-400" size={16} />
+                <span className="text-yellow-300 font-semibold text-xs sm:text-sm">Pass Required</span>
+              </div>
+            )}
+
+            {isLocked && !isRegistered && !isComingSoon && (
+              <div className="flex items-center gap-2 bg-red-500/15 px-4 py-2 rounded-lg border border-red-500/30">
+                <Lock className="text-red-400" size={16} />
+                <span className="text-red-400 font-semibold text-xs sm:text-sm">Closed</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Action Button - Centered */}
+        {/* TEMPORARILY DISABLED - Registration and Pass Purchase */}
+        {/* <div className="w-full flex items-center justify-center pt-2">
           <Button
             onClick={() => !isDisabled && setIsFlipped(true)}
             size="lg"
             disabled={isDisabled}
             variant={isRegistered ? "outline" : "default"}
-            className={`font-bold px-12 w-full md:w-auto ${
-              isRegistered
-                ? "border-green-500/50 text-green-400"
-                : "bg-cyan-500 hover:bg-cyan-600 text-black"
-            }`}
+            className={`font-bold text-sm sm:text-base px-10 sm:px-12 w-full sm:w-auto transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${isRegistered
+                ? "border-green-500/50 text-green-400 hover:bg-green-500/10"
+                : "bg-cyan-500 hover:bg-cyan-600 text-black shadow-lg"
+              }`}
           >
             {buttonIcon}
             {buttonText}
           </Button>
-        </div>
+        </div> */}
       </div>
     </ExpandableCard>
   );

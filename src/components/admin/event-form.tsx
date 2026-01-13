@@ -109,9 +109,7 @@ export function EventForm({ onCancel, onSave, event }: EventFormProps) {
               <SelectItem value="Finance and Strategy">Finance and Strategy</SelectItem>
               <SelectItem value="Quizzes and Tech Games">Quizzes and Tech Games</SelectItem>
               <SelectItem value="Creative and Design">Creative and Design</SelectItem>
-              <SelectItem value="Innovation and Ideation">Innovation and Ideation</SelectItem>
               <SelectItem value="Gaming Zone">Gaming Zone</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>
