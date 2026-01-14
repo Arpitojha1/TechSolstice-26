@@ -97,7 +97,9 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
     <ExpandableCard
       title={event.name}
       description=""
-      isFlipped={isFlipped}
+      // Flip functionality temporarily disabled
+      // isFlipped={isFlipped}
+      isFlipped={false}
       // THEME UPDATE: Pitch black, sharp borders, red hover. 
       className="w-full h-full min-h-[340px] bg-black border border-white/10 hover:border-red-500/50 transition-colors duration-300 group rounded-lg"
       collapsedChildren={
@@ -147,6 +149,8 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           </div>
         </div>
       }
+      // Back-side content (flip) temporarily commented out — preserve for later
+      /*
       backContent={
         isRegistered ? (
           <TeamDashboard
@@ -188,6 +192,8 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           </div>
         )
       }
+      */
+      backContent={null}
     >
       <div className="flex flex-col items-center justify-start sm:justify-center space-y-8 w-full h-full py-6">
 
@@ -272,7 +278,8 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
         <div className="w-full flex items-center justify-center pt-2">
           {mounted ? (
             <Button
-              onClick={() => !isDisabled && setIsFlipped(true)}
+              // Flip action disabled temporarily
+              onClick={() => { }}
               size="lg"
               disabled={isDisabled}
               variant={isRegistered ? "outline" : "default"}
