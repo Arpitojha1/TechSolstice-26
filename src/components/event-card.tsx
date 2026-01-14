@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ExpandableCard from "@/components/ui/expandable-card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Trophy, CheckCircle2, Lock, Hourglass, Users } from "lucide-react";
@@ -32,23 +32,32 @@ interface EventCardProps {
 
 export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const now = new Date();
+  // HYDRATION FIX: Only calculate dates after component mounts on client
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Safe defaults for Server Side Rendering (SSR) to prevent #418 mismatch
+  const now = mounted ? new Date() : new Date(0); // Default to epoch on server
   const regStart = event.registration_starts_at ? new Date(event.registration_starts_at) : new Date(0);
-  const isComingSoon = now < regStart;
-  const isLocked = !event.is_reg_open;
 
+  // Logic
+  const isComingSoon = mounted ? now < regStart : false; // Assume open on server to prevent lockout
+  const isLocked = !event.is_reg_open;
   const isPassLocked = !hasAccess && !isRegistered;
 
-  const eventDate = event.starts_at
+  // Date Formatting - only computed when mounted to match client timezone
+  const eventDate = mounted && event.starts_at
     ? new Date(event.starts_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
     : "TBA";
 
-  const eventTime = event.starts_at
+  const eventTime = mounted && event.starts_at
     ? new Date(event.starts_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
     : "TBA";
 
-  // LOGIC: Team Size Display
+  // Team Size Logic
   const teamSizeDisplay =
     event.min_team_size === event.max_team_size
       ? event.min_team_size === 1
@@ -77,33 +86,37 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
     }
   }
 
+  // Prevent rendering unstable content until hydration is complete
+  // (Optional: You can render a skeleton here if you prefer, but this prevents the crash)
+  if (!mounted) {
+    // Return a static "Server Safe" version or just the structure to prevent layout shift
+    // We render the structure but with safe default text ("TBA")
+  }
+
   return (
     <ExpandableCard
       title={event.name}
       description=""
       isFlipped={isFlipped}
       // THEME UPDATE: Pitch black, sharp borders, red hover. 
-      // Added min-h-[340px] to give it more physical estate to breathe.
       className="w-full h-full min-h-[340px] bg-black border border-white/10 hover:border-red-500/50 transition-colors duration-300 group rounded-lg"
       collapsedChildren={
         <div className="space-y-5 w-full">
-          {/* Meta Grid - Updated to 4 Columns to fit Team Size comfortably */}
+          {/* Meta Grid */}
           <div className="grid grid-cols-4 divide-x divide-white/10 border-t border-white/10 pt-5 w-full">
             <div className="flex flex-col items-center gap-1.5 px-1">
-              {/* Increased label size: text-[10px] */}
               <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Date</span>
-              {/* Increased value size: text-xs sm:text-sm */}
-              <span className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
+              {/* suppressHydrationWarning added for extra safety on timestamps */}
+              <span suppressHydrationWarning className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
                 {eventDate}
               </span>
             </div>
             <div className="flex flex-col items-center gap-1.5 px-1">
               <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Time</span>
-              <span className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
+              <span suppressHydrationWarning className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
                 {eventTime}
               </span>
             </div>
-            {/* New Team Size Column */}
             <div className="flex flex-col items-center gap-1.5 px-1">
               <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Team</span>
               <div className="flex items-center gap-1">
@@ -121,12 +134,11 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
             </div>
           </div>
 
-          {/* Prize Pool - Minimal Text Only */}
+          {/* Prize Pool */}
           <div className="flex items-center justify-center pt-2">
             {event.prize_pool && (
               <div className="flex items-baseline gap-2 text-red-500">
                 <Trophy size={12} className="opacity-80" />
-                {/* Increased Prize Font */}
                 <span className="text-xs sm:text-sm font-mono font-bold tracking-tight">
                   ₹{event.prize_pool}
                 </span>
@@ -179,7 +191,7 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
     >
       <div className="flex flex-col items-center justify-start sm:justify-center space-y-8 w-full h-full py-6">
 
-        {/* Prize Pool - Sharp Industrial Look */}
+        {/* Prize Pool */}
         {event.prize_pool && (
           <div className="flex items-center gap-3 px-5 py-2.5 border border-red-900/30 rounded-md bg-red-950/5">
             <Trophy size={18} className="text-red-500" />
@@ -191,20 +203,17 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
         {/* Meta Grid - 4 Columns */}
         <div className="grid grid-cols-4 w-full divide-x divide-white/10 mt-2">
           <div className="flex flex-col items-center justify-center px-2 gap-2">
-            {/* Increased label size: text-[10px] sm:text-xs */}
             <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Date</p>
-            {/* Increased value size: text-sm sm:text-base */}
-            <p className="text-sm sm:text-base font-medium text-neutral-200 text-center">
+            <p suppressHydrationWarning className="text-sm sm:text-base font-medium text-neutral-200 text-center">
               {eventDate}
             </p>
           </div>
           <div className="flex flex-col items-center justify-center px-2 gap-2">
             <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Time</p>
-            <p className="text-sm sm:text-base font-medium text-neutral-200 text-center">
+            <p suppressHydrationWarning className="text-sm sm:text-base font-medium text-neutral-200 text-center">
               {eventTime}
             </p>
           </div>
-          {/* Expanded Team Column */}
           <div className="flex flex-col items-center justify-center px-2 gap-2">
             <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Team</p>
             <div className="flex items-center gap-1.5">
@@ -222,7 +231,7 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           </div>
         </div>
 
-        {/* Description - Left Aligned with Red Accent Line */}
+        {/* Description */}
         {event.longDescription && (
           <div className="w-full px-4 sm:px-6">
             <div className="border-l-2 border-red-500/50 pl-4 py-2">
@@ -233,7 +242,7 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           </div>
         )}
 
-        {/* STATUS BADGES - Outlines Only */}
+        {/* STATUS BADGES */}
         {(isRegistered || isPassLocked || (isLocked && !isRegistered && !isComingSoon)) && (
           <div className="flex flex-wrap gap-3 justify-center pt-4">
             {isRegistered && (
@@ -259,23 +268,27 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           </div>
         )}
 
-        {/* Action Button - Centered */}
-        {/* TEMPORARILY DISABLED - Registration and Pass Purchase */}
-        {/* <div className="w-full flex items-center justify-center pt-2">
-          <Button
-            onClick={() => !isDisabled && setIsFlipped(true)}
-            size="lg"
-            disabled={isDisabled}
-            variant={isRegistered ? "outline" : "default"}
-            className={`font-bold text-sm sm:text-base px-8 py-6 w-full sm:w-auto transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider ${isRegistered
+        {/* Action Button - Only renders when mounted to avoid button mismatch */}
+        <div className="w-full flex items-center justify-center pt-2">
+          {mounted ? (
+            <Button
+              onClick={() => !isDisabled && setIsFlipped(true)}
+              size="lg"
+              disabled={isDisabled}
+              variant={isRegistered ? "outline" : "default"}
+              className={`font-bold text-sm sm:text-base px-8 py-6 w-full sm:w-auto transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider ${isRegistered
                 ? "border border-white/20 text-white hover:bg-white hover:text-black rounded-none"
                 : "bg-red-600 hover:bg-red-700 text-white border border-transparent rounded-none"
-              }`}
-          >
-            {buttonIcon}
-            {buttonText}
-          </Button>
-        </div> */}
+                }`}
+            >
+              {buttonIcon}
+              {buttonText}
+            </Button>
+          ) : (
+            // Skeleton / Loading Button state for SSR
+            <div className="h-14 w-40 bg-white/5 animate-pulse rounded-none" />
+          )}
+        </div>
       </div>
     </ExpandableCard>
   );
