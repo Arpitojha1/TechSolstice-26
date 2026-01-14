@@ -57,6 +57,14 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     description: "Valorant, FIFA, and Tekken tournaments for ultimate bragging rights.",
     gradient: "from-indigo-500 via-blue-500 to-cyan-500",
   },
+  {
+    id: "conclave",
+    title: "Conclave",
+    slug: "conclave",
+    dbValue: "Conclave",
+    description: "A curated summit of talks, panels and deep-dive workshops — join leaders and makers.",
+    gradient: "from-yellow-500 via-amber-500 to-orange-500",
+  },
 
 ];
 
