@@ -65,8 +65,37 @@ export const Footer = () => {
           {/* Logos Section - Mobile */}
           <div className="space-y-4">
             {/* Horizontal Logos */}
-            <div className="flex items-center justify-center">
-              <Logo variant="compact" />
+            <div className="flex items-center justify-center gap-4">
+              <a
+                href="/"
+                className="relative h-10 w-auto aspect-[3/1] hover:opacity-90 transition-opacity"
+                aria-label="Go to homepage"
+              >
+                <Image
+                  src="/logos/TechSolsticeLogo.png"
+                  alt="TechSolstice Wordmark"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="96px"
+                />
+              </a>
+              <div className="h-10 w-[1.5px] bg-white/30 rounded-full" />
+              <a
+                href="https://www.manipal.edu/mu/campuses/mahe-bengaluru/academics/institution-list/mitblr.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative h-10 w-10 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/logos/SCLogo.png"
+                  alt="Student Council Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="40px"
+                />
+              </a>
             </div>
 
             {/* Address below logos */}
@@ -150,8 +179,37 @@ export const Footer = () => {
               {/* Left: Logos + Address */}
               <div className="space-y-3 lg:space-y-4">
                 {/* Horizontal Logos */}
-                <div className="flex items-center gap-3 lg:gap-4 -ml-2">
-                  <Logo variant="compact" />
+                <div className="flex items-center gap-3 lg:gap-4">
+                  <a
+                    href="/"
+                    className="relative h-12 lg:h-14 w-auto aspect-[3/1] hover:opacity-90 transition-opacity"
+                    aria-label="Go to homepage"
+                  >
+                    <Image
+                      src="/logos/TechSolsticeLogo.png"
+                      alt="TechSolstice Wordmark"
+                      fill
+                      className="object-contain object-left"
+                      priority
+                      sizes="144px"
+                    />
+                  </a>
+                  <div className="h-12 lg:h-14 w-[1.5px] bg-white/30 rounded-full" />
+                  <a
+                    href="https://www.manipal.edu/mu/campuses/mahe-bengaluru/academics/institution-list/mitblr.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative h-12 lg:h-14 w-12 lg:w-14 hover:opacity-80 transition-opacity"
+                  >
+                    <Image
+                      src="/logos/SCLogo.png"
+                      alt="Student Council Logo"
+                      fill
+                      className="object-contain"
+                      priority
+                      sizes="56px"
+                    />
+                  </a>
                 </div>
 
                 {/* Address */}
