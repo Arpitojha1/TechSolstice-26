@@ -1,10 +1,46 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 
 export default function LoadingScreen({ fadeOut = false }) {
   const [mounted, setMounted] = useState(false);
+  const [fontSize, setFontSize] = useState<number>(120);
+  const textRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const measureText = useCallback(() => {
+    if (!containerRef.current || !textRef.current) return;
+
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (container.clientWidth === 0) return;
+
+    const availableWidth = container.clientWidth - 40; // 20px padding on each side
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const fontFamily = "Michroma, sans-serif";
+    const weight = "900";
+
+    let size = 120;
+    ctx.font = `${weight} ${size}px ${fontFamily}`;
+
+    const textContent = text.textContent || "TechSolstice'26";
+    let metrics = ctx.measureText(textContent);
+
+    let iterations = 0;
+    while (metrics.width > availableWidth && size > 20 && iterations < 100) {
+      size -= 2;
+      ctx.font = `${weight} ${size}px ${fontFamily}`;
+      metrics = ctx.measureText(textContent);
+      iterations++;
+    }
+
+    setFontSize(size);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -23,6 +59,36 @@ export default function LoadingScreen({ fadeOut = false }) {
       document.documentElement.style.overflow = "";
     };
   }, [fadeOut]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
+    measureText();
+
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        requestAnimationFrame(measureText);
+      }, 100);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+      resizeObserver.disconnect();
+    };
+  }, [mounted, measureText]);
 
   if (!mounted) return null;
 
@@ -51,13 +117,6 @@ export default function LoadingScreen({ fadeOut = false }) {
 
         .tech-text {
           font-family: 'Michroma', sans-serif;
-          
-          /* CRITICAL CHANGE: 
-             1. Lowered min-size to 1rem (16px) so it can shrink tiny if needed.
-             2. Uses 8vw to scale nicely on standard phones. 
-          */
-          font-size: clamp(1rem, 8vw, 5rem);
-          
           font-weight: 900;
           letter-spacing: -2px;
           text-transform: uppercase;
@@ -68,6 +127,7 @@ export default function LoadingScreen({ fadeOut = false }) {
           
           width: 100%;
           max-width: 100%;
+          line-height: 1.1;
           
           background: linear-gradient(
             135deg, 
@@ -98,10 +158,15 @@ export default function LoadingScreen({ fadeOut = false }) {
       `}</style>
 
       <div
+        ref={containerRef}
         className={`loader-wrapper ${fadeOut ? "fade-out" : ""}`}
         style={{ pointerEvents: fadeOut ? "none" : "all" }}
       >
-        <div className="tech-text">
+        <div 
+          ref={textRef}
+          className="tech-text"
+          style={{ fontSize: `${fontSize}px` }}
+        >
           TechSolstice'26
         </div>
       </div>

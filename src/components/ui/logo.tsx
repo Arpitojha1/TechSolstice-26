@@ -28,7 +28,7 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
 
   if (variant === "stacked") {
     return (
-      <div 
+      <div
         className={`flex flex-col items-center gap-4 bg-black/20 border border-white/10 backdrop-blur-xl px-6 py-4 rounded-xl shadow-lg ${className}`}
         style={{
           boxShadow: "inset 0 0 2px 1px rgba(255,255,255,0.15), 0 24px 60px rgba(2,6,23,0.55)",
@@ -73,7 +73,7 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
   }
 
   return (
-    <div 
+    <div
       className={`flex items-center gap-4 bg-black/20 border border-white/10 backdrop-blur-xl px-4 py-2 rounded-xl shadow-lg ${className}`}
       style={{
         boxShadow: "inset 0 0 2px 1px rgba(255,255,255,0.15), 0 24px 60px rgba(2,6,23,0.55)",

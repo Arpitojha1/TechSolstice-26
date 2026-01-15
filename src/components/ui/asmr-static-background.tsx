@@ -206,7 +206,7 @@ const ASMRStaticBackground: React.FC = () => {
         {/* Black-tinted overlay with subtle backdrop blur to darken and soften the background */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-black/20 backdrop-blur-none pointer-events-none"
+          className="absolute inset-0 bg-black/5 backdrop-blur-none pointer-events-none"
           style={{ mixBlendMode: 'multiply' }}
         />
       </div>
