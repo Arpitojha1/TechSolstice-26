@@ -16,14 +16,14 @@ export default function LoadingScreen({ fadeOut = false }) {
     const text = textRef.current;
     if (container.clientWidth === 0) return;
 
-    const availableWidth = container.clientWidth - 40; // 20px padding on each side
+    const availableWidth = container.clientWidth - 32; // Match hero-robot padding
 
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const fontFamily = "Michroma, sans-serif";
-    const weight = "900";
+    const fontFamily = "Michroma, Doto, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif";
+    const weight = "700";
 
     let size = 120;
     ctx.font = `${weight} ${size}px ${fontFamily}`;
@@ -106,7 +106,7 @@ export default function LoadingScreen({ fadeOut = false }) {
           opacity: 1;
           visibility: visible;
           transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s step-end;
-          padding: 0 20px; 
+          overflow: hidden;
         }
 
         .loader-wrapper.fade-out {
@@ -115,40 +115,59 @@ export default function LoadingScreen({ fadeOut = false }) {
           pointer-events: none;
         }
 
-        .tech-text {
-          font-family: 'Michroma', sans-serif;
-          font-weight: 900;
-          letter-spacing: -2px;
-          text-transform: uppercase;
+        .tech-text-container {
           text-align: center;
-          
-          /* FORCE SINGLE LINE */
-          white-space: nowrap;
-          
           width: 100%;
           max-width: 100%;
-          line-height: 1.1;
-          
-          background: linear-gradient(
-            135deg, 
-            #4a0417 0%,   
-            #7D0D2C 30%,  
-            #ff1a1a 50%,  
-            #7D0D2C 70%,  
-            #4a0417 100%  
-          );
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          
-          animation: shine 3s linear infinite, scaleIn 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          overflow: visible;
+          position: relative;
+          padding: 0 16px;
         }
 
-        @keyframes shine {
-          to {
-            background-position: 200% center;
+        .tech-text {
+          font-family: 'Michroma', 'Doto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-weight: 700;
+          text-align: center;
+          white-space: nowrap;
+          line-height: 1.1;
+          display: inline-block;
+          position: relative;
+          
+          color: rgba(255, 255, 255, 0.9);
+          text-shadow: 0.02em 0.02em 0 rgba(0,0,0,0.7);
+          
+          animation: scaleIn 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .tech-text::after {
+          content: attr(data-shadow);
+          position: absolute;
+          top: 4px;
+          left: 4px;
+          z-index: -1;
+          background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.25) 55%, transparent 0);
+          background-size: 0.04em 0.04em;
+          background-clip: text;
+          -webkit-background-clip: text;
+          color: transparent;
+          animation: shadanim 20s linear infinite;
+        }
+
+        @media (min-width: 768px) {
+          .tech-text::after {
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.2) 55%, transparent 0);
           }
+        }
+
+        @media (max-width: 640px) {
+          .tech-text::after {
+            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 0);
+          }
+        }
+
+        @keyframes shadanim {
+          0% { background-position: 0 0; }
+          100% { background-position: 100% 100%; }
         }
 
         @keyframes scaleIn {
@@ -162,12 +181,15 @@ export default function LoadingScreen({ fadeOut = false }) {
         className={`loader-wrapper ${fadeOut ? "fade-out" : ""}`}
         style={{ pointerEvents: fadeOut ? "none" : "all" }}
       >
-        <div 
-          ref={textRef}
-          className="tech-text"
-          style={{ fontSize: `${fontSize}px` }}
-        >
-          TechSolstice'26
+        <div className="tech-text-container" style={{ fontSize: `${fontSize}px` }}>
+          <span 
+            ref={textRef}
+            className="tech-text"
+            data-shadow="TechSolstice'26"
+            style={{ fontSize: '1em' }}
+          >
+            TechSolstice'26
+          </span>
         </div>
       </div>
     </>

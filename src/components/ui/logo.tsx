@@ -105,7 +105,7 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
         href={mitUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`relative w-auto ${variant === "compact" ? "h-10 md:h-14 aspect-square" : "h-8 md:h-12 aspect-square"} hover:opacity-80 transition-opacity -ml-[5px]`}
+        className={`relative w-auto ${variant === "compact" ? "h-10 md:h-14 aspect-square" : "h-8 md:h-12 aspect-square"} hover:opacity-80 transition-opacity -ml-[10px]`}
       >
         <Image
           src="/logos/SCLogo.png"
