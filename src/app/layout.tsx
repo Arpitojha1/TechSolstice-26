@@ -22,6 +22,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TechSolstice'26",
   description: "Official website for TechSolstice - 2026",
+  icons: {
+    icon: '/favicon.ico',
+  },
   // Performance optimization
   other: {
     'preload': 'true'
