@@ -124,7 +124,6 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isInView, setIsInView] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
   // Detect if device is mobile/tablet to disable animation for performance
@@ -281,12 +280,26 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
     updateCanvasSize();
 
+    // CRITICAL: Draw initial frame immediately so canvas is visible on mount
+    // This eliminates the pop-in delay when scrolling to footer
+    if (gridParams) {
+      drawGrid(
+        ctx,
+        canvas.width,
+        canvas.height,
+        gridParams.cols,
+        gridParams.rows,
+        gridParams.squares,
+        gridParams.dpr,
+      );
+    }
+
     // Throttle animation to a target FPS to reduce CPU/painter cost during scroll
     const TARGET_FPS = 18;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
     let lastDraw = performance.now();
     const animate = (time: number) => {
-      if (!isInView || !shouldAnimate) {
+      if (!shouldAnimate) {
         animationFrameId = requestAnimationFrame(animate);
         return;
       }
@@ -324,28 +337,18 @@ export const FlickeringGrid: React.FC<FlickeringGridProps> = ({
 
     resizeObserver.observe(container);
 
-    const intersectionObserver = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0 },
-    );
-
-    intersectionObserver.observe(canvas);
-
-    // Animate only on desktop when in view
-    if (shouldAnimate && isInView) {
+    // Start animation immediately on mount (removed IntersectionObserver blocking)
+    if (shouldAnimate) {
       animationFrameId = requestAnimationFrame(animate);
     }
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       resizeObserver.disconnect();
-      intersectionObserver.disconnect();
       window.removeEventListener("scroll", onScroll);
       clearTimeout(scrollRef.timer);
     };
-  }, [setupCanvas, updateSquares, drawGrid, width, height, isInView, shouldAnimate]);
+  }, [setupCanvas, updateSquares, drawGrid, width, height, shouldAnimate]);
 
   return (
     <div

@@ -1,16 +1,13 @@
 "use client";
 
 import { Mail, Phone, Linkedin, Instagram } from "lucide-react";
-import dynamic from "next/dynamic";
+// Removed: import dynamic from "next/dynamic";
 import Image from "next/image";
 import Logo from "@/components/ui/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-// Dynamically load the responsive flicker component on client only
-const FlickeringGridResponsiveLazy = dynamic(
-  () => import("./ui/flickering-grid").then((m) => m.FlickeringGridResponsive),
-  { ssr: false }
-);
+// CHANGED: Static import to ensure the animation code is loaded immediately with the page
+import { FlickeringGridResponsive } from "./ui/flickering-grid";
 
 export const siteConfig = {
   contactData: {
@@ -66,8 +63,6 @@ export const Footer = () => {
             <div className="flex items-center justify-center">
               <Logo variant="compact" />
             </div>
-
-            {/* (social icons moved to Contact Us area) */}
 
             {/* Address below logos */}
             <div className="text-center text-base text-neutral-400 space-y-0.5">
@@ -154,9 +149,6 @@ export const Footer = () => {
                   <Logo variant="compact" />
                 </div>
 
-                {/* Social icons */}
-                {/* (social icons moved to Contact Us area) */}
-
                 {/* Address */}
                 <div className="text-base lg:text-lg text-neutral-400 space-y-1 leading-relaxed">
                   {siteConfig.contactData.address.map((line, i) => (
@@ -195,13 +187,13 @@ export const Footer = () => {
                       <div className="text-sm lg:text-base text-neutral-400">
                         {contact.name} <span className="text-neutral-600">•</span> {contact.role}
                       </div>
-                          <a
-                            href={`mailto:${contact.email}`}
-                            className="flex items-center justify-end gap-2.5 text-sm lg:text-base text-neutral-400 hover:text-white transition-colors"
-                          >
-                            <span className="text-sm lg:text-base">{contact.email}</span>
-                            <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-neutral-400 group-hover:text-white transition-colors" />
-                          </a>
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="flex items-center justify-end gap-2.5 text-sm lg:text-base text-neutral-400 hover:text-white transition-colors"
+                      >
+                        <span className="text-sm lg:text-base">{contact.email}</span>
+                        <Mail className="h-4 w-4 lg:h-5 lg:w-5 text-neutral-400 group-hover:text-white transition-colors" />
+                      </a>
                     </div>
                   ))}
                 </div>
@@ -254,7 +246,8 @@ export const Footer = () => {
 function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: number }) {
   return (
     <div className="absolute inset-0 z-10 w-full">
-      <FlickeringGridResponsiveLazy
+      {/* CHANGED: Using the statically imported component directly */}
+      <FlickeringGridResponsive
         text={text}
         baseFontSize={baseFontSize}
         className="h-full w-full"
