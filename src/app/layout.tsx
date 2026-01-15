@@ -7,6 +7,7 @@ import ASMRStaticBackground from '@/components/ui/asmr-static-background';
 import TechSolsticeNavbar from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import Logo from '@/components/ui/logo';
+import { ScrollToTop } from '@/components/scroll-to-top';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,11 +71,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
       >
         <SpeedInsights />
+        <ScrollToTop />
         {/* Background layer - lowest z-index */}
         <ASMRStaticBackground />
 
         {/* Fixed Logo - same as homepage */}
-        <div className="fixed top-4 left-4 md:top-6 md:left-8 z-50">
+        <div className="fixed top-4 left-4 md:top-6 md:left-8 z-50 flex items-center">
           <Logo />
         </div>
 

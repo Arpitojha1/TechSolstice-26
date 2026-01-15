@@ -21,20 +21,27 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
       if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    router.push("/", { scroll: false });
+    router.push("/");
   };
 
   const mitUrl = "https://www.manipal.edu/mu/campuses/mahe-bengaluru/academics/institution-list/mitblr.html";
 
   if (variant === "stacked") {
     return (
-      <div className={`flex flex-col items-center gap-3 ${className}`}>
-        {/* Stacked: Student Council Logo (approx 80-100px) */}
-        <a 
+      <div 
+        className={`flex flex-col items-center gap-4 bg-black/20 border border-white/10 backdrop-blur-xl px-6 py-4 rounded-xl shadow-lg ${className}`}
+        style={{
+          boxShadow: "inset 0 0 2px 1px rgba(255,255,255,0.15), 0 24px 60px rgba(2,6,23,0.55)",
+          WebkitBackdropFilter: "blur(24px)",
+          backdropFilter: "blur(24px)",
+        }}
+      >
+        {/* Stacked: Student Council Logo (smaller) */}
+        <a
           href={mitUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative h-20 w-20 sm:h-24 sm:w-24 hover:opacity-80 transition-opacity"
+          className="relative h-16 w-16 sm:h-20 sm:w-20 hover:opacity-80 transition-opacity"
         >
           <Image
             src="/logos/SCLogo.png"
@@ -42,14 +49,14 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
             fill
             className="object-contain"
             priority
-            sizes="(max-width: 640px) 80px, 100px"
+            sizes="(max-width: 640px) 64px, 80px"
           />
         </a>
-        {/* Stacked: Wordmark (approx 120-170px wide) */}
-        <a 
-          href="/" 
-          onClick={handleHomeClick} 
-          className="relative h-10 w-auto aspect-[3/1] sm:h-14 hover:opacity-90 transition-opacity"
+        {/* Stacked: Wordmark (smaller) */}
+        <a
+          href="/"
+          onClick={handleHomeClick}
+          className="relative h-8 w-auto aspect-[3/1] sm:h-12 hover:opacity-90 transition-opacity"
           aria-label="Go to homepage"
         >
           <Image
@@ -58,7 +65,7 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
             fill
             className="object-contain"
             priority
-            sizes="(max-width: 640px) 120px, 170px"
+            sizes="(max-width: 640px) 96px, 144px"
           />
         </a>
       </div>
@@ -66,12 +73,19 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
   }
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      {/* Header: Wordmark (approx 120-170px wide) */}
-      <a 
-        href="/" 
+    <div 
+      className={`flex items-center gap-4 bg-black/20 border border-white/10 backdrop-blur-xl px-4 py-2 rounded-xl shadow-lg ${className}`}
+      style={{
+        boxShadow: "inset 0 0 2px 1px rgba(255,255,255,0.15), 0 24px 60px rgba(2,6,23,0.55)",
+        WebkitBackdropFilter: "blur(24px)",
+        backdropFilter: "blur(24px)",
+      }}
+    >
+      {/* Header: Wordmark (smaller) */}
+      <a
+        href="/"
         onClick={handleHomeClick}
-        className={`relative w-auto ${variant === "compact" ? "h-12 md:h-16" : "h-10 md:h-14"} aspect-[3/1] hover:opacity-90 transition-opacity`}
+        className={`relative w-auto ${variant === "compact" ? "h-10 md:h-14" : "h-8 md:h-12"} aspect-[3/1] hover:opacity-90 transition-opacity`}
         aria-label="Go to homepage"
       >
         <Image
@@ -80,18 +94,18 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
           fill
           className="object-contain object-left"
           priority
-          sizes="(max-width: 768px) 120px, 170px"
+          sizes="(max-width: 768px) 96px, 144px"
         />
       </a>
 
-      <div className={`${variant === "compact" ? "h-12 md:h-16" : "h-8 md:h-10"} w-[1.5px] bg-white/30 rounded-full`} />
+      <div className={`${variant === "compact" ? "h-10 md:h-14" : "h-7 md:h-9"} w-[1.5px] bg-white/30 rounded-full -ml-[25px]`} />
 
-      {/* Header: Student Council Logo (approx 40-60px) */}
-      <a 
+      {/* Header: Student Council Logo (smaller) */}
+      <a
         href={mitUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`relative w-auto ${variant === "compact" ? "h-12 md:h-16 aspect-square" : "h-10 md:h-14 aspect-square"} hover:opacity-80 transition-opacity`}
+        className={`relative w-auto ${variant === "compact" ? "h-10 md:h-14 aspect-square" : "h-8 md:h-12 aspect-square"} hover:opacity-80 transition-opacity -ml-[5px]`}
       >
         <Image
           src="/logos/SCLogo.png"
@@ -99,7 +113,7 @@ export function Logo({ variant = "header", className = "" }: LogoProps) {
           fill
           className="object-contain"
           priority
-          sizes="(max-width: 768px) 40px, 60px"
+          sizes="(max-width: 768px) 32px, 48px"
         />
       </a>
     </div>

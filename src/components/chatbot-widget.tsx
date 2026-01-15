@@ -16,7 +16,8 @@ export function ChatbotWidget() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  // Track if we have shown the welcome message for this specific page load
+  const hasWelcomeRef = useRef(false)
 
   // Create a session ID that persists for this browser session
   const [sessionId] = useState(() =>
@@ -39,13 +40,13 @@ export function ChatbotWidget() {
 
     try {
       // 2. Fetch from API
-      // Adjust path if your API is on localhost:3001 explicitly
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage.content,
           sessionId,
+          // Only send the last 4 messages for context to save tokens
           conversationHistory: messages.slice(-4).map((m) => ({
             role: m.role,
             content: m.content,
@@ -60,7 +61,6 @@ export function ChatbotWidget() {
       }
 
       // 3. Add Assistant Message
-      // Handle the data structure from your backend (checking for data.reply or data.response)
       const replyContent = data.response || data.reply?.detailedAnswer || "I received your message but couldn't process the response format."
 
       const assistantMessage: Message = {
@@ -80,7 +80,7 @@ export function ChatbotWidget() {
     } catch (error: any) {
       console.error("Chat Error:", error)
       const errorMessage: Message = {
-        id: `msg-${Date.now()}`,
+        id: `msg-err-${Date.now()}`,
         role: "assistant",
         content: "Sorry, I'm having trouble connecting to the server. Please try again later.",
         timestamp: new Date(),
@@ -91,37 +91,24 @@ export function ChatbotWidget() {
     }
   }
 
-  // Local welcome message when the widget opens (no LLM call)
+  // Local welcome message logic
   useEffect(() => {
-    if (!isOpen) return
+    // If the widget is open and we haven't welcomed the user yet *in this mount*
+    if (isOpen && !hasWelcomeRef.current) {
+      const welcome = "Hello there! I'm Spark — here to help you with any question regarding TechSolstice. Ask me about schedules and events"
 
-    // Only show the welcome once per browser session
-    try {
-      const shown = typeof window !== 'undefined' && sessionStorage.getItem('sparky_welcome_shown')
-      if (shown) return
-    } catch (e) {
-      // ignore sessionStorage errors
-    }
-
-    const welcome = "Hello there! I'm Sparky — here to help you with any question regarding TechSolstice. Ask me about schedules, speakers, passes, or workshops."
-
-    // Avoid duplicate welcome if it's already in messages
-    const already = messages.some((m) => m.content === welcome)
-    if (!already) {
       const assistantMessage: Message = {
         id: `msg-welcome-${Date.now()}`,
         role: "assistant",
         content: welcome,
         timestamp: new Date(),
       }
+
       setMessages((prev) => [...prev, assistantMessage])
-      try {
-        sessionStorage.setItem('sparky_welcome_shown', '1')
-      } catch (e) {
-        // ignore
-      }
+
+      // Mark as shown so it doesn't duplicate if the user toggles the chat open/closed
+      hasWelcomeRef.current = true
     }
-  // Only re-run when `isOpen` changes
   }, [isOpen])
 
   return (

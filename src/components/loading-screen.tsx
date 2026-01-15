@@ -9,7 +9,6 @@ export default function LoadingScreen({ fadeOut = false }) {
   useEffect(() => {
     setMounted(true);
 
-    // Scroll Lock
     if (!fadeOut) {
       document.body.style.overflow = "hidden";
       document.documentElement.style.overflow = "hidden";
@@ -25,10 +24,8 @@ export default function LoadingScreen({ fadeOut = false }) {
     };
   }, [fadeOut]);
 
-  // Don't render anything on the server (hydration mismatch prevention)
   if (!mounted) return null;
 
-  // The actual Loader UI
   const loaderContent = (
     <>
       <style>{`
@@ -39,10 +36,11 @@ export default function LoadingScreen({ fadeOut = false }) {
           align-items: center;
           justify-content: center;
           background: #000;
-          z-index: 2147483647; /* Maximum Z-Index */
+          z-index: 2147483647;
           opacity: 1;
           visibility: visible;
           transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.2s step-end;
+          padding: 0 20px; 
         }
 
         .loader-wrapper.fade-out {
@@ -53,10 +51,23 @@ export default function LoadingScreen({ fadeOut = false }) {
 
         .tech-text {
           font-family: 'Michroma', sans-serif;
-          font-size: clamp(2rem, 5vw, 5rem);
+          
+          /* CRITICAL CHANGE: 
+             1. Lowered min-size to 1rem (16px) so it can shrink tiny if needed.
+             2. Uses 8vw to scale nicely on standard phones. 
+          */
+          font-size: clamp(1rem, 8vw, 5rem);
+          
           font-weight: 900;
           letter-spacing: -2px;
           text-transform: uppercase;
+          text-align: center;
+          
+          /* FORCE SINGLE LINE */
+          white-space: nowrap;
+          
+          width: 100%;
+          max-width: 100%;
           
           background: linear-gradient(
             135deg, 
@@ -97,6 +108,5 @@ export default function LoadingScreen({ fadeOut = false }) {
     </>
   );
 
-  // Magic: Render directly into the document body, bypassing all Layout nesting
   return createPortal(loaderContent, document.body);
 }

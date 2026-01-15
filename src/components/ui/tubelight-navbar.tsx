@@ -44,7 +44,7 @@ export function NavBar({ items, className }: NavBarProps) {
 
   const handleNavClick = (item: NavItem, e: React.MouseEvent) => {
     e.preventDefault();
-    router.push(item.url, { scroll: false });
+    router.push(item.url);
     setActiveTab(item.name);
     setMobileMenuOpen(false);
   };
