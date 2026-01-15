@@ -181,7 +181,7 @@ const SpeakerShowcase: React.FC = () => {
                 <div className="h-1.5 w-1.5 bg-white/80 rounded-full animate-ping" />
               </div>
               <div className="text-[10px] tracking-[0.4em] text-white/40 uppercase">
-                Incoming Transmission
+                Speaker to be revealed soon
               </div>
             </div>
 

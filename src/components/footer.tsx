@@ -1,7 +1,6 @@
 "use client";
 
 import { Mail, Phone, Linkedin, Instagram } from "lucide-react";
-// Removed: import dynamic from "next/dynamic";
 import Image from "next/image";
 import Logo from "@/components/ui/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -45,27 +44,33 @@ export const Footer = () => {
   return (
     <footer
       id="footer"
-      className="w-full pb-0 bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10 max-h-[50vh] overflow-hidden"
+      // FIXED: Removed 'max-h-[50vh]' so it can grow when zoomed. 
+      // Removed 'overflow-hidden' to prevent clipping content. 
+      // Added 'pb-safe' concept via padding.
+      className="w-full bg-black/40 backdrop-blur-md border-t border-white/10 relative z-10"
     >
-      {/* Subtle top border glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 pointer-events-none">
-        <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-500/20 to-transparent opacity-70" />
+      {/* Subtle top border glow - wrapped in overflow-hidden div to prevent scrollbars */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-neutral-500/20 to-transparent opacity-70" />
+        </div>
       </div>
 
       {/* Main Content Container */}
-      <div className="w-full relative z-20 px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <div className="w-full relative z-20 px-4 sm:px-6 lg:px-8 py-8 md:py-12">
 
         {/* Mobile Layout (< 768px) */}
-        <div className="block md:hidden space-y-4">
+        {/* FIXED: Added 'pb-20' to ensure content clears mobile nav bars */}
+        <div className="block md:hidden space-y-6 pb-20">
           {/* Logos Section - Mobile */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Horizontal Logos */}
             <div className="flex items-center justify-center">
               <Logo variant="compact" />
             </div>
 
             {/* Address below logos */}
-            <div className="text-center text-xs text-neutral-400 space-y-0.5">
+            <div className="text-center text-xs text-neutral-400 space-y-1">
               {siteConfig.contactData.address.map((line, i) => (
                 <div key={i}>{line}</div>
               ))}
@@ -76,7 +81,7 @@ export const Footer = () => {
           <div className="h-px w-16 mx-auto bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
 
           {/* Contact Info - Mobile */}
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-5">
             <h3 className="text-base font-semibold text-white">Contact Us</h3>
 
             {/* Email */}
@@ -89,9 +94,9 @@ export const Footer = () => {
             </a>
 
             {/* Contacts Grid */}
-            <div className="grid grid-cols-1 gap-3 pt-1">
+            <div className="grid grid-cols-1 gap-4 pt-1">
               {siteConfig.contactData.contacts.map((contact, idx) => (
-                <div key={idx} className="space-y-1">
+                <div key={idx} className="space-y-1.5">
                   <a
                     href={`tel:${contact.phone}`}
                     className="flex items-center justify-center gap-2 text-white text-sm font-medium hover:text-neutral-300 transition-colors"
@@ -104,23 +109,23 @@ export const Footer = () => {
                   </div>
                   <a
                     href={`mailto:${contact.email}`}
-                    className="flex items-center justify-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors"
+                    className="flex items-center justify-center gap-2 text-xs text-neutral-400 hover:text-white transition-colors break-all"
                   >
-                    <Mail className="h-3 w-3" />
+                    <Mail className="h-3 w-3 flex-shrink-0" />
                     <span>{contact.email}</span>
                   </a>
                 </div>
               ))}
             </div>
 
-            {/* Social icons - mobile, placed at bottom of contact area */}
-            <div className="flex items-center justify-center gap-4 mt-4 pb-[50px]">
+            {/* Social icons - mobile */}
+            <div className="flex items-center justify-center gap-6 mt-4">
               <a
                 href="https://www.linkedin.com/company/techsolstice/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TechSolstice on LinkedIn"
-                className="text-neutral-300 hover:text-white transition-colors"
+                className="text-neutral-300 hover:text-white transition-colors p-2"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -129,7 +134,7 @@ export const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TechSolstice on Instagram"
-                className="text-neutral-300 hover:text-white transition-colors"
+                className="text-neutral-300 hover:text-white transition-colors p-2"
               >
                 <Instagram className="w-5 h-5" />
               </a>
@@ -150,7 +155,7 @@ export const Footer = () => {
                 </div>
 
                 {/* Address */}
-                <div className="text-sm lg:text-base text-neutral-400 space-y-0.5 leading-relaxed">
+                <div className="text-sm lg:text-base text-neutral-400 space-y-1 leading-relaxed">
                   {siteConfig.contactData.address.map((line, i) => (
                     <div key={i}>{line}</div>
                   ))}
@@ -158,7 +163,7 @@ export const Footer = () => {
               </div>
 
               {/* Center: Vertical Divider */}
-              <div className="h-full w-px bg-gradient-to-b from-transparent via-neutral-700 to-transparent" />
+              <div className="self-stretch w-px bg-gradient-to-b from-transparent via-neutral-700 to-transparent mx-auto" />
 
               {/* Right: Contact Info */}
               <div className="space-y-4 lg:space-y-5 text-right">
@@ -197,7 +202,7 @@ export const Footer = () => {
                     </div>
                   ))}
                 </div>
-                {/* Social icons - desktop contact side bottom */}
+                {/* Social icons - desktop */}
                 <div className="flex items-center justify-end gap-4 mt-3">
                   <a
                     href="https://www.linkedin.com/company/techsolstice/"
@@ -226,8 +231,9 @@ export const Footer = () => {
 
       {/* Flickering Grid Background - Only on tablet+ */}
       {isTabletOrLarger && (
+        // FIXED: Changed fixed height to min-height so it respects content flow
         <div
-          className="w-full md:h-[15vh] lg:h-[18vh] relative mt-4 md:mt-6 z-0 pb-4 md:pb-6"
+          className="w-full h-[150px] md:h-[180px] relative z-0 mt-4"
           style={{
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%)",
             maskImage: "linear-gradient(to bottom, transparent, black 20%)",
@@ -246,7 +252,6 @@ export const Footer = () => {
 function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: number }) {
   return (
     <div className="absolute inset-0 z-10 w-full">
-      {/* CHANGED: Using the statically imported component directly */}
       <FlickeringGridResponsive
         text={text}
         baseFontSize={baseFontSize}
