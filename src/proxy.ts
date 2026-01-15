@@ -24,14 +24,16 @@ export async function proxy(request: NextRequest) {
 
   // Define protected zones
   const isAdminPage = url.pathname.startsWith('/admin-dashboard')
-  //const isPassesPage = url.pathname.startsWith('/passes')
+  const isPassesPage = url.pathname.startsWith('/passes')
   const isOnboarding = url.pathname === '/complete-profile'
   const isLoginPage = url.pathname === '/login'
+  const isProfilePage = url.pathname === '/profile'
 
   // --- GATE 1: Unauthenticated Users ---
-  // if (!user && (isAdminPage || isPassesPage || isOnboarding)) {
-  //   return NextResponse.redirect(new URL('/login', request.url))
-  // }
+  // ADD ISPASSESPAGE CHECK TOO
+  if (!user && (isAdminPage || isPassesPage || isOnboarding || isProfilePage || isLoginPage)) {
+    return NextResponse.redirect(new URL('/', request.url))
+  }
 
   // --- GATE 2: Authenticated Users ---
   if (user) {
