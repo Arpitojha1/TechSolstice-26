@@ -133,10 +133,26 @@ export default function LoadingScreen({ fadeOut = false }) {
           display: inline-block;
           position: relative;
           
-          color: rgba(255, 255, 255, 0.9);
-          text-shadow: 0.02em 0.02em 0 rgba(0,0,0,0.7);
+          /* Red gradient matching site theme */
+          background: linear-gradient(
+            135deg, 
+            #7a0c0c 0%,
+            #ff1a1a 25%,
+            #ff4444 50%,
+            #ff1a1a 75%,
+            #7a0c0c 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
           
-          animation: scaleIn 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          /* Subtle glow effect */
+          filter: drop-shadow(0 0 20px rgba(255, 26, 26, 0.3));
+          
+          animation: scaleIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards, 
+                     shimmer 3s ease-in-out infinite,
+                     pulse 2s ease-in-out infinite;
         }
 
         .tech-text::after {
@@ -145,7 +161,7 @@ export default function LoadingScreen({ fadeOut = false }) {
           top: 4px;
           left: 4px;
           z-index: -1;
-          background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.25) 45%, rgba(255,255,255,0.25) 55%, transparent 0);
+          background: linear-gradient(45deg, transparent 45%, rgba(255, 50, 50, 0.3) 45%, rgba(255, 50, 50, 0.3) 55%, transparent 0);
           background-size: 0.04em 0.04em;
           background-clip: text;
           -webkit-background-clip: text;
@@ -155,13 +171,13 @@ export default function LoadingScreen({ fadeOut = false }) {
 
         @media (min-width: 768px) {
           .tech-text::after {
-            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.2) 55%, transparent 0);
+            background: linear-gradient(45deg, transparent 45%, rgba(255, 40, 40, 0.25) 45%, rgba(255, 40, 40, 0.25) 55%, transparent 0);
           }
         }
 
         @media (max-width: 640px) {
           .tech-text::after {
-            background: linear-gradient(45deg, transparent 45%, rgba(255,255,255,0.3) 45%, rgba(255,255,255,0.3) 55%, transparent 0);
+            background: linear-gradient(45deg, transparent 45%, rgba(255, 60, 60, 0.35) 45%, rgba(255, 60, 60, 0.35) 55%, transparent 0);
           }
         }
 
@@ -170,9 +186,19 @@ export default function LoadingScreen({ fadeOut = false }) {
           100% { background-position: 100% 100%; }
         }
 
+        @keyframes shimmer {
+          0%, 100% { background-position: 0% center; }
+          50% { background-position: 200% center; }
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255, 26, 26, 0.3)); }
+          50% { transform: scale(1.02); filter: drop-shadow(0 0 30px rgba(255, 26, 26, 0.5)); }
+        }
+
         @keyframes scaleIn {
-          0% { transform: scale(0.95); opacity: 0; filter: blur(10px); }
-          100% { transform: scale(1); opacity: 1; filter: blur(0px); }
+          0% { transform: scale(0.92); opacity: 0; filter: drop-shadow(0 0 40px rgba(255, 26, 26, 0.6)) blur(15px); }
+          100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 20px rgba(255, 26, 26, 0.3)) blur(0px); }
         }
       `}</style>
 
