@@ -22,7 +22,7 @@ export const EVENT_CATEGORIES: EventCategory[] = [
     title: "Robotics & Hardware",
     slug: "robotics-hardware",
     dbValue: "Robotics and Hardware",
-    description: "Drone racing, line followers, and combat bots. Witness metal clash and circuits spark.",
+    description: "Line followers, and combat bots. Witness metal clash and circuits spark.",
     gradient: "from-orange-500 via-red-500 to-pink-500",
   },
   {
