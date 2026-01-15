@@ -65,7 +65,7 @@ export function CategoryPageClient({
 
           {/* Title Section */}
           <div className="space-y-4">
-            <h1 className={`text-5xl md:text-7xl font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent michroma-regular`}>
+            <h1 className={`text-5xl md:text-7xl font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent michroma-regular pb-2 leading-tight`}>
               {category.title}
             </h1>
             <p className="text-lg md:text-xl text-neutral-400 max-w-3xl">
