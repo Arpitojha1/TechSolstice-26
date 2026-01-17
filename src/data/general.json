@@ -1,0 +1,205 @@
+[
+  {
+    "id": "gen_about",
+    "keywords": [
+      "what is techsolstice",
+      "about techsolstice",
+      "tell me about techsolstice",
+      "what is this fest",
+      "about the fest",
+      "about this fest",
+      "about solstice",
+      "solstice",
+      "techsolstice info",
+      "what is tech solstice"
+    ],
+    "response": "**TechSolstice** is the flagship annual tech fest of MIT Bengaluru.\n\nIt brings together students from across India to compete, collaborate, and innovate through a wide range of technical and creative events."
+  },
+  {
+    "id": "gen_organizers",
+    "keywords": [
+      "who organizes",
+      "who is organizing",
+      "who organized",
+      "organized by",
+      "organizers",
+      "organizing committee",
+      "who runs this",
+      "who is behind this",
+      "conducted by",
+      "who conducts this"
+    ],
+    "response": "TechSolstice is organized by students of **MIT Bengaluru**, supported by the Student Council and the Techfest Committee."
+  },
+  {
+    "id": "gen_event_count",
+    "keywords": [
+      "how many events",
+      "total events",
+      "number of events",
+      "event count",
+      "events count",
+      "how many competitions",
+      "total competitions"
+    ],
+    "response": "There are **30 events** scheduled for TechSolstice, including competitions, workshops, and speaker sessions."
+  },
+  {
+    "id": "gen_activities",
+    "keywords": [
+      "what happens",
+      "what to expect",
+      "types of events",
+      "kind of events",
+      "what activities",
+      "whats happening",
+      "what all is there"
+    ],
+    "response": "TechSolstice features:\n\n- Technical competitions\n- Hands-on workshops\n- Speaker sessions\n- Gaming events\n- Creative challenges"
+  },
+  {
+    "id": "gen_eligibility",
+    "keywords": [
+      "who can join",
+      "can i participate",
+      "am i eligible",
+      "eligibility criteria",
+      "eligibility",
+      "outsiders allowed",
+      "other colleges allowed",
+      "external students allowed",
+      "non mit students",
+      "can outsiders join"
+    ],
+    "response": "TechSolstice is open to students from all recognized institutions across India.\n\nThere are no restrictions based on college or branch."
+  },
+  {
+    "id": "gen_host",
+    "keywords": [
+      "where is techsolstice",
+      "where is the fest",
+      "where is it held",
+      "venue address",
+      "fest location",
+      "fest venue",
+      "which college",
+      "host college",
+      "about the college",
+      "tell me about the college",
+      "about mit bengaluru",
+      "about mit",
+      "mit info",
+      "college info",
+      "institute info",
+      "mit bengaluru address",
+      "campus location",
+      "how to reach",
+      "location of fest",
+      "where is it"
+    ],
+    "response": "**Venue:** Manipal Institute of Technology, Bengaluru (MIT-BLR)\n\n**Address:** Manipal Academy of Higher Education, Yelahanka, Bengaluru, Karnataka"
+  },
+  {
+    "id": "gen_dates",
+    "keywords": [
+      "when is techsolstice",
+      "when is the fest",
+      "when is it",
+      "fest dates",
+      "fest timing",
+      "when does it start",
+      "when does it end",
+      "event dates",
+      "fest schedule",
+      "which month",
+      "what are the dates",
+      "dates of fest",
+      "when is fest"
+    ],
+    "response": "TechSolstice 2026 is scheduled for **February 2026**.\n\nExact dates will be announced on our official social media handles."
+  },
+  {
+    "id": "gen_socials",
+    "keywords": [
+      "instagram handle",
+      "instagram",
+      "linkedin page",
+      "linkedin",
+      "social media",
+      "official handles",
+      "follow techsolstice",
+      "insta id",
+      "techsolstice instagram",
+      "socials"
+    ],
+    "response": "**Official Handles:**\n\n- Instagram: [@TECHSOLSTICE.MITBLR](https://instagram.com/TECHSOLSTICE.MITBLR)\n- LinkedIn: [TechSolstice MITBLR](https://linkedin.com/company/techsolstice-mitblr)"
+  },
+  {
+    "id": "gen_contact",
+    "keywords": [
+      "contact number",
+      "phone number",
+      "email address",
+      "how to contact",
+      "reach out",
+      "get in touch",
+      "helpdesk",
+      "coordinator contact",
+      "organizer contact",
+      "contact details"
+    ],
+    "response": "**Contact Us:**\n\n- Mahek Sethi: +91 98219 01461 | mahek.mitblr2024@learner.manipal.edu\n- Samaira Malik: +91 84462 03821 | samaira1.mitblr2024@learner.manipal.edu"
+  },
+  {
+    "id": "gen_registration",
+    "keywords": [
+      "how to register",
+      "registration process",
+      "how to sign up",
+      "how to apply",
+      "register for events",
+      "registration link",
+      "how do i register",
+      "how can i register"
+    ],
+    "response": "To register for events:\n\n1. Visit the **Passes** page on our website\n2. Select your preferred pass type\n3. Complete payment and profile setup\n4. Register for individual events from the **Events** page"
+  },
+  {
+    "id": "gen_passes",
+    "keywords": [
+      "pass price",
+      "ticket price",
+      "entry fee",
+      "registration fee",
+      "how much does it cost",
+      "passes available",
+      "buy pass",
+      "purchase ticket",
+      "pass cost",
+      "ticket cost"
+    ],
+    "response": "Event passes are available on our website.\n\nVisit the **Passes** page for pricing details and to purchase your pass."
+  },
+  {
+    "id": "gen_jhagruth_who",
+    "keywords": [
+      "who is jhagruth",
+      "jhagruth",
+      "about jhagruth",
+      "tell me about jhagruth",
+      "jhagruth chan"
+    ],
+    "response": "Jhagruth-chan?! 👨‍💻✨ The ultimate tech senpai of MIT Bengaluru! Legend says he doesn't sleep - he just enters power saving mode. His code is so clean, Marie Kondo would weep tears of joy. Some say he once fixed a bug by just saying 'it's not a bug, it's a feature' and the compiler believed him. Truly built different! �"
+  },
+  {
+    "id": "gen_jhagruth_single",
+    "keywords": [
+      "is jhagruth single",
+      "jhagruth single",
+      "jhagruth relationship",
+      "jhagruth dating",
+      "jhagruth chan single"
+    ],
+    "response": "Bruh, you really said 'Is Jhagruth-chan single?' 💀💀 My guy is probably too busy being the main character in everyone's coding arc! But hey, shoot your shot! 💅 Slide into those DMs like you're deploying to production - with confidence and a backup plan! @jhagruth 📱✨ Remember: 'You miss 100% of the shots you don't take' - Wayne Gretzky - Michael Scott - Spark Bot"
+  }
+]
