@@ -1,123 +1,122 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
 import { rateLimiter } from '@/lib/chatbot/rate-limiter';
 import { formatEventDetails } from '@/lib/chatbot/formatter';
 import { analyzeQuery, QueryIntent } from '@/lib/chatbot/analyzer';
+import { findEvent, findCategory, getEventsByCategory } from '@/lib/chatbot/local-search';
 
 export const runtime = 'nodejs';
 
-// Fallback message
-const FALLBACK_MESSAGE = `I couldn't find that event in my schedule.
-For specific inquiries, please reach out to our Outreach Team:
-**Mahek Sethi**: +91 98219 01461
-**Samaira Malik**: +91 84462 03821`;
+const FALLBACK_MSG = `I didn't catch that. Could you check the spelling?`;
 
-// WORDS THAT INDICATE A FOLLOW-UP (Not a new search)
-const GENERIC_WORDS = new Set([
-  'what', 'when', 'where', 'who', 'how', 'is', 'are', 'the', 'a', 'an',
-  'it', 'this', 'that', 'event', 'details', 'about', 'tell', 'me', 'know',
-  'prize', 'pool', 'money', 'cost', 'fee', 'team', 'size', 'limit',
-  'venue', 'location', 'place', 'time', 'date', 'schedule', 'register',
-  'registration', 'rules', 'format', 'contacts', 'contact'
+// 1. DEFINE FOLLOW-UP WORDS
+const FOLLOW_UP_WORDS = new Set([
+  'what', 'when', 'where', 'who', 'how', 'is', 'the', 'it', 'details', 'about',
+  'prize', 'pool', 'money', 'cost', 'fee', 'pay', 'amount', 'cash',
+  'venue', 'location', 'place', 'room', 'spot',
+  'time', 'date', 'schedule', 'start', 'starts', 'end', 'ends', 'timing',
+  'team', 'size', 'limit', 'members', 'solo', 'group', 'squad',
+  'register', 'registration', 'link', 'signup',
+  'contact', 'rule', 'rules', 'format',
+  'at', 'in', 'on', 'for', 'to', 'of', 'a', 'an'
 ]);
 
-function isFollowUpQuestion(message: string): boolean {
-  const lower = message.toLowerCase();
-  const words = lower.replace(/[^\w\s]/gi, '').split(/\s+/).filter(w => w.length > 0);
-  return words.every(w => GENERIC_WORDS.has(w));
+function isPureFollowUp(message: string): boolean {
+  const clean = message.toLowerCase().replace(/[^\w\s]/g, '').trim();
+  const words = clean.split(/\s+/);
+  return words.every(w => FOLLOW_UP_WORDS.has(w));
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
   let sessionId = 'unknown';
 
   try {
     const body = await req.json();
     const { message } = body;
-    const lastEventContext = body.activeContext || null;
+    let currentContext = body.activeContext || null;
     sessionId = body.sessionId || 'unknown';
 
-    // 1. SAFETY CHECKS
     if (!rateLimiter.checkLimit(sessionId).allowed) {
-      return NextResponse.json({ response: "You're typing too fast! Give me a minute." }, { status: 429 });
+      return NextResponse.json({ response: "You're typing too fast!" }, { status: 429 });
     }
-    await supabase.from('query_logs').insert({ session_id: sessionId, query_text: message, source: 'incoming' });
 
-    // 2. GREETING CHECK (Fast Exit)
-    // This runs BEFORE the database search, so "Hi" returns immediately.
+    // --- PRIORITY 1: STATE CHECK (With Escape Hatch) ---
+    if (currentContext === 'awaiting_category') {
+      const categoryMatch = findCategory(message);
+      if (categoryMatch) {
+        // Success: Found the category
+        const events = getEventsByCategory(categoryMatch);
+        const list = events.map(e => `• **${e.name}**`).join('\n');
+        return NextResponse.json({
+          response: `Here are the **${categoryMatch}** events:\n\n${list}\n\nType an event name for details!`,
+          context: null
+        });
+      } else {
+        // ESCAPE HATCH: User ignored the question and asked something else (e.g. "Where is Robowars")
+        // We drop the state and let the code below handle it.
+        currentContext = null;
+      }
+    }
+
     const analysis = analyzeQuery(message);
+
+    // --- PRIORITY 2: GREETING & GENERIC LIST ---
     if (analysis.intent === QueryIntent.GREETING) {
-      const greetings = [
-        "Hello! I'm Spark. Ask me about any TechSolstice event!",
-        "Hi there! Ready to explore the schedule?",
-        "Hey! I can help you with event details, venues, and times."
-      ];
       return NextResponse.json({
-        response: greetings[Math.floor(Math.random() * greetings.length)],
-        context: lastEventContext // Keep memory intact
+        response: "Hello! I'm Spark. I can list events by category or give details on specific ones.",
+        context: null
       });
     }
 
-    // 3. DECIDE STRATEGY
-    let targetedEvent = null;
-    const isFollowUp = isFollowUpQuestion(message);
-
-    // STRATEGY A: Direct Search
-    // Skip if it's just "When is it?" to avoid matching random events.
-    if (!isFollowUp) {
-      const { data: eventMatches } = await supabase.rpc(
-        'search_events_fuzzy',
-        { search_query: message }
-      );
-
-      if (eventMatches && eventMatches.length > 0) {
-        targetedEvent = eventMatches[0];
-      }
+    if (analysis.intent === QueryIntent.LIST_REQUEST) {
+      return NextResponse.json({
+        response: "Sure! Which category are you interested in?\n\n• Coding and Development\n• Robotics and Hardware\n• Finance and Strategy\n• Quizzes and Tech Games\n• Creative and Design\n• Gaming Zone\n• Conclave",
+        context: 'awaiting_category'
+      });
     }
 
-    // STRATEGY B: Context Fallback
-    if (!targetedEvent && lastEventContext) {
-      const { data: contextMatch } = await supabase
-        .from('events')
-        .select('*')
-        .ilike('name', lastEventContext)
-        .single();
+    // --- PRIORITY 3: FOLLOW-UP CHECK ---
+    const isFollowUp = isPureFollowUp(message);
 
-      if (contextMatch) {
-        targetedEvent = contextMatch;
-      }
-    }
-
-    // 4. SUCCESS RESPONSE
-    if (targetedEvent) {
-      const { data: fullEvent } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', targetedEvent.id)
-        .single();
-
-      if (fullEvent) {
-        await supabase.from('query_logs').insert({
-          session_id: sessionId,
-          query_text: message,
-          source: `match: ${fullEvent.name}`
-        });
-
+    if (isFollowUp && currentContext) {
+      const contextEvent = findEvent(currentContext);
+      if (contextEvent) {
         return NextResponse.json({
-          response: formatEventDetails(fullEvent, message),
-          context: fullEvent.name
+          response: formatEventDetails(contextEvent, message),
+          context: contextEvent.name
         });
       }
     }
 
-    // 5. FAILURE RESPONSE
+    // --- PRIORITY 4: SPECIFIC SEARCH ---
+
+    // A. Try EVENT First
+    const eventMatch = findEvent(message);
+    if (eventMatch) {
+      return NextResponse.json({
+        response: formatEventDetails(eventMatch, message),
+        context: eventMatch.name
+      });
+    }
+
+    // B. Try CATEGORY Second
+    const categoryMatch = findCategory(message);
+    if (categoryMatch) {
+      const events = getEventsByCategory(categoryMatch);
+      const list = events.map(e => `• **${e.name}**`).join('\n');
+      return NextResponse.json({
+        response: `Here are the **${categoryMatch}** events:\n\n${list}\n\nType an event name for details!`,
+        context: null
+      });
+    }
+
+    // --- PRIORITY 5: FALLBACK ---
     return NextResponse.json({
-      response: FALLBACK_MESSAGE,
-      context: lastEventContext
+      response: FALLBACK_MSG,
+      context: currentContext
     });
 
   } catch (e: any) {
     console.error("Server Error:", e);
-    return NextResponse.json({ response: "System error. Please try again later." }, { status: 500 });
+    return NextResponse.json({ response: "System error." }, { status: 500 });
   }
 }
