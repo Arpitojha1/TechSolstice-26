@@ -52,8 +52,11 @@ body,
   min-width: 100%;
   overflow-x: hidden;
   /* prevent horizontal scroll due to safe-area/overflow */
-  /* Prevent overscroll bounce revealing white background */
-  overscroll-behavior-y: none;
+}
+
+/* Prevent overscroll bounce revealing white background - only on html */
+html {
+  overscroll-behavior-y: contain;
 }
 
 /* Hide scrollbars but preserve scroll (Firefox) */
