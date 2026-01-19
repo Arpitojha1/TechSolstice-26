@@ -41,6 +41,8 @@ const RootLayout = ({
   return (
     <html lang="en">
       <head>
+        {/* Viewport meta tag for proper mobile rendering and keyboard handling */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
         {/* Set browser theme color to black to prevent white flash on overscroll */}
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-navbutton-color" content="#000000" />

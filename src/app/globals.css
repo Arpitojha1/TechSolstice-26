@@ -35,6 +35,21 @@ body {
   -webkit-touch-callout: none;
   user-select: none;
   -webkit-user-select: none;
+  /* iOS keyboard handling - prevent zoom on input focus */
+  font-size: 16px;
+}
+
+/* iOS specific: Prevent zoom on input focus and textarea */
+input,
+textarea,
+select {
+  font-size: 16px !important;
+  /* Prevent iOS from zooming when input is focused */
+}
+
+/* Prevent elastic scroll behavior on iOS when at top/bottom of scroll area */
+.prevent-overscroll {
+  overscroll-behavior: contain;
 }
 
 /* Full-bleed layout and hidden vertical scrollbar
