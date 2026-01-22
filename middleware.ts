@@ -21,12 +21,12 @@ const protectedRoutes = [
 ]
 
 // Routes that require admin access (checked server-side)
-const adminRoutes = [
+const adminRoutes: string[] = [
   // '/admin-dashboard', // TEMPORARILY DISABLED
 ]
 
 // Routes that should redirect to profile if authenticated
-const authRoutes = [
+const authRoutes: string[] = [
   // '/login' // TEMPORARILY DISABLED
 ]
 
@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
   // SERVER-SIDE ADMIN CHECK for admin routes
   if (isAdminRoute && token) {
     const userId = token.id as string
-    
+
     try {
       // Query Supabase admins table
       const response = await fetch(
@@ -72,7 +72,7 @@ export async function middleware(request: NextRequest) {
       )
 
       const data = await response.json()
-      
+
       // If not admin (empty array), redirect to profile
       if (!data || data.length === 0) {
         return NextResponse.redirect(new URL('/profile', request.url))
