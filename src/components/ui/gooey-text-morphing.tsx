@@ -95,7 +95,7 @@ export function GooeyText({
   }, [texts, morphTime, cooldownTime]);
 
   return (
-    <div className={cn("relative overflow-hidden", className)}>
+    <div className={cn("relative overflow-hidden w-full max-w-full", className)}>
       {/* High-tech Grid Background */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none opacity-20"
@@ -120,11 +120,11 @@ export function GooeyText({
         </defs>
       </svg>
 
-      <div className="flex items-center justify-center w-full h-full relative z-10" style={{ filter: "url(#threshold)" }}>
+      <div className="flex items-center justify-center w-full h-full relative z-10 overflow-hidden" style={{ filter: "url(#threshold)" }}>
         <span
           ref={text1Ref}
           className={cn(
-            "absolute inline-block select-none text-center w-full",
+            "absolute inline-block select-none text-center w-full max-w-full overflow-hidden px-2",
             textClassName,
           )}
           style={{ willChange: "filter, opacity" }}
@@ -132,7 +132,7 @@ export function GooeyText({
         <span
           ref={text2Ref}
           className={cn(
-            "absolute inline-block select-none text-center w-full",
+            "absolute inline-block select-none text-center w-full max-w-full overflow-hidden px-2",
             textClassName,
           )}
           style={{ willChange: "filter, opacity" }}

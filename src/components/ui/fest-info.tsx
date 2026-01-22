@@ -21,13 +21,13 @@ export default function FestInfo() {
         <div className="mx-auto max-w-4xl p-4 md:p-8 relative">
 
           {/* Animated Gooey Text - Core Values */}
-          <div className="relative z-10 mb-12">
+          <div className="relative z-10 mb-12 w-full max-w-full overflow-hidden">
             <GooeyText
               texts={["Innovation.", "Excellence.", "Synergy."]}
               morphTime={3}
               cooldownTime={3.5}
-              className="relative h-24 md:h-32"
-              textClassName="font-bold tracking-[0.2em] text-4xl md:text-7xl text-white michroma-regular uppercase"
+              className="relative h-16 md:h-32 max-w-full overflow-hidden px-4"
+              textClassName="font-bold tracking-[0.1em] md:tracking-[0.2em] text-xl sm:text-3xl md:text-7xl text-white michroma-regular uppercase break-words max-w-full"
             />
           </div>
 
