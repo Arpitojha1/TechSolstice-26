@@ -136,7 +136,7 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
   // MOBILE RENDER 
   // --------------------------------------------------------------------------
 
-if (isMobile) {
+  if (isMobile) {
     return (
       <div ref={containerRef} className="w-full min-h-[70vh] bg-black py-20 px-4 flex flex-col items-center justify-center relative overflow-hidden">
         {/* Backdrop Grid */}
@@ -152,9 +152,9 @@ if (isMobile) {
               <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
               <span className="text-[9px] font-bold text-neutral-400 tracking-[0.4em] uppercase">The Countdown</span>
             </div>
-            
+
             <h3 className="text-2xl font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-2">
-              TechSolstice '26
+              TechSolstice'26
             </h3>
             <p className="text-[10px] text-red-500/80 tracking-[0.3em] font-bold uppercase mb-1">MIT Bengaluru</p>
             <p className="text-[9px] text-neutral-500 tracking-[0.2em] uppercase">Feb 20 - 22, 2026</p>
@@ -250,7 +250,7 @@ if (isMobile) {
                   <span className="text-[10px] uppercase tracking-[0.6em] text-red-500 font-bold">The Grand Reveal</span>
                   <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
                 </div>
-                
+
                 <h3 className="text-4xl md:text-6xl font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-6 drop-shadow-2xl">
                   TechSolstice '26
                 </h3>

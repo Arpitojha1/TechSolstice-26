@@ -49,13 +49,13 @@ const SocialsPage = () => {
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md z-10"
       >
         <div className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] p-8 md:p-12 shadow-2xl overflow-hidden space-y-10">
-          
+
           <div className="space-y-3 text-center">
             <h1 className="text-3xl md:text-5xl font-bold text-white michroma-regular tracking-tight leading-tight uppercase">
               Connect
@@ -63,7 +63,7 @@ const SocialsPage = () => {
             <p className="text-neutral-500 text-[10px] font-black tracking-[0.3em] uppercase">The Solstice Network</p>
           </div>
 
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -118,9 +118,9 @@ const SocialsPage = () => {
             ))}
           </motion.div>
         </div>
-        
+
         <div className="mt-10 text-center">
-          <p className="text-[10px] text-neutral-600 uppercase tracking-[0.5em] font-black opacity-40 italic">Technical Solstice '26</p>
+          <p className="text-[10px] text-neutral-600 uppercase tracking-[0.5em] font-black opacity-40 italic">TechSolstice'26</p>
         </div>
       </motion.div>
     </div>

@@ -1,3 +1,12 @@
+/*
+ * ============================================
+ * TEMPORARILY DISABLED PAGE
+ * This page is disabled for the current website display phase.
+ * Access is blocked via middleware redirect to home page.
+ * Remove the redirect in middleware.ts to re-enable.
+ * ============================================
+ */
+
 import { requireAuth, getUserProfile, isProfileComplete } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Layout } from "@/components/layout";

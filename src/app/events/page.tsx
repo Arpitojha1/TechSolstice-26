@@ -33,9 +33,6 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen w-full relative overflow-x-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-250 bg-blue-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
-
       {/* Hero Section */}
       <div className="relative min-h-100 md:min-h-125 lg:min-h-150 px-4 z-10 flex items-center justify-center py-20">
         <motion.div 

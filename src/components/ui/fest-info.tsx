@@ -37,7 +37,7 @@ export default function FestInfo() {
           {/* Sub-header: Event Details */}
           <div className="space-y-3 mb-12">
             <p className="text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-red-500 michroma-regular">
-              TechSolstice '26 <span className="text-white/20 px-2">|</span> February 20-22
+              TechSolstice'26 <span className="text-white/20 px-2">|</span> February 20-22
             </p>
 
             <p className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-neutral-500">
@@ -65,16 +65,16 @@ export default function FestInfo() {
           {/* Call-to-Action Stats */}
           <div className="grid grid-cols-3 gap-6 md:gap-16 mt-12 max-w-3xl mx-auto">
             <div className="space-y-1">
-              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">30+</div>
+              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">30</div>
               <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">Categories</div>
             </div>
             <div className="space-y-1 border-x border-white/5">
-              <div className="text-2xl md:text-4xl font-bold text-red-600 michroma-regular">₹6.2L</div>
+              <div className="text-2xl md:text-4xl font-bold text-red-600 michroma-regular">₹6.7L</div>
               <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">In Rewards</div>
             </div>
             <div className="space-y-1">
-              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">3K+</div>
-              <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">Participants</div>
+              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">3</div>
+              <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">Days of Innovation</div>
             </div>
           </div>
 
