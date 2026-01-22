@@ -14,10 +14,10 @@ const temporarilyDisabledRoutes = [
 ]
 
 // Routes that require authentication
-const protectedRoutes = [
+const protectedRoutes: string[] = [
   // '/profile',        // TEMPORARILY DISABLED
   // '/complete-profile', // TEMPORARILY DISABLED
-  '/passes',
+  //'/passes',
 ]
 
 // Routes that require admin access (checked server-side)
