@@ -24,9 +24,9 @@ const SpeakerShowcase: React.FC = () => {
       const mm = gsap.matchMedia();
 
       // ============================================
-      // DESKTOP ANIMATION (>= 1024px)
+      // LARGE DESKTOP ANIMATION (> 1440px) - ORIGINAL
       // ============================================
-      mm.add("(min-width: 1024px)", () => {
+      mm.add("(min-width: 1441px)", () => {
         // Initial State for Desktop
         gsap.set(tvRef.current, {
           scale: 0.8,
@@ -73,6 +73,69 @@ const SpeakerShowcase: React.FC = () => {
           // 2. Slide TV to the left
           .to(tvRef.current, {
             left: "25%",
+            x: "-50%",
+            ease: "power3.inOut",
+            duration: 1,
+          }, ">-0.1")
+          // 3. Reveal Description
+          .to(descRef.current, {
+            autoAlpha: 1,
+            x: 0,
+            ease: "expo.out",
+            duration: 0.8,
+          }, "<0.3");
+      });
+
+      // ============================================
+      // LAPTOP ANIMATION (1024px - 1440px) - SCALED DOWN
+      // ============================================
+      mm.add("(min-width: 1024px) and (max-width: 1440px)", () => {
+        // Initial Scale smaller for laptop
+        gsap.set(tvRef.current, {
+          scale: 0.7, // Started at 0.8 on large
+          rotateY: 45,
+          rotateX: 10,
+          z: 0,
+          xPercent: 0,
+          left: "50%",
+          top: "55%",
+          x: "-50%",
+          y: "-50%",
+          position: "absolute",
+        });
+
+        gsap.set(descRef.current, {
+          autoAlpha: 0,
+          x: 80, // slightly less distance
+          position: "absolute",
+          right: "5%", // closer to edge to give space
+          top: "55%",
+          y: "-50%",
+        });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "+=150%",
+            scrub: 1.5,
+            pin: true,
+            anticipatePin: 1,
+          },
+        });
+
+        // 1. Bring TV to front and center
+        tl.to(tvRef.current, {
+          scale: 0.85, // Target 0.85 instead of 1
+          rotateY: 0,
+          rotateX: 0,
+          boxShadow: "0 0 40px rgba(220, 38, 38, 0.15)",
+          ease: "power3.inOut",
+          duration: 1,
+        })
+          // 2. Slide TV to the left
+          .to(tvRef.current, {
+            left: "22%", // Slightly more to the left
             x: "-50%",
             ease: "power3.inOut",
             duration: 1,

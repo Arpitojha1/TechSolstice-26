@@ -268,14 +268,14 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
                 </div>
               </div>
 
-              <div className="relative p-16 md:p-24 rounded-[3rem] bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden">
+              <div className="relative p-8 md:p-12 lg:p-16 xl:p-24 rounded-[3rem] bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden w-full max-w-[90vw] mx-auto">
                 {/* corner accents */}
                 <div className="absolute top-8 left-8 w-6 h-6 border-t border-l border-white/10" />
                 <div className="absolute top-8 right-8 w-6 h-6 border-t border-r border-white/10" />
                 <div className="absolute bottom-8 left-8 w-6 h-6 border-b border-l border-white/10" />
                 <div className="absolute bottom-8 right-8 w-6 h-6 border-b border-r border-white/10" />
 
-                <div className="flex items-start gap-12 md:gap-24 text-white justify-center relative z-10">
+                <div className="flex items-start gap-4 md:gap-8 lg:gap-16 xl:gap-24 text-white justify-center relative z-10">
                   <ResponsiveCounterUnit value={countdown.days} label="Days" />
                   <Separator />
                   <ResponsiveCounterUnit value={countdown.hours} label="Hours" />
@@ -315,10 +315,10 @@ const Separator = ({ mobile }: { mobile?: boolean }) => (
 
 const ResponsiveCounterUnit = ({ value, label }: { value: number; label: string }) => (
   <div className="flex flex-col items-center group flex-1 min-w-0 md:flex-none md:min-w-0">
-    <span className="text-2xl sm:text-4xl md:text-8xl font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
+    <span className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
       {String(value).padStart(2, '0')}
     </span>
-    <span className="text-[6px] sm:text-[7px] md:text-[10px] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.15em] sm:tracking-[0.3em] md:tracking-[0.5em] mt-1.5 sm:mt-2 md:mt-8 font-bold">
+    <span className="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.15em] sm:tracking-[0.3em] md:tracking-[0.5em] mt-1.5 sm:mt-2 md:mt-4 lg:mt-8 font-bold">
       {label}
     </span>
   </div>
