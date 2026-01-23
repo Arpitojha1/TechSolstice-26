@@ -7,13 +7,13 @@ import { useRef, useEffect, useState } from 'react';
 // TYPE DEFINITIONS
 // ============================================================================
 
-interface Image {
+interface ImageType {
   src: string;
   alt?: string;
 }
 
 interface ZoomParallaxProps {
-  images: Image[];
+  images: ImageType[];
 }
 
 // ============================================================================
@@ -35,6 +35,28 @@ const getImagePositionClass = (index: number) => {
 };
 
 // ============================================================================
+// SUB-COMPONENTS
+// ============================================================================
+
+const Separator = ({ mobile }: { mobile?: boolean }) => (
+  <div className={`flex flex-col justify-center opacity-20 ${mobile ? 'h-8' : 'h-full py-4'}`}>
+    <div className={`rounded-full bg-white/50 w-[1px] ${mobile ? 'h-2' : 'h-1/2'}`} />
+  </div>
+);
+
+const ResponsiveCounterUnit = ({ value, label }: { value: number; label: string }) => (
+  <div className="flex flex-col items-center group min-w-0 flex-1">
+    {/* Fluid typography: Min 1.5rem, Scales with width, Max 8rem */}
+    <span className="text-[clamp(1.5rem,6vw,4rem)] lg:text-[clamp(3rem,7vw,7rem)] font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
+      {String(value).padStart(2, '0')}
+    </span>
+    <span className="text-[clamp(6px,0.8vw,10px)] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.2em] lg:tracking-[0.4em] mt-2 lg:mt-6 font-bold truncate w-full text-center">
+      {label}
+    </span>
+  </div>
+);
+
+// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -44,19 +66,13 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // --------------------------------------------------------------------------
-  // MOBILE DETECTION
-  // --------------------------------------------------------------------------
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // --------------------------------------------------------------------------
-  // SCROLL LOGIC
-  // --------------------------------------------------------------------------
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
@@ -67,19 +83,17 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (isMobile) return;
     if (latest > 0 && latest < 1) {
-      setPositionState(prev => prev !== 'fixed' ? 'fixed' : prev);
+      setPositionState('fixed');
     } else if (latest >= 1) {
-      setPositionState(prev => prev !== 'absolute-bottom' ? 'absolute-bottom' : prev);
+      setPositionState('absolute-bottom');
     } else {
-      setPositionState(prev => prev !== 'absolute-top' ? 'absolute-top' : prev);
+      setPositionState('absolute-top');
     }
   });
 
-  // Animation Values
   const rawAnimationProgress = useTransform(scrollYProgress, [0, 0.9], [0, 1]);
   const smoothProgress = useTransform(rawAnimationProgress, v => v * (2 - v));
 
-  // Scales
   const scale4 = useTransform(smoothProgress, [0, 1], [1, 4]);
   const scale5 = useTransform(smoothProgress, [0, 1], [1, 5]);
   const scale6 = useTransform(smoothProgress, [0, 1], [1, 6]);
@@ -92,19 +106,14 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
   };
 
   const imagesOpacity = useTransform(smoothProgress, [0, 1], [1, 0]);
-  const timerOpacity = useTransform(smoothProgress, [0.3, 0.8], [0, 1]);
-  const stayTunedOpacity = useTransform(smoothProgress, [0.4, 0.73], [0, 1]);
+  const timerOpacity = useTransform(smoothProgress, [0.3, 0.85], [0, 1]);
   const bgOpacity = useTransform(smoothProgress, [0, 1], [0, 0.98]);
 
-  // --------------------------------------------------------------------------
-  // COUNTDOWN
-  // --------------------------------------------------------------------------
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
 
   useEffect(() => {
     const update = () => {
-      const now = Date.now();
-      const diff = TARGET_DATE - now;
+      const diff = TARGET_DATE - Date.now();
       if (diff <= 0) {
         setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: true });
         return;
@@ -132,150 +141,68 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
     zIndex: 10
   };
 
-  // --------------------------------------------------------------------------
-  // MOBILE RENDER 
-  // --------------------------------------------------------------------------
-
   if (isMobile) {
     return (
-      <div ref={containerRef} className="w-full min-h-[70vh] bg-black py-20 flex flex-col items-center justify-center relative overflow-hidden" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
-        {/* Backdrop Grid */}
+      <div ref={containerRef} className="w-full min-h-[80vh] bg-black py-20 flex flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[#020202]">
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.1]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)]" />
         </div>
-
-        <div className="text-center relative z-10 w-full max-w-sm px-2">
-          {/* Top Label */}
+        <div className="text-center relative z-10 w-full max-w-sm px-4">
           <div className="flex flex-col items-center mb-8">
-            <div className="flex items-center gap-2 mb-4 px-3 py-1 rounded-full border border-white/5 bg-white/5 backdrop-blur-md">
-              <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[9px] font-bold text-neutral-400 tracking-[0.4em] uppercase">The Countdown</span>
-            </div>
-
-            <h3 className="text-2xl font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-2">
-              TechSolstice'26
-            </h3>
-            <p className="text-[10px] text-red-500/80 tracking-[0.3em] font-bold uppercase mb-1">MIT Bengaluru</p>
-            <p className="text-[9px] text-neutral-500 tracking-[0.2em] uppercase">Feb 20 - 22, 2026</p>
+            <h3 className="text-2xl font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-2">TechSolstice'26</h3>
+            <p className="text-[10px] text-red-500/80 tracking-[0.3em] font-bold uppercase">Feb 20 - 22, 2026</p>
           </div>
-
-          {!countdown.finished ? (
-            <div className="relative w-full">
-              {/* Sleek Glass Card for Mobile */}
-              <div className="relative p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl max-w-[calc(100vw-2rem)] mx-auto">
-                {/* corner accents */}
-                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-2 h-2 border-t border-l border-white/10" />
-                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-2 h-2 border-t border-r border-white/10" />
-                <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-2 h-2 border-b border-l border-white/10" />
-                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-2 h-2 border-b border-r border-white/10" />
-
-                <div className="flex items-center justify-between gap-0.5 sm:gap-1">
-                  <ResponsiveCounterUnit value={countdown.days} label="Days" />
-                  <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.hours} label="Hrs" />
-                  <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.minutes} label="Min" />
-                  <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.seconds} label="Sec" />
-                </div>
-              </div>
+          <div className="relative p-6 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/[0.05]">
+            <div className="flex items-center justify-between gap-2">
+              <ResponsiveCounterUnit value={countdown.days} label="Days" />
+              <Separator mobile />
+              <ResponsiveCounterUnit value={countdown.hours} label="Hrs" />
+              <Separator mobile />
+              <ResponsiveCounterUnit value={countdown.minutes} label="Min" />
+              <Separator mobile />
+              <ResponsiveCounterUnit value={countdown.seconds} label="Sec" />
             </div>
-          ) : (
-            <div className="text-xl font-bold text-white tracking-widest uppercase michroma-regular">
-              Now Live
-            </div>
-          )}
+          </div>
         </div>
       </div>
     );
   }
 
-  // --------------------------------------------------------------------------
-  // DESKTOP RENDER
-  // --------------------------------------------------------------------------
-
   return (
-    <div ref={containerRef} className="relative w-full h-[200vh]">
-      <motion.div className="absolute inset-0 bg-black" />
-
+    <div ref={containerRef} className="relative w-full h-[300vh]">
       <div style={containerStyle} className="flex items-center justify-center overflow-hidden">
-
-        {/* Background Overlay */}
-        <motion.div
-          className="absolute inset-0 z-0 bg-black"
-          style={{ opacity: bgOpacity }}
-        >
-          {/* The SVG Grid - High Visibility */}
+        <motion.div className="absolute inset-0 z-0 bg-black" style={{ opacity: bgOpacity }}>
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.2]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_95%)]" />
         </motion.div>
 
-        {/* Cinematic Ambient Glow */}
-        <motion.div
-          style={{ opacity: timerOpacity }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-red-900/10 blur-[120px] rounded-full pointer-events-none z-0"
-        />
+        {images.map(({ src, alt }, index) => (
+          <motion.div
+            key={index}
+            style={{ scale: getScaleForIndex(index), opacity: imagesOpacity }}
+            className={`absolute top-0 flex h-full w-full items-center justify-center z-10 ${getImagePositionClass(index)} will-change-transform`}
+          >
+            <div className="relative h-[25vh] w-[25vw] overflow-hidden rounded-sm border border-white/5">
+              <img src={src} alt={alt} className="h-full w-full object-cover grayscale-[20%]" />
+            </div>
+          </motion.div>
+        ))}
 
-        {/* Images */}
-        {images.map(({ src, alt }, index) => {
-          const scale = getScaleForIndex(index);
-          const positionClass = getImagePositionClass(index);
-          return (
-            <motion.div
-              key={index}
-              style={{ scale, opacity: imagesOpacity }}
-              className={`absolute top-0 flex h-full w-full items-center justify-center z-10 ${positionClass} will-change-transform`}
-            >
-              <div className="relative h-[25vh] w-[25vw] overflow-hidden rounded-sm shadow-2xl border border-white/5">
-                <div className="absolute inset-0 bg-neutral-900" />
-                <img src={src || '/placeholder.svg'} alt={alt || `Memory ${index + 1}`} className="h-full w-full object-cover opacity-90 grayscale-[20%] contrast-125" loading="eager" />
-                <div className="absolute inset-0 ring-1 ring-inset ring-white/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]" />
-              </div>
-            </motion.div>
-          );
-        })}
-
-        {/* Countdown Timer Overlay */}
-        <motion.div
-          style={{ opacity: timerOpacity }}
-          className="absolute inset-0 flex items-center justify-center z-20"
-        >
+        <motion.div style={{ opacity: timerOpacity }} className="absolute inset-0 flex items-center justify-center z-20 px-6">
           {!countdown.finished ? (
-            <div className="relative group text-center">
-              {/* Event Info Header */}
-              <div className="mb-12">
-                <div className="flex items-center justify-center gap-4 mb-6">
-                  <div className="h-px w-12 bg-gradient-to-r from-transparent to-white/20" />
-                  <span className="text-[10px] uppercase tracking-[0.6em] text-red-500 font-bold">The Grand Reveal</span>
-                  <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
-                </div>
-
-                <h3 className="text-4xl md:text-6xl font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-6 drop-shadow-2xl">
-                  TechSolstice '26
-                </h3>
-
-                <div className="flex items-center justify-center gap-8 text-neutral-400">
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500">Venue</span>
-                    <span className="text-xs uppercase tracking-[0.1em] text-white">MIT Bengaluru</span>
-                  </div>
-                  <div className="w-px h-8 bg-white/10" />
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral-500">Date</span>
-                    <span className="text-xs uppercase tracking-[0.1em] text-white">Feb 20-22, 2026</span>
-                  </div>
+            <div className="relative group text-center w-full max-w-7xl">
+              <div className="mb-8 lg:mb-16">
+                <h3 className="text-[clamp(1.5rem,5vw,5rem)] font-bold tracking-[0.1em] text-white michroma-regular uppercase mb-4">TechSolstice '26</h3>
+                <div className="flex items-center justify-center gap-4 lg:gap-8">
+                  <span className="text-[clamp(8px,1vw,12px)] uppercase tracking-[0.3em] text-neutral-400">MIT Bengaluru</span>
+                  <div className="w-px h-4 bg-white/20" />
+                  <span className="text-[clamp(8px,1vw,12px)] uppercase tracking-[0.3em] text-neutral-400">Feb 20-22, 2026</span>
                 </div>
               </div>
 
-              <div className="relative p-8 md:p-12 lg:p-16 xl:p-24 rounded-[3rem] bg-white/[0.01] backdrop-blur-2xl border border-white/[0.05] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden w-full max-w-[90vw] mx-auto">
-                {/* corner accents */}
-                <div className="absolute top-8 left-8 w-6 h-6 border-t border-l border-white/10" />
-                <div className="absolute top-8 right-8 w-6 h-6 border-t border-r border-white/10" />
-                <div className="absolute bottom-8 left-8 w-6 h-6 border-b border-l border-white/10" />
-                <div className="absolute bottom-8 right-8 w-6 h-6 border-b border-r border-white/10" />
-
-                <div className="flex items-start gap-4 md:gap-8 lg:gap-16 xl:gap-24 text-white justify-center relative z-10">
+              <div className="relative p-8 md:p-12 lg:p-20 rounded-[2.5rem] lg:rounded-[4rem] bg-white/[0.01] backdrop-blur-3xl border border-white/[0.05] shadow-2xl">
+                <div className="flex items-center justify-between gap-[2vw] text-white relative z-10">
                   <ResponsiveCounterUnit value={countdown.days} label="Days" />
                   <Separator />
                   <ResponsiveCounterUnit value={countdown.hours} label="Hours" />
@@ -287,41 +214,12 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
               </div>
             </div>
           ) : (
-            <div className="text-center relative">
-              <div className="absolute -inset-10 bg-red-500/20 blur-[100px] rounded-full" />
-              <div className="relative">
-                <div className="text-7xl md:text-9xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500 mb-6">
-                  Now Live
-                </div>
-                <p className="text-lg text-red-500 tracking-[0.5em] uppercase font-medium">Welcome to the future</p>
-              </div>
-            </div>
+            <div className="text-7xl md:text-9xl font-bold text-white michroma-regular uppercase">Now Live</div>
           )}
         </motion.div>
       </div>
     </div>
   );
 }
-
-// ============================================================================
-// SUB-COMPONENTS
-// ============================================================================
-
-const Separator = ({ mobile }: { mobile?: boolean }) => (
-  <div className={`flex flex-col justify-center gap-1 md:gap-3 opacity-20 ${mobile ? 'h-[30px] pt-1' : 'h-[80px]'}`}>
-    <div className={`rounded-full bg-white/50 ${mobile ? 'w-[1px] h-1.5' : 'w-[1px] h-6'}`} />
-  </div>
-);
-
-const ResponsiveCounterUnit = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center group flex-1 min-w-0 md:flex-none md:min-w-0">
-    <span className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
-      {String(value).padStart(2, '0')}
-    </span>
-    <span className="text-[6px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.15em] sm:tracking-[0.3em] md:tracking-[0.5em] mt-1.5 sm:mt-2 md:mt-4 lg:mt-8 font-bold">
-      {label}
-    </span>
-  </div>
-);
 
 export default ZoomParallax;
