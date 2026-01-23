@@ -4,7 +4,7 @@
   overflow: hidden;
   background: #000;
   /* High-Tech Grid SVG Texture */
-  background-image: 
+  background-image:
     radial-gradient(circle at 2px 2px, rgba(220, 38, 38, 0.15) 1px, transparent 0),
     url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M60 0H0V60' fill='none' stroke='white' stroke-opacity='0.03' stroke-width='1'/%3E%3C/svg%3E");
   background-size: 40px 40px, 60px 60px;
@@ -29,6 +29,9 @@
   margin: 0 auto;
   height: 100%;
   padding-bottom: 20vh;
+  /* Safe horizontal padding for mobile */
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
 }
 
 /* THE MOVING DIAMOND - Optimized for centered tracking */
@@ -61,8 +64,17 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.5; transform: rotate(45deg) scale(0.8); }
-  50% { opacity: 1; transform: rotate(45deg) scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: rotate(45deg) scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(45deg) scale(1.1);
+  }
 }
 
 /* --- ROW LAYOUTS --- */
@@ -70,20 +82,21 @@
   position: absolute;
   display: flex;
   align-items: center;
-  gap: 3rem;
+  gap: clamp(1rem, 3vw, 3rem);
   width: auto;
+  max-width: calc(100vw - 2rem);
   z-index: 10;
   transform: translateY(-50%);
 }
 
 .alignLeft {
-  left: 5%;
+  left: clamp(1rem, 5vw, 5%);
   flex-direction: row;
 }
 
 .alignRight {
   left: auto;
-  right: 5%;
+  right: clamp(1rem, 5vw, 5%);
   flex-direction: row-reverse;
   text-align: right;
 }
@@ -93,6 +106,7 @@
   width: 80px;
   height: 80px;
   min-width: 80px;
+  flex-shrink: 0;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -119,10 +133,11 @@
 
 /* THE TEXT CARD */
 .textCard {
-  width: 400px;
+  width: min(400px, 100%);
+  min-width: 0;
   color: white;
   z-index: 10;
-  padding: 2rem;
+  padding: clamp(1rem, 3vw, 2rem);
   background: rgba(255, 255, 255, 0.01);
   border-radius: 24px;
   border: 1px solid transparent;
@@ -141,7 +156,7 @@
 }
 
 .categoryTitle {
-  font-size: 1.6rem;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
   letter-spacing: -0.01em;
   color: white;
   text-transform: uppercase;
@@ -151,7 +166,7 @@
 }
 
 .categoryDesc {
-  font-size: 0.95rem;
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
   color: #888;
   line-height: 1.6;
   font-weight: 300;
@@ -190,8 +205,29 @@
   width: 100%;
 }
 
+/* --- TABLET RESPONSIVENESS --- */
+@media (max-width: 1024px) {
+  .marker {
+    width: 75px;
+    height: 75px;
+    min-width: 75px;
+    font-size: 1.15rem;
+    border-radius: 18px;
+  }
+
+  .textCard {
+    width: min(350px, calc(100vw - 120px));
+  }
+}
+
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
+  .pathContainer {
+    /* Consistent edge padding for iPhones and all mobiles */
+    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+  }
+
   .alignLeft {
     left: 1rem;
   }
@@ -201,37 +237,85 @@
   }
 
   .box {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
 
   .marker {
-    width: 70px;
-    height: 70px;
-    min-width: 70px;
-    font-size: 1.1rem;
-    border-radius: 15px;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    font-size: 0.95rem;
+    border-radius: 14px;
   }
 
   .textCard {
-    width: calc(100vw - 3rem - 70px - 1rem);
-    max-width: 320px;
-    padding: 1rem;
+    /* Safe calculation: viewport - edge padding - marker - gap */
+    width: min(280px, calc(100vw - 56px - 3rem));
+    max-width: none;
+    padding: 0.875rem;
   }
 
   .stepContainer {
-    gap: 1rem;
+    gap: 0.75rem;
+    max-width: calc(100vw - 2rem);
   }
 
   .categoryTitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
   }
 
   .categoryDesc {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    margin-bottom: 0.875rem;
     -webkit-line-clamp: 3;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .ctaLink {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+  }
+}
+
+/* --- SMALL MOBILE (iPhone SE, etc.) --- */
+@media (max-width: 375px) {
+  .alignLeft {
+    left: 0.75rem;
+  }
+
+  .alignRight {
+    right: 0.75rem;
+  }
+
+  .marker {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .textCard {
+    width: min(240px, calc(100vw - 48px - 2.5rem));
+    padding: 0.75rem;
+  }
+
+  .stepContainer {
+    gap: 0.625rem;
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .categoryTitle {
+    font-size: 0.9rem;
+  }
+
+  .categoryDesc {
+    font-size: 0.7rem;
+    -webkit-line-clamp: 2;
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, Linkedin, Instagram } from "lucide-react";
+import { Mail, Phone, Linkedin, Instagram, Youtube } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/components/ui/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -96,7 +96,7 @@ export const Footer = () => {
             </div>
 
             {/* Address below logos */}
-            <a 
+            <a
               href="https://maps.app.goo.gl/3s3Ew5LkqtLbJEor6"
               target="_blank"
               rel="noopener noreferrer"
@@ -118,7 +118,7 @@ export const Footer = () => {
             {/* Email */}
             <a
               href={`mailto:${siteConfig.contactData.generalEmail}`}
-              className="flex items-center justify-center gap-2 text-[10px] text-neutral-400 font-medium uppercase tracking-wider hover:text-white transition-colors"
+              className="flex items-center justify-center gap-2 text-[10px] text-neutral-400 font-medium tracking-wider hover:text-white transition-colors"
             >
               <Mail className="h-3 w-3 shrink-0 text-red-500/50" />
               <span>{siteConfig.contactData.generalEmail}</span>
@@ -133,7 +133,7 @@ export const Footer = () => {
                     className="flex items-center justify-center gap-2 text-white text-[13px] font-bold hover:text-neutral-300 transition-colors"
                   >
                     <Phone className="h-3 w-3 text-red-500/50" />
-                    <span className="michroma-regular tracking-tighter">{contact.phone}</span>
+                    <span className="tracking-tight">{contact.phone}</span>
                   </a>
                   <div className="text-[10px] text-neutral-500 font-black uppercase tracking-widest">
                     {contact.name} <span className="text-neutral-800 mx-1">/</span> {contact.role}
@@ -168,6 +168,15 @@ export const Footer = () => {
                 className="text-neutral-300 hover:text-white transition-colors p-2"
               >
                 <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.youtube.com/@TechSolstice"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TechSolstice on YouTube"
+                className="text-neutral-300 hover:text-white transition-colors p-2"
+              >
+                <Youtube className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -215,7 +224,7 @@ export const Footer = () => {
                 </div>
 
                 {/* Address */}
-                <a 
+                <a
                   href="https://maps.app.goo.gl/3s3Ew5LkqtLbJEor6"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -237,7 +246,7 @@ export const Footer = () => {
                 {/* Email */}
                 <a
                   href={`mailto:${siteConfig.contactData.generalEmail}`}
-                  className="flex items-center justify-end gap-2 text-[10px] lg:text-xs text-neutral-400 font-medium uppercase tracking-wider hover:text-white transition-colors group"
+                  className="flex items-center justify-end gap-2 text-[10px] lg:text-xs text-neutral-400 font-medium tracking-wider hover:text-white transition-colors group"
                 >
                   <span>{siteConfig.contactData.generalEmail}</span>
                   <Mail className="h-4 w-4 shrink-0 text-red-500/50 group-hover:text-red-500 transition-colors" />
@@ -251,7 +260,7 @@ export const Footer = () => {
                         href={`tel:${contact.phone}`}
                         className="flex items-center justify-end gap-2 text-white text-sm font-bold hover:text-neutral-300 transition-colors group"
                       >
-                        <span className="michroma-regular tracking-tighter">{contact.phone}</span>
+                        <span className="tracking-tight">{contact.phone}</span>
                         <Phone className="h-4 w-4 text-red-500/50 group-hover:text-red-500 transition-colors" />
                       </a>
                       <div className="text-[10px] lg:text-[11px] text-neutral-500 font-bold uppercase tracking-widest">
@@ -286,6 +295,15 @@ export const Footer = () => {
                     className="text-neutral-300 hover:text-white transition-colors"
                   >
                     <Instagram className="w-5 h-5" />
+                  </a>
+                  <a
+                    href="https://www.youtube.com/@TechSolstice"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TechSolstice on YouTube"
+                    className="text-neutral-300 hover:text-white transition-colors"
+                  >
+                    <Youtube className="w-5 h-5" />
                   </a>
                 </div>
               </div>

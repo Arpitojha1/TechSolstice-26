@@ -60,7 +60,7 @@ export default function LoadingScreen({ fadeOut = false }) {
                 duration: 1,
                 ease: [0.16, 1, 0.3, 1]
               }}
-              className="relative w-72 h-32 md:w-96 md:h-44 px-4"
+              className="relative w-[70vw] max-w-72 md:max-w-96 aspect-[3/1]"
             >
               <Image
                 src="/logos/TechSolsticeLogo.png"
@@ -90,7 +90,7 @@ export default function LoadingScreen({ fadeOut = false }) {
               transition={{ delay: 1, duration: 1 }}
               className="mt-8 text-[10px] text-white uppercase tracking-[0.5em] font-black italic michroma-regular"
             >
-              Loading...
+              Loading
             </motion.p>
           </div>
 

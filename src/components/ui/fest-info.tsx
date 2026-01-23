@@ -21,13 +21,13 @@ export default function FestInfo() {
         <div className="mx-auto max-w-4xl p-4 md:p-8 relative">
 
           {/* Animated Gooey Text - Core Values */}
-          <div className="relative z-10 mb-12 w-full max-w-full overflow-hidden">
+          <div className="relative z-10 mb-8">
             <GooeyText
-              texts={["Innovation.", "Excellence.", "Synergy."]}
-              morphTime={3}
-              cooldownTime={3.5}
-              className="relative h-16 md:h-32 max-w-full overflow-hidden px-4"
-              textClassName="font-bold tracking-[0.1em] md:tracking-[0.2em] text-xl sm:text-3xl md:text-7xl text-white michroma-regular uppercase break-words max-w-full"
+              texts={["Collaborate.", "Compete.", "Create."]}
+              morphTime={1}
+              cooldownTime={1.5}
+              className="relative h-28 md:h-40"
+              textClassName="font-bold tracking-tighter text-5xl md:text-8xl text-red-600"
             />
           </div>
 
@@ -36,9 +36,11 @@ export default function FestInfo() {
 
           {/* Sub-header: Event Details */}
           <div className="space-y-3 mb-12">
-            <p className="text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-red-500 michroma-regular">
-              TechSolstice'26 <span className="text-white/20 px-2">|</span> February 20-22
-            </p>
+            <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-red-500 michroma-regular">
+              <span>TechSolstice'26</span>
+              <span className="hidden md:inline text-white/20 px-2">|</span>
+              <span>February 20-22</span>
+            </div>
 
             <p className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-neutral-500">
               Manipal Institute of Technology, Bengaluru

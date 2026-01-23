@@ -138,14 +138,14 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
 
   if (isMobile) {
     return (
-      <div ref={containerRef} className="w-full min-h-[70vh] bg-black py-20 px-4 flex flex-col items-center justify-center relative overflow-hidden">
+      <div ref={containerRef} className="w-full min-h-[70vh] bg-black py-20 flex flex-col items-center justify-center relative overflow-hidden" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
         {/* Backdrop Grid */}
         <div className="absolute inset-0 bg-[#020202]">
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.1]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_100%)]" />
         </div>
 
-        <div className="text-center relative z-10 w-full max-w-sm">
+        <div className="text-center relative z-10 w-full max-w-sm px-2">
           {/* Top Label */}
           <div className="flex flex-col items-center mb-8">
             <div className="flex items-center gap-2 mb-4 px-3 py-1 rounded-full border border-white/5 bg-white/5 backdrop-blur-md">
@@ -161,23 +161,23 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
           </div>
 
           {!countdown.finished ? (
-            <div className="relative">
+            <div className="relative w-full">
               {/* Sleek Glass Card for Mobile */}
-              <div className="relative p-8 rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl">
+              <div className="relative p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] shadow-2xl max-w-[calc(100vw-2rem)] mx-auto">
                 {/* corner accents */}
-                <div className="absolute top-4 left-4 w-2 h-2 border-t border-l border-white/10" />
-                <div className="absolute top-4 right-4 w-2 h-2 border-t border-r border-white/10" />
-                <div className="absolute bottom-4 left-4 w-2 h-2 border-b border-l border-white/10" />
-                <div className="absolute bottom-4 right-4 w-2 h-2 border-b border-r border-white/10" />
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 w-2 h-2 border-t border-l border-white/10" />
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 w-2 h-2 border-t border-r border-white/10" />
+                <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 w-2 h-2 border-b border-l border-white/10" />
+                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-2 h-2 border-b border-r border-white/10" />
 
-                <div className="flex items-center justify-between gap-1">
+                <div className="flex items-center justify-between gap-0.5 sm:gap-1">
                   <ResponsiveCounterUnit value={countdown.days} label="Days" />
                   <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.hours} label="Hours" />
+                  <ResponsiveCounterUnit value={countdown.hours} label="Hrs" />
                   <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.minutes} label="Mins" />
+                  <ResponsiveCounterUnit value={countdown.minutes} label="Min" />
                   <Separator mobile />
-                  <ResponsiveCounterUnit value={countdown.seconds} label="Secs" />
+                  <ResponsiveCounterUnit value={countdown.seconds} label="Sec" />
                 </div>
               </div>
             </div>
@@ -314,11 +314,11 @@ const Separator = ({ mobile }: { mobile?: boolean }) => (
 );
 
 const ResponsiveCounterUnit = ({ value, label }: { value: number; label: string }) => (
-  <div className="flex flex-col items-center group min-w-[2.5rem] md:min-w-0">
-    <span className="text-3xl sm:text-4xl md:text-8xl font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
+  <div className="flex flex-col items-center group flex-1 min-w-0 md:flex-none md:min-w-0">
+    <span className="text-2xl sm:text-4xl md:text-8xl font-normal tabular-nums tracking-tighter text-white michroma-regular leading-none">
       {String(value).padStart(2, '0')}
     </span>
-    <span className="text-[7px] md:text-[10px] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.3em] md:tracking-[0.5em] mt-2 md:mt-8 font-bold">
+    <span className="text-[6px] sm:text-[7px] md:text-[10px] text-neutral-500 group-hover:text-red-400/80 transition-colors duration-500 uppercase tracking-[0.15em] sm:tracking-[0.3em] md:tracking-[0.5em] mt-1.5 sm:mt-2 md:mt-8 font-bold">
       {label}
     </span>
   </div>

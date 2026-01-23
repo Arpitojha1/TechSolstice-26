@@ -151,12 +151,8 @@ const SpeakerShowcase: React.FC = () => {
       >
 
         {/* HEADER */}
-        <div className="mb-12 lg:mb-0 lg:absolute lg:top-0 lg:left-0 lg:w-full text-center lg:text-left z-20">
+        <div className="mb-6 lg:mb-0 lg:absolute lg:top-12 lg:left-0 lg:w-full text-center lg:text-left z-20">
           <div className="flex flex-col items-center lg:items-start gap-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-[0.4em] text-neutral-400 font-medium mb-4">
-              <Sparkles className="w-3 h-3 text-red-500" />
-              Special Guest
-            </div>
             <h2 className="michroma-regular text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white tracking-tight leading-none uppercase">
               THE <span className="text-red-600">KEYNOTE</span>
             </h2>
@@ -172,12 +168,12 @@ const SpeakerShowcase: React.FC = () => {
           <div className="absolute inset-4 bg-neutral-950/40 rounded-2xl overflow-hidden border border-white/5">
             {/* Soft Ambient Light */}
             <div className="absolute inset-0 bg-gradient-to-tr from-red-600/5 via-transparent to-blue-600/5 opacity-50" />
-            
+
             {/* Content Container */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               {/* Simple Silhouette */}
               <div className="relative w-40 h-40 md:w-52 md:h-52 opacity-10 transition-all duration-700 group-hover:opacity-20 group-hover:scale-105">
-                 <User className="w-full h-full text-white" strokeWidth={0.5} />
+                <User className="w-full h-full text-white" strokeWidth={0.5} />
               </div>
 
               {/* Status Indicator */}
@@ -190,7 +186,7 @@ const SpeakerShowcase: React.FC = () => {
             {/* Subtle Texture Overlay */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
           </div>
-          
+
           {/* Bezel */}
           <div className="absolute inset-0 rounded-3xl border border-white/10 pointer-events-none" />
         </div>
@@ -210,16 +206,16 @@ const SpeakerShowcase: React.FC = () => {
 
             <div className="space-y-5">
               <p className="text-sm md:text-base leading-relaxed text-neutral-400 font-light">
-                 We are honored to host a pioneer who has significantly influenced the intersection of technology and industry.
+                We are honored to host a pioneer who has significantly influenced the intersection of technology and industry.
               </p>
               <p className="text-sm md:text-base leading-relaxed text-neutral-400 font-light">
                 This session will provide deep insights into the future of innovation, curated for those ready to lead the next era of development.
               </p>
             </div>
-            
+
             <div className="pt-4">
               <div className="w-full py-4 bg-white/5 border border-white/10 rounded-xl text-[10px] uppercase tracking-[0.5em] text-white/40 font-bold text-center">
-                 Revealing Soon
+                Revealing Soon
               </div>
             </div>
           </div>

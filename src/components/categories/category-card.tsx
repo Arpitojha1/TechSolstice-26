@@ -48,40 +48,45 @@ export function CategoryCard({ category, index, size = 'md', isFeatured = false 
           gap={pixelConfig.gap}
           className="w-full h-full border-white/20 transition-all duration-500 hover:border-white/40 hover:shadow-2xl relative"
         >
-          <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/20 to-black/60 pointer-events-none z-1" />
+          {/* Glass card background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] via-black/40 to-black/80 backdrop-blur-sm pointer-events-none z-1 rounded-[inherit]" />
 
-          <div className="absolute inset-0 z-2 flex flex-col p-6 sm:p-8 h-full w-full">
+          {/* Card content */}
+          <div className="absolute inset-0 z-2 flex flex-col p-6 sm:p-8">
 
             {/* Top Row: Title */}
             <div className={`flex ${isFeatured ? 'justify-center items-center' : 'justify-between items-start'} gap-4 relative`}>
 
               {/* Title Container */}
               <div className={`flex-1 min-w-0 ${isFeatured ? 'text-center' : ''}`}>
-                <h3 className={`michroma-regular text-white/95 leading-snug wrap-break-word drop-shadow-md 
+                <h3 className={`michroma-regular text-white leading-snug wrap-break-word drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] 
                   ${isFeatured
-                    ? 'text-3xl sm:text-4xl lg:text-5xl mt-2' // Reduced margin for featured flagship
-                    : 'text-lg sm:text-xl lg:text-2xl'   // Standard text
+                    ? 'text-2xl sm:text-3xl lg:text-4xl'
+                    : 'text-base sm:text-lg lg:text-xl'
                   }`}>
                   {category.title}
                 </h3>
               </div>
 
-              {/* Arrow Indicator - Positioned Absolutely for Featured cards to prevent off-centering */}
+              {/* Arrow Indicator */}
               <motion.div
                 whileHover={{ x: 3, y: -3 }}
-                className={`shrink-0 text-white/50 group-hover:text-white transition-colors pt-1 
-                  ${isFeatured ? 'absolute right-0 -top-2' : ''}`}
+                className={`shrink-0 text-white/40 group-hover:text-white transition-colors duration-300
+                  ${isFeatured ? 'absolute right-0 top-0' : ''}`}
               >
-                <ArrowUpRight className="w-6 h-6" />
+                <ArrowUpRight className="w-5 h-5 sm:w-6 sm:h-6" />
               </motion.div>
             </div>
 
             {/* Spacer */}
             <div className="grow" />
 
+            {/* Subtle divider */}
+            <div className="w-12 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mx-auto mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
             {/* Bottom: Description */}
-            <div className={`mt-4 ${isFeatured ? 'text-center max-w-3xl mx-auto' : ''}`}>
-              <p className="text-sm sm:text-base text-white/60 leading-relaxed line-clamp-3 group-hover:text-white/90 transition-colors duration-500">
+            <div className={`${isFeatured ? 'text-center max-w-2xl mx-auto' : ''}`}>
+              <p className="text-xs sm:text-sm text-white/50 leading-relaxed line-clamp-3 group-hover:text-white/80 transition-colors duration-500 font-light">
                 {category.description}
               </p>
             </div>
