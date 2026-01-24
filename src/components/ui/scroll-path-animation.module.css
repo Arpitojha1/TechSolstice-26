@@ -34,7 +34,7 @@
   padding-right: env(safe-area-inset-right, 0);
 }
 
-/* THE MOVING DIAMOND - Optimized for centered tracking */
+/* THE MOVING DIAMOND */
 .box {
   position: absolute;
   width: 60px;
@@ -64,17 +64,8 @@
 }
 
 @keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 0.5;
-    transform: rotate(45deg) scale(0.8);
-  }
-
-  50% {
-    opacity: 1;
-    transform: rotate(45deg) scale(1.1);
-  }
+  0%, 100% { opacity: 0.5; transform: rotate(45deg) scale(0.8); }
+  50% { opacity: 1; transform: rotate(45deg) scale(1.1); }
 }
 
 /* --- ROW LAYOUTS --- */
@@ -87,6 +78,7 @@
   max-width: calc(100vw - 2rem);
   z-index: 10;
   transform: translateY(-50%);
+  transition: opacity 0.5s ease;
 }
 
 .alignLeft {
@@ -94,14 +86,35 @@
   flex-direction: row;
 }
 
+/* Center marker alignment for left items */
+.alignLeft .marker {
+  order: 2; /* Ensure marker is always "inside" relative to content */
+}
+.alignLeft .textCard {
+  order: 1;
+  text-align: right;
+  align-items: flex-end;
+}
+
 .alignRight {
   left: auto;
   right: clamp(1rem, 5vw, 5%);
   flex-direction: row-reverse;
-  text-align: right;
+  text-align: left;
+}
+/* Right items default order is fine (Marker, Content) -> Row Reverse makes it Content, Marker 
+   Wait, Row Reverse with content first in DOM: [Content, Marker].
+   Visual: [Marker] [Content] <-- this is wrong for right side.
+   Right Side desired: [Marker] [Content] (Aligned to right edge).
+   
+   Let's fix standard DOM order: [Content] [Marker] in code.
+*/
+
+.activeRow {
+  z-index: 20;
 }
 
-/* THE MARKER - Optimized for Path Hitpoints */
+/* THE MARKER */
 .marker {
   width: 80px;
   height: 80px;
@@ -120,15 +133,23 @@
   font-size: 1.25rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.2);
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Active Marker State */
+.markerActive {
+  border-color: #dc2626 !important;
+  color: white !important;
+  background: rgba(220, 38, 38, 0.8) !important;
+  box-shadow: 0 0 40px rgba(220, 38, 38, 0.6) !important;
+  transform: scale(1.15) !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .stepContainer:hover .marker {
   border-color: rgba(220, 38, 38, 0.5);
   color: #dc2626;
   background: rgba(220, 38, 38, 0.05);
-  box-shadow: 0 0 30px rgba(220, 38, 38, 0.15);
-  transform: scale(1.05);
 }
 
 /* THE TEXT CARD */
@@ -141,18 +162,26 @@
   background: rgba(255, 255, 255, 0.01);
   border-radius: 24px;
   border: 1px solid transparent;
-  transition: all 0.4s ease;
+  transition: all 0.5s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.stepContainer:hover .textCard {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  transform: translateX(10px);
+/* Active Card State */
+.cardActive {
+  background: rgba(20, 20, 20, 0.8) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.8);
+  transform: translateY(-5px); /* Gentle lift */
 }
 
-.alignRight:hover .textCard {
-  transform: translateX(-10px);
+/* Specific alignment tweaks for text content inside cards */
+.alignLeft .textCard {
+  align-items: flex-end; /* Right align text for left cards */
+}
+.alignRight .textCard {
+  align-items: flex-start; /* Left align text for right cards */
 }
 
 .categoryTitle {
@@ -163,6 +192,11 @@
   margin-bottom: 0.75rem;
   line-height: 1.1;
   font-weight: 800;
+  transition: color 0.3s ease;
+}
+
+.cardActive .categoryTitle {
+  color: #ef4444; /* Red-500 */
 }
 
 .categoryDesc {
@@ -171,6 +205,11 @@
   line-height: 1.6;
   font-weight: 300;
   margin-bottom: 1.25rem;
+  transition: color 0.3s ease;
+}
+
+.cardActive .categoryDesc {
+  color: #ccc;
 }
 
 .ctaLink {
@@ -196,12 +235,12 @@
   transition: width 0.3s ease;
 }
 
-.ctaLink:hover {
+.ctaLink:hover, .cardActive .ctaLink {
   color: white;
   opacity: 1;
 }
 
-.ctaLink:hover::after {
+.ctaLink:hover::after, .cardActive .ctaLink::after {
   width: 100%;
 }
 
@@ -223,99 +262,81 @@
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
   .pathContainer {
-    /* Consistent edge padding for iPhones and all mobiles */
-    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
-    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+    padding-left: max(0.5rem, env(safe-area-inset-left, 0.5rem));
+    padding-right: max(0.5rem, env(safe-area-inset-right, 0.5rem));
+  }
+
+  /* Reset alignment for mobile to ensure consistency */
+  .alignLeft, .alignRight {
+    flex-direction: row; /* Always Row on mobile? No, keeping ZigZag */
   }
 
   .alignLeft {
-    left: 1rem;
+    justify-content: flex-start;
   }
-
+  
   .alignRight {
-    right: 1rem;
+    flex-direction: row-reverse;
+    justify-content: flex-start; /* Because it's reversed, start is Right */
   }
 
   .box {
-    width: 50px;
-    height: 50px;
-  }
-
-  .marker {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    font-size: 0.95rem;
-    border-radius: 14px;
-  }
-
-  .textCard {
-    /* Safe calculation: viewport - edge padding - marker - gap */
-    width: min(280px, calc(100vw - 56px - 3rem));
-    max-width: none;
-    padding: 0.875rem;
-  }
-
-  .stepContainer {
-    gap: 0.75rem;
-    max-width: calc(100vw - 2rem);
-  }
-
-  .categoryTitle {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .categoryDesc {
-    font-size: 0.75rem;
-    line-height: 1.5;
-    margin-bottom: 0.875rem;
-    -webkit-line-clamp: 3;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .ctaLink {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-  }
-}
-
-/* --- SMALL MOBILE (iPhone SE, etc.) --- */
-@media (max-width: 375px) {
-  .alignLeft {
-    left: 0.75rem;
-  }
-
-  .alignRight {
-    right: 0.75rem;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
   }
 
   .marker {
     width: 48px;
     height: 48px;
     min-width: 48px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     border-radius: 12px;
   }
 
+  /* Compact Card for Mobile */
   .textCard {
-    width: min(240px, calc(100vw - 48px - 2.5rem));
+    /* Full width minus marker minus gap minus padding */
+    width: calc(100vw - 48px - 1rem - 1.5rem); 
+    max-width: 300px;
     padding: 0.75rem;
+    border-radius: 16px;
   }
-
+  
   .stepContainer {
-    gap: 0.625rem;
-    max-width: calc(100vw - 1.5rem);
+    gap: 0.75rem;
   }
 
   .categoryTitle {
-    font-size: 0.9rem;
+    font-size: 0.9rem; 
+    margin-bottom: 0.35rem;
   }
 
   .categoryDesc {
     font-size: 0.7rem;
-    -webkit-line-clamp: 2;
+    margin-bottom: 0.75rem;
+    -webkit-line-clamp: 3;
+  }
+  
+  .ctaLink {
+    font-size: 0.6rem;
+  }
+}
+
+/* --- SMALL MOBILE (iPhone SE, Fold) --- */
+@media (max-width: 375px) {
+  .stepContainer {
+    gap: 0.5rem;
+  }
+  
+  .textCard {
+    width: calc(100vw - 48px - 0.5rem - 1.5rem); /* Tighter calculation */
+  }
+  
+  .marker {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    font-size: 0.8rem;
   }
 }

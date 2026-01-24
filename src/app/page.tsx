@@ -20,8 +20,8 @@ const ScrollPathAnimation = dynamic(
   { ssr: false }
 );
 
-// 3. YouTubeScrollVideo (Default Export)
-const YouTubeScrollVideo = dynamic(() => import("@/components/ui/youtube-scroll-video"), {
+// 3. Trailer (Default Export)
+const Trailer = dynamic(() => import("@/components/ui/trailer"), {
   ssr: false,
 });
 
@@ -39,7 +39,6 @@ const SponsorsSection = dynamic(
 const Home = () => {
   const [loading, setLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
     // Attempt to preload font if available
@@ -51,12 +50,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const checkDesktop = () => {
-      setShowVideo(window.innerWidth >= 768);
-    };
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop);
-
+    // Clean up loading state
     const readyTimer = setTimeout(() => {
       setIsReady(true);
     }, 2000);
@@ -66,7 +60,6 @@ const Home = () => {
     }, 2500);
 
     return () => {
-      window.removeEventListener("resize", checkDesktop);
       clearTimeout(readyTimer);
       clearTimeout(finishTimer);
     };
@@ -97,26 +90,27 @@ const Home = () => {
             <ScrollPathAnimation />
           </div>
 
-          {showVideo && (
-            <div>
-              <YouTubeScrollVideo
-                videoId="comtgOhuXIg"
-                title="TechSolstice'26"
-                scrollToExpand="Initiate Sequence"
-              />
-            </div>
-          )}
+          <div>
+            <Trailer videoId="comtgOhuXIg" />
+          </div>
 
           <div>
             <ZoomParallax
               images={[
-                { src: '/photos/IMG_0162.jpg', alt: 'TechSolstice Crowd' },
-                { src: '/photos/IMG_1510.jpg', alt: 'Stage Event' },
-                { src: '/photos/IMG_0110.jpg', alt: 'Guest Speaker' },
-                { src: '/photos/IMG-20250405-WA0141.jpg', alt: 'Workshop' },
-                { src: '/photos/IMG_1588.jpg', alt: 'Gaming Event' },
-                { src: '/photos/IMG_1510.jpg', alt: 'Concert' },
-                { src: '/photos/IMG_1588.jpg', alt: 'Prize Distribution' },
+                // Center: TechSolstice Logo
+                {
+                  src: '/logos/TechSolsticeLogo.png',
+                  alt: 'TechSolstice Logo',
+                  fit: 'contain',
+                  className: 'bg-transparent border-none'
+                },
+                // Student Council Logo
+                {
+                  src: '/logos/SCLogo.png',
+                  alt: 'Student Council Logo',
+                  fit: 'contain',
+                  className: 'bg-transparent border-none'
+                },
               ]}
             />
           </div>

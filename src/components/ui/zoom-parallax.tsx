@@ -10,6 +10,8 @@ import { useRef, useEffect, useState } from 'react';
 interface ImageType {
   src: string;
   alt?: string;
+  fit?: "cover" | "contain"; // Allow controlling object-fit
+  className?: string;
 }
 
 interface ZoomParallaxProps {
@@ -24,7 +26,12 @@ const TARGET_DATE = new Date('2026-02-20T00:00:00').getTime();
 
 const getImagePositionClass = (index: number) => {
   switch (index) {
-    case 1: return '[&>div]:!-top-[30vh] [&>div]:!left-[5vw] [&>div]:!h-[30vh] [&>div]:!w-[35vw]';
+    // Index 0 (Left Logo)
+    case 0: return '[&>div]:!top-0 [&>div]:!translate-x-[-65%] [&>div]:!h-[25vh] [&>div]:!w-[25vw]';
+    // Index 1 (Right Logo)
+    case 1: return '[&>div]:!top-0 [&>div]:!translate-x-[65%] [&>div]:!h-[25vh] [&>div]:!w-[25vw]';
+
+    // Legacy positions (if added back later)
     case 2: return '[&>div]:!-top-[10vh] [&>div]:!-left-[25vw] [&>div]:!h-[45vh] [&>div]:!w-[20vw]';
     case 3: return '[&>div]:!left-[27.5vw] [&>div]:!h-[25vh] [&>div]:!w-[25vw]';
     case 4: return '[&>div]:!top-[27.5vh] [&>div]:!left-[5vw] [&>div]:!h-[25vh] [&>div]:!w-[20vw]';
@@ -101,7 +108,8 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
   const scale9 = useTransform(smoothProgress, [0, 1], [1, 9]);
 
   const getScaleForIndex = (index: number) => {
-    const scales = [scale4, scale5, scale6, scale5, scale6, scale8, scale9];
+    // Both 0 and 1 use scale4 for symmetric zooming
+    const scales = [scale4, scale4, scale6, scale5, scale6, scale8, scale9];
     return scales[index % scales.length];
   };
 
@@ -177,14 +185,18 @@ export function ZoomParallax({ images }: ZoomParallaxProps) {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000000_95%)]" />
         </motion.div>
 
-        {images.map(({ src, alt }, index) => (
+        {images.map(({ src, alt, fit = "cover", className }, index) => (
           <motion.div
             key={index}
             style={{ scale: getScaleForIndex(index), opacity: imagesOpacity }}
             className={`absolute top-0 flex h-full w-full items-center justify-center z-10 ${getImagePositionClass(index)} will-change-transform`}
           >
-            <div className="relative h-[25vh] w-[25vw] overflow-hidden rounded-sm border border-white/5">
-              <img src={src} alt={alt} className="h-full w-full object-cover grayscale-[20%]" />
+            <div className={`relative h-[25vh] w-[25vw] overflow-hidden rounded-sm border border-white/5 ${className || ''}`}>
+              <img
+                src={src}
+                alt={alt}
+                className={`h-full w-full object-${fit} ${fit === 'contain' ? '' : 'grayscale-[20%]'}`}
+              />
             </div>
           </motion.div>
         ))}
