@@ -3,8 +3,8 @@
 import { useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import { EVENT_CATEGORIES } from "@/lib/constants/categories";
-import { CategoryCard } from "@/components/categories/category-card";
-import { PatternText } from "@/components/ui/pattern-text";
+import { CategoryCard } from "@/components/events/category-card";
+import { PatternText } from "@/components/animations/pattern-text";
 
 const EventsPage = () => {
   // Separate conclave as the featured category
@@ -24,8 +24,8 @@ const EventsPage = () => {
 
   const itemVariants: any = {
     hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
     }
@@ -35,7 +35,7 @@ const EventsPage = () => {
     <div className="min-h-screen w-full relative overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative min-h-100 md:min-h-125 lg:min-h-150 px-4 z-10 flex items-center justify-center py-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -49,7 +49,7 @@ const EventsPage = () => {
               />
             </div>
           </div>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -61,7 +61,7 @@ const EventsPage = () => {
       </div>
 
       {/* Main Content Grid */}
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
@@ -72,7 +72,7 @@ const EventsPage = () => {
 
           {/* Featured Conclave Card */}
           {conclaveCategory && (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="col-span-1 sm:col-span-2 lg:col-span-3 h-70 sm:h-80 md:h-90 lg:h-105"
             >
@@ -86,8 +86,8 @@ const EventsPage = () => {
 
           {/* Other Event Category Cards */}
           {otherCategories.map((category, index) => (
-            <motion.div 
-              key={category.id} 
+            <motion.div
+              key={category.id}
               variants={itemVariants}
               className="h-70 sm:h-80 md:h-90 lg:h-105"
             >

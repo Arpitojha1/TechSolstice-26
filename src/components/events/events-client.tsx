@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Rocket, Cpu, Code, Gamepad2, Star, Medal } from "lucide-react";
 import { motion } from "framer-motion";
-import { EventCard, type Event } from "@/components/event-card";
+import { EventCard, type Event } from "@/components/cards/event-card";
 
 interface EventsClientProps {
   initialEvents: Event[];
   initialCategory: string;
   initialSearch: string;
   registeredEventIds: string[];
-  accessibleEventIds: string[];   
+  accessibleEventIds: string[];
 }
 
 
@@ -105,14 +105,14 @@ export function EventsClient({
       >
         {initialEvents.length > 0 ? (
           initialEvents.map((event) => {
-          const isRegistered = registeredEventIds.includes(event.id);
-          const hasAccess = accessibleEventIds.includes(event.id);
+            const isRegistered = registeredEventIds.includes(event.id);
+            const hasAccess = accessibleEventIds.includes(event.id);
             return (
               <EventCard
                 key={event.id}
                 event={event}
                 isRegistered={isRegistered}
-                hasAccess={hasAccess}   
+                hasAccess={hasAccess}
               />
             );
           })

@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { getCategoryBySlug } from "@/lib/constants/categories";
-import { type Event } from "@/components/event-card";
-import { CategoryPageClient } from "@/components/categories/category-page-client";
+import { type Event } from "@/components/cards/event-card";
+import { CategoryPageClient } from "@/components/events/category-page-client";
 import { createClient } from "@supabase/supabase-js";
 
 // Supabase client for database operations only

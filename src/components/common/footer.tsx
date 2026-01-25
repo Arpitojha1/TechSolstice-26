@@ -2,11 +2,11 @@
 
 import { Mail, Phone, Linkedin, Instagram, Youtube } from "lucide-react";
 import Image from "next/image";
-import Logo from "@/components/ui/logo";
+import Logo from "@/components/misc/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
 // CHANGED: Static import to ensure the animation code is loaded immediately with the page
-import { FlickeringGridResponsive } from "./ui/flickering-grid";
+import { FlickeringGridResponsive } from "@/components/animations/flickering-grid";
 
 export const siteConfig = {
   contactData: {

@@ -2,37 +2,36 @@
 
 import { useState, useEffect, memo } from "react";
 import dynamic from "next/dynamic";
-import { HeroRobot } from "../components/hero-robot";
-import FestInfo from "@/components/ui/fest-info";
-import LoadingScreen from "../components/loading-screen";
-import ReactDOM from "react-dom";
+import { HeroRobot } from "@/components/hero/hero-robot";
+import FestInfo from "@/components/hero/fest-info";
+import LoadingScreen from "@/components/common/loading-screen";
 
 // --- DYNAMIC IMPORTS (Fixed for correct Export Types) ---
 
 // 1. SpeakerShowcase (Default Export)
-const SpeakerShowcase = dynamic(() => import("@/components/ui/speaker-showcase"), {
+const SpeakerShowcase = dynamic(() => import("@/components/hero/speaker-showcase"), {
   ssr: true,
 });
 
 // 2. ScrollPathAnimation (Named Export)
 const ScrollPathAnimation = dynamic(
-  () => import("@/components/ui/scroll-path-animation").then((mod) => mod.ScrollPathAnimation),
+  () => import("@/components/animations/scroll-path-animation").then((mod) => mod.ScrollPathAnimation),
   { ssr: false }
 );
 
 // 3. Trailer (Default Export)
-const Trailer = dynamic(() => import("@/components/ui/trailer"), {
+const Trailer = dynamic(() => import("@/components/hero/trailer"), {
   ssr: false,
 });
 
 // 4. ZoomParallax (Default Export)
-const ZoomParallax = dynamic(() => import("@/components/ui/zoom-parallax"), {
+const ZoomParallax = dynamic(() => import("@/components/animations/zoom-parallax"), {
   ssr: false,
 });
 
 // 5. SponsorsSection (Named Export)
 const SponsorsSection = dynamic(
-  () => import("@/components/sponsors-section").then((mod) => mod.SponsorsSection),
+  () => import("@/components/hero/sponsors-section").then((mod) => mod.SponsorsSection),
   { ssr: true }
 );
 
@@ -40,14 +39,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    // Attempt to preload font if available
-    // @ts-ignore
-    if (typeof ReactDOM.preload === 'function') {
-      // @ts-ignore
-      ReactDOM.preload("/fonts/Michroma-Regular.ttf", { as: "font" });
-    }
-  }, []);
+
 
   useEffect(() => {
     // Clean up loading state
@@ -82,11 +74,11 @@ const Home = () => {
             <FestInfo />
           </div>
 
-          <div className="mt-8">
+          <div>
             <SpeakerShowcase />
           </div>
 
-          <div className="mt-8">
+          <div>
             <ScrollPathAnimation />
           </div>
 

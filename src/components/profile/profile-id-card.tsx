@@ -1,5 +1,5 @@
 import { Mail, Phone, QrCode, GraduationCap, FileDigit } from "lucide-react";
-import FlipCard from "@/components/ui/FlipCard";
+import FlipCard from "@/components/cards/FlipCard";
 
 interface ProfileIdCardProps {
   user: {

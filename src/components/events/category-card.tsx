@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { type EventCategory } from "@/lib/constants/categories";
-import PixelCard from "@/components/ui/pixel-card";
+import PixelCard from "@/components/cards/pixel-card";
 
 interface CategoryCardProps {
   category: EventCategory;

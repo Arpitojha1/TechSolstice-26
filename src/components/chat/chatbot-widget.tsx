@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { MorphChatPanel } from "./ui/ai-chat-ui"
+import { MorphChatPanel } from "@/components/chat/ai-chat-ui"
 import { useChatEngine } from "@/hooks/use-chat-engine"
 
 export function ChatbotWidget() {

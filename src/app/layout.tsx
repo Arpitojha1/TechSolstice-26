@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ChatbotWidget } from "@/components/chatbot-widget";
-import LenisProvider from "@/components/LenisProvider";
-import ASMRStaticBackground from '@/components/ui/asmr-static-background';
-import TechSolsticeNavbar from '@/components/navbar';
-import { Footer } from '@/components/footer';
-import Logo from '@/components/ui/logo';
-import { ScrollToTop } from '@/components/scroll-to-top';
+import { ChatbotWidget } from "@/components/chat/chatbot-widget";
+import LenisProvider from "@/components/common/LenisProvider";
+import ASMRStaticBackground from '@/components/animations/asmr-static-background';
+import TechSolsticeNavbar from '@/components/common/navbar';
+import { Footer } from '@/components/common/footer';
+import Logo from '@/components/misc/logo';
+import { ScrollToTop } from '@/components/common/scroll-to-top';
 import { Analytics } from "@vercel/analytics/next"
-import { Providers } from "@/components/providers"
+import { Providers } from "@/components/common/providers"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

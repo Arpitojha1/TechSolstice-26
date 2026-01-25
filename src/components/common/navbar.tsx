@@ -1,6 +1,6 @@
 "use client";
 
-import NavBar from "./ui/tubelight-navbar";
+import NavBar from "@/components/navigation/tubelight-navbar";
 import { Home, Calendar, Ticket, Mail, User, Linkedin } from "lucide-react";
 
 const navItems = [

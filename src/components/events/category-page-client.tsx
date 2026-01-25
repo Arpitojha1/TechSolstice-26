@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { type Event } from "@/components/event-card";
+import { type Event } from "@/components/cards/event-card";
 import { type EventCategory } from "@/lib/constants/categories";
 import { CategoryEventsClient } from "./category-events-client";
 
@@ -36,7 +36,7 @@ export function CategoryPageClient({
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Back Button */}
-          <Link 
+          <Link
             href="/events"
             className="inline-flex items-center text-neutral-400 hover:text-white transition-colors mb-8 group"
           >

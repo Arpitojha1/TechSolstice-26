@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
-import { EventCard, type Event } from "@/components/event-card";
+import { EventCard, type Event } from "@/components/cards/event-card";
 
 export function CategoryEventsClient({
   events,

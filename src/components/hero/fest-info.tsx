@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GooeyText } from "@/components/ui/gooey-text-morphing";
+import { GooeyText } from "@/components/animations/gooey-text-morphing";
 
 export default function FestInfo() {
   return (

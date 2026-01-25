@@ -3,10 +3,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { PatternText } from "@/components/ui/pattern-text";
+import { PatternText } from "@/components/animations/pattern-text";
 
 // Dynamic import with transparent fallback for ASMR background visibility
-const SplineScene = dynamic(() => import("./ui/spline-scene").then((m) => m.SplineScene), {
+const SplineScene = dynamic(() => import("@/components/hero/spline-scene").then((m) => m.SplineScene), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-transparent" />
 });

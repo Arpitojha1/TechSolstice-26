@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ExpandableCard from "@/components/ui/expandable-card";
+import ExpandableCard from "@/components/cards/expandable-card";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Trophy, CheckCircle2, Lock, Hourglass, Users } from "lucide-react";
-import TeamRegistrationForm from "@/components/ui/TeamRegistrationForm";
-import TeamDashboard from "@/components/ui/TeamDashboard";
+import TeamRegistrationForm from "@/components/teams/TeamRegistrationForm";
+import TeamDashboard from "@/components/teams/TeamDashboard";
 
 export type Event = {
   id: string;

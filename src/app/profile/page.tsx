@@ -9,7 +9,7 @@
 
 import { requireAuth, getUserProfile, isProfileComplete } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Layout } from "@/components/layout";
+import { Layout } from "@/components/common/layout";
 import ProfileClient from "@/components/profile/profile-client";
 import { createClient } from "@supabase/supabase-js";
 
