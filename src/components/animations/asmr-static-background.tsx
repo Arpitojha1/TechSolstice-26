@@ -205,7 +205,7 @@ const ASMRStaticBackground: React.FC = () => {
   }, []);
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-0 pointer-events-none"
       style={{
         backgroundColor: '#000000',
@@ -220,8 +220,8 @@ const ASMRStaticBackground: React.FC = () => {
         <canvas
           ref={canvasRef}
           className="w-full h-full block absolute inset-0"
-          style={{ 
-            transform: "translateZ(0)", 
+          style={{
+            transform: "translateZ(0)",
             filter: "blur(9px)",
             backgroundColor: '#000000',
             willChange: 'transform',

@@ -3,27 +3,52 @@
 import React from "react";
 import { GooeyText } from "@/components/animations/gooey-text-morphing";
 
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+const FEST_INFO_CONFIG = {
+  /** Event name */
+  eventName: "TechSolstice'26",
+  /** Event date display */
+  eventDate: "February 20-22",
+  /** Event location */
+  location: "Manipal Institute of Technology, Bengaluru",
+  /** Rotating tagline words */
+  taglineWords: ["Collaborate.", "Compete.", "Create."],
+  /** Stats displayed at bottom */
+  stats: [
+    { value: "30", label: "Categories", highlight: false },
+    { value: "₹6.7L", label: "In Rewards", highlight: true },
+    { value: "3", label: "Days of Innovation", highlight: false },
+  ],
+} as const;
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
+
 export default function FestInfo() {
   return (
     <section className="relative w-full overflow-hidden bg-black py-24 md:py-32 font-sans select-none">
 
-      {/* --- Background: Minimalist Ambient Depth --- */}
-      <div className="pointer-events-none absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M60 0H0V60\' fill=\'none\' stroke=\'white\' stroke-opacity=\'0.02\' stroke-width=\'1\'/%3E%3C/svg%3E')] opacity-50"></div>
+      {/* Background: Minimalist Ambient Depth */}
+      <div className="pointer-events-none absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M60 0H0V60\' fill=\'none\' stroke=\'white\' stroke-opacity=\'0.02\' stroke-width=\'1\'/%3E%3C/svg%3E')] opacity-50" />
 
       {/* Soft ambient glow */}
       <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform opacity-30">
-        <div className="h-160 w-160 rounded-full blur-[120px] bg-red-600/5"></div>
+        <div className="h-160 w-160 rounded-full blur-[120px] bg-red-600/5" />
       </div>
 
       <div className="container relative mx-auto px-6 z-10 md:px-12 text-center">
 
-        {/* --- Minimalist Wrapper --- */}
+        {/* Minimalist Wrapper */}
         <div className="mx-auto max-w-4xl p-4 md:p-8 relative">
 
           {/* Animated Gooey Text - Core Values */}
           <div className="relative z-10 mb-8">
             <GooeyText
-              texts={["Collaborate.", "Compete.", "Create."]}
+              texts={FEST_INFO_CONFIG.taglineWords as unknown as string[]}
               morphTime={1}
               cooldownTime={1.5}
               className="relative h-28 md:h-40"
@@ -32,18 +57,19 @@ export default function FestInfo() {
           </div>
 
           {/* Divider Line */}
-          <div className="w-12 h-px mx-auto bg-red-600/30 mb-8"></div>
+          <div className="w-12 h-px mx-auto bg-red-600/30 mb-8" />
 
           {/* Sub-header: Event Details */}
           <div className="space-y-3 mb-12">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase text-red-500 michroma-regular">
-              <span>TechSolstice'26</span>
+            {/* Event name and date - reduced tracking on mobile for overflow safety */}
+            <div className="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-0 text-[10px] md:text-xs font-bold tracking-[0.15em] md:tracking-[0.5em] uppercase text-red-500 michroma-regular max-w-full overflow-hidden">
+              <span>{FEST_INFO_CONFIG.eventName}</span>
               <span className="hidden md:inline text-white/20 px-2">|</span>
-              <span>February 20-22</span>
+              <span>{FEST_INFO_CONFIG.eventDate}</span>
             </div>
 
-            <p className="text-[10px] md:text-xs font-medium tracking-[0.3em] uppercase text-neutral-500">
-              Manipal Institute of Technology, Bengaluru
+            <p className="text-[10px] md:text-xs font-medium tracking-[0.15em] md:tracking-[0.3em] uppercase text-neutral-500 max-w-full">
+              {FEST_INFO_CONFIG.location}
             </p>
           </div>
 
@@ -58,7 +84,7 @@ export default function FestInfo() {
             </p>
 
             <div className="pt-4">
-              <span className="text-[10px] uppercase tracking-[0.4em] text-neutral-600 font-black">
+              <span className="text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em] text-neutral-600 font-black">
                 Scale of Impact
               </span>
             </div>
@@ -66,18 +92,16 @@ export default function FestInfo() {
 
           {/* Call-to-Action Stats */}
           <div className="grid grid-cols-3 gap-6 md:gap-16 mt-12 max-w-3xl mx-auto">
-            <div className="space-y-1">
-              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">30</div>
-              <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">Categories</div>
-            </div>
-            <div className="space-y-1 border-x border-white/5">
-              <div className="text-2xl md:text-4xl font-bold text-red-600 michroma-regular">₹6.7L</div>
-              <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">In Rewards</div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-2xl md:text-4xl font-bold text-white michroma-regular">3</div>
-              <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.3em] font-bold">Days of Innovation</div>
-            </div>
+            {FEST_INFO_CONFIG.stats.map((stat, idx) => (
+              <div key={idx} className={`space-y-1 ${idx === 1 ? 'border-x border-white/5' : ''}`}>
+                <div className={`text-2xl md:text-4xl font-bold michroma-regular ${stat.highlight ? 'text-red-600' : 'text-white'}`}>
+                  {stat.value}
+                </div>
+                <div className="text-[9px] md:text-[10px] text-neutral-500 uppercase tracking-[0.15em] md:tracking-[0.3em] font-bold">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
 
         </div>

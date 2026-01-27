@@ -180,7 +180,7 @@ const Trailer: React.FC<TrailerProps> = ({ videoId = "comtgOhuXIg" }) => {
               <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-4">
                 <div className="h-px flex-1 bg-gradient-to-r from-red-600/50 to-transparent" />
                 <span className="text-[10px] uppercase tracking-[0.2em] text-red-500 font-mono">
-                  Est. 2026
+                  Edition 2026
                 </span>
               </div>
             </div>

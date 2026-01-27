@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import ExpandableCard from "@/components/cards/expandable-card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Trophy, CheckCircle2, Lock, Hourglass, Users } from "lucide-react";
+import { Calendar, Clock, MapPin, Trophy, CheckCircle2, Lock, Hourglass, Users, ArrowRight } from "lucide-react";
 import TeamRegistrationForm from "@/components/teams/TeamRegistrationForm";
 import TeamDashboard from "@/components/teams/TeamDashboard";
+import { cn } from "@/lib/utils";
 
 export type Event = {
   id: string;
@@ -22,6 +23,7 @@ export type Event = {
   max_team_size: number;
   is_reg_open: boolean;
   registration_starts_at: string | null;
+  rulebook_url: string | null;
 };
 
 interface EventCardProps {
@@ -34,21 +36,17 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // HYDRATION FIX: Only calculate dates after component mounts on client
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Safe defaults for Server Side Rendering (SSR) to prevent #418 mismatch
-  const now = mounted ? new Date() : new Date(0); // Default to epoch on server
+  const now = mounted ? new Date() : new Date(0);
   const regStart = event.registration_starts_at ? new Date(event.registration_starts_at) : new Date(0);
 
-  // Logic
-  const isComingSoon = mounted ? now < regStart : false; // Assume open on server to prevent lockout
+  const isComingSoon = mounted ? now < regStart : false;
   const isLocked = !event.is_reg_open;
   const isPassLocked = !hasAccess && !isRegistered;
 
-  // Date Formatting - only computed when mounted to match client timezone
   const eventDate = mounted && event.starts_at
     ? new Date(event.starts_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
     : "TBA";
@@ -57,7 +55,6 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
     ? new Date(event.starts_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
     : "TBA";
 
-  // Team Size Logic
   const teamSizeDisplay =
     event.min_team_size === event.max_team_size
       ? event.min_team_size === 1
@@ -66,237 +63,217 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
       : `${event.min_team_size}-${event.max_team_size}`;
 
   let buttonText = "Register Now";
-  let buttonIcon = null;
+  let buttonIcon = <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />;
   let isDisabled = false;
+  let variant: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive" | null | undefined = "default";
 
   if (isRegistered) {
     buttonText = isLocked ? "View Team (Locked)" : "Manage Team";
+    buttonIcon = <Users size={16} className="ml-2" />;
+    variant = "outline";
   } else if (isPassLocked) {
-    buttonText = "Buy Pass";
-    buttonIcon = <Lock size={16} className="mr-2" />;
+    buttonText = "Buy Pass to Register";
+    buttonIcon = <Lock size={16} className="ml-2" />;
+    variant = "destructive";
   } else {
     if (isComingSoon) {
-      buttonText = "Coming Soon";
-      buttonIcon = <Hourglass size={16} className="mr-2" />;
+      buttonText = "Registration Opens Soon";
+      buttonIcon = <Hourglass size={16} className="ml-2" />;
       isDisabled = true;
+      variant = "secondary";
     } else if (isLocked) {
       buttonText = "Registration Closed";
-      buttonIcon = <Lock size={16} className="mr-2" />;
+      buttonIcon = <Lock size={16} className="ml-2" />;
       isDisabled = true;
+      variant = "secondary";
     }
   }
 
-  // Prevent rendering unstable content until hydration is complete
-  // (Optional: You can render a skeleton here if you prefer, but this prevents the crash)
-  if (!mounted) {
-    // Return a static "Server Safe" version or just the structure to prevent layout shift
-    // We render the structure but with safe default text ("TBA")
-  }
+  // Back content (Forms) - Logic preserved
+  const backContentElement = isRegistered ? (
+    <TeamDashboard
+      eventId={event.id}
+      eventName={event.name}
+      minSize={event.min_team_size}
+      maxSize={event.max_team_size}
+      isLocked={isLocked}
+      onBack={() => setIsFlipped(false)}
+    />
+  ) : hasAccess ? (
+    <TeamRegistrationForm
+      eventId={event.id}
+      eventName={event.name}
+      minSize={event.min_team_size}
+      maxSize={event.max_team_size}
+      onBack={() => setIsFlipped(false)}
+      onSuccess={() => setIsFlipped(false)}
+    />
+  ) : (
+    // Pass Required View (Expanded Overlay)
+    <div className="flex flex-col items-center justify-center h-full gap-6 text-center p-6">
+      <div className="p-4 rounded-full bg-red-500/10 border border-red-500/20">
+        <Lock size={32} className="text-red-500" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-2xl font-bold text-white michroma-regular">Access Restricted</h3>
+        <p className="text-neutral-400 max-w-xs mx-auto">
+          You need a TechSolstice pass to register for this event.
+        </p>
+      </div>
+      <div className="flex gap-4">
+        <Button onClick={() => setIsFlipped(false)} variant="ghost">
+          Back
+        </Button>
+        <Button
+          onClick={() => {
+            setIsFlipped(false);
+            window.dispatchEvent(new CustomEvent("open-pass-modal", { detail: event.id }));
+          }}
+          className="bg-red-600 hover:bg-red-700 text-white"
+        >
+          Get Pass
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Status Badge for Collapsed State
+  const StatusBadge = () => {
+    if (isRegistered) return <span className="text-green-400">Registered</span>;
+    if (isLocked && !isComingSoon) return <span className="text-neutral-500">Closed</span>;
+    if (isComingSoon) return <span className="text-blue-400">Coming Soon</span>;
+    if (event.is_reg_open) return <span className="text-red-400">Open</span>;
+    return null;
+  };
 
   return (
     <ExpandableCard
       title={event.name}
-      description=""
-      // Flip functionality temporarily disabled
-      // isFlipped={isFlipped}
-      isFlipped={false}
-      // THEME UPDATE: Pitch black, sharp borders, red hover. 
-      className="w-full h-full min-h-[340px] bg-black border border-white/10 hover:border-[#7a0c0c] transition-colors duration-300 group rounded-lg"
+      src={event.imageUrl || undefined}
+      description={event.shortDescription || ""}
+      isFlipped={isFlipped}
       collapsedChildren={
-        <div className="space-y-5 w-full">
-          {/* Meta Grid */}
-          <div className="grid grid-cols-4 divide-x divide-white/10 border-t border-white/10 pt-5 w-full">
-            <div className="flex flex-col items-center gap-1.5 px-1">
-              <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Date</span>
-              {/* suppressHydrationWarning added for extra safety on timestamps */}
-              <span suppressHydrationWarning className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
-                {eventDate}
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-1.5 px-1">
-              <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Time</span>
-              <span suppressHydrationWarning className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
-                {eventTime}
-              </span>
-            </div>
-            <div className="flex flex-col items-center gap-1.5 px-1">
-              <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Team</span>
-              <div className="flex items-center gap-1">
-                <Users size={12} className="text-red-500/80" />
-                <span className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center">
-                  {teamSizeDisplay}
-                </span>
-              </div>
-            </div>
-            <div className="flex flex-col items-center gap-1.5 px-1">
-              <span className="text-neutral-500 text-[10px] uppercase tracking-widest">Venue</span>
-              <span className="text-neutral-200 text-xs sm:text-sm font-medium truncate w-full text-center" title={event.venue || "TBA"}>
-                {event.venue || "TBA"}
-              </span>
-            </div>
-          </div>
-
-          {/* Prize Pool */}
-          <div className="flex items-center justify-center pt-2">
-            {event.prize_pool && (
-              <div className="flex items-baseline gap-2 text-red-500">
-                <Trophy size={12} className="opacity-80" />
-                <span className="text-xs sm:text-sm font-mono font-bold tracking-tight">
-                  ₹{event.prize_pool}
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="flex items-center gap-2">
+          <StatusBadge />
         </div>
       }
-      // Back-side content (flip) temporarily commented out — preserve for later
-      /*
-      backContent={
-        isRegistered ? (
-          <TeamDashboard
-            eventId={event.id}
-            eventName={event.name}
-            minSize={event.min_team_size}
-            maxSize={event.max_team_size}
-            isLocked={isLocked}
-            onBack={() => setIsFlipped(false)}
-          />
-        ) : hasAccess ? (
-          <TeamRegistrationForm
-            eventId={event.id}
-            eventName={event.name}
-            minSize={event.min_team_size}
-            maxSize={event.max_team_size}
-            onBack={() => setIsFlipped(false)}
-            onSuccess={() => setIsFlipped(false)}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-6 text-center p-6 bg-neutral-950 rounded-lg border border-white/5">
-            <Lock size={32} className="text-red-500/80" />
-            <div className="space-y-2">
-              <p className="text-lg font-medium text-white tracking-tight">Pass Required</p>
-              <p className="text-neutral-500 text-xs sm:text-sm max-w-[200px] mx-auto leading-relaxed">
-                Access to this event is restricted to pass holders.
-              </p>
-            </div>
-            <Button
-              onClick={() => {
-                setIsFlipped(false);
-                window.dispatchEvent(new CustomEvent("open-pass-modal", { detail: event.id }));
-              }}
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white hover:text-black font-medium text-xs uppercase tracking-wider"
-            >
-              Get Access
-            </Button>
-          </div>
-        )
-      }
-      */
-      backContent={null}
+      backContent={backContentElement}
+      className={cn(isRegistered ? "border-green-500/30 bg-green-950/5" : "")}
     >
-      <div className="flex flex-col items-center justify-start sm:justify-center space-y-8 w-full h-full py-6">
+      <div className="space-y-8 pb-8">
 
-        {/* Prize Pool */}
-        {event.prize_pool && (
-          <div className="flex items-center gap-3 px-5 py-2.5 border border-red-900/30 rounded-md bg-red-950/5">
-            <Trophy size={18} className="text-red-500" />
-            <div className="w-px h-4 bg-red-900/30"></div>
-            <span className="text-sm sm:text-base font-bold text-red-100 font-mono tracking-tight">₹{event.prize_pool}</span>
-          </div>
-        )}
-
-        {/* Meta Grid - 4 Columns */}
-        <div className="grid grid-cols-4 w-full divide-x divide-white/10 mt-2">
-          <div className="flex flex-col items-center justify-center px-2 gap-2">
-            <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Date</p>
-            <p suppressHydrationWarning className="text-sm sm:text-base font-medium text-neutral-200 text-center">
-              {eventDate}
-            </p>
-          </div>
-          <div className="flex flex-col items-center justify-center px-2 gap-2">
-            <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Time</p>
-            <p suppressHydrationWarning className="text-sm sm:text-base font-medium text-neutral-200 text-center">
-              {eventTime}
-            </p>
-          </div>
-          <div className="flex flex-col items-center justify-center px-2 gap-2">
-            <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Team</p>
-            <div className="flex items-center gap-1.5">
-              <Users size={16} className="text-red-500" />
-              <p className="text-sm sm:text-base font-medium text-neutral-200 text-center">
-                {teamSizeDisplay}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col items-center justify-center px-2 gap-2">
-            <p className="text-[10px] sm:text-xs text-neutral-600 uppercase tracking-[0.2em]">Venue</p>
-            <p className="text-sm sm:text-base font-medium text-neutral-200 truncate w-full text-center px-1" title={event.venue || "TBA"}>
-              {event.venue || "TBA"}
-            </p>
-          </div>
+        {/* Key Info Grid - Sleek Glassy Boxes */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <InfoBox icon={<Calendar />} label="Date" value={eventDate} />
+          <InfoBox icon={<Clock />} label="Time" value={eventTime} />
+          <InfoBox icon={<Users />} label="Team Size" value={teamSizeDisplay} />
+          <InfoBox icon={<MapPin />} label="Venue" value={event.venue || "TBA"} />
         </div>
 
-        {/* Description */}
-        {event.longDescription && (
-          <div className="w-full px-4 sm:px-6">
-            <div className="border-l-2 border-red-500/50 pl-4 py-2">
-              <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed line-clamp-4 text-left">
-                {event.longDescription}
-              </p>
+        {/* Prize Pool - Prominent Display */}
+        {event.prize_pool && (
+          <div className="relative overflow-hidden rounded-xl border border-red-500/30 bg-gradient-to-r from-red-950/20 to-black p-6 text-center group">
+            <div className="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors" />
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <span className="text-red-400 text-xs font-bold uppercase tracking-widest">Prize Pool</span>
+              <div className="flex items-center gap-2 text-3xl md:text-4xl font-bold text-white michroma-regular text-shadow-red">
+                <Trophy className="text-red-500 mb-1" size={24} />
+                <span>₹{event.prize_pool}</span>
+              </div>
             </div>
           </div>
         )}
 
-        {/* STATUS BADGES */}
-        {(isRegistered || isPassLocked || (isLocked && !isRegistered && !isComingSoon)) && (
-          <div className="flex flex-wrap gap-3 justify-center pt-4">
-            {isRegistered && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded border border-white/30">
-                <CheckCircle2 className="text-white" size={12} />
-                <span className="text-white font-medium text-[10px] uppercase tracking-wider">Registered</span>
-              </div>
-            )}
+        {/* Rulebook Button - ALWAYS rendering as requested */}
+        <div className="flex justify-start">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!event.rulebook_url}
+            onClick={() => event.rulebook_url && window.open(event.rulebook_url, "_blank")}
+            className="border-white/20 text-neutral-300 hover:text-white hover:bg-white/10 hover:border-white/40 transition-all gap-2"
+          >
+            {/* File icon */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-file-text"
+            >
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+              <path d="M10 9H8" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+            </svg>
+            {event.rulebook_url ? "View Rulebook" : "Rulebook Coming Soon"}
+          </Button>
+        </div>
 
-            {isPassLocked && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded border border-red-500/40">
-                <Lock className="text-red-500" size={12} />
-                <span className="text-red-400 font-medium text-[10px] uppercase tracking-wider">Pass Required</span>
-              </div>
-            )}
-
-            {isLocked && !isRegistered && !isComingSoon && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded border border-neutral-700">
-                <Lock className="text-neutral-500" size={12} />
-                <span className="text-neutral-500 font-medium text-[10px] uppercase tracking-wider">Closed</span>
-              </div>
-            )}
+        {/* Long Description */}
+        {event.longDescription && (
+          <div className="prose prose-invert prose-sm max-w-none text-neutral-400">
+            <h4 className="text-white font-bold uppercase tracking-widest text-xs mb-2 border-l-2 border-red-500 pl-3">About Event</h4>
+            <p className="leading-relaxed">{event.longDescription}</p>
           </div>
         )}
 
-        {/* Action Button - Only renders when mounted to avoid button mismatch */}
-        <div className="w-full flex items-center justify-center pt-2">
+        {/* Action Button Area */}
+        <div className="flex flex-col items-center gap-4 pt-4 border-t border-white/5">
           {mounted ? (
             <Button
-              // Flip action disabled temporarily
-              onClick={() => { }}
+              onClick={() => {
+                if (isRegistered || hasAccess) {
+                  setIsFlipped(true);
+                } else if (isPassLocked) {
+                  window.dispatchEvent(new CustomEvent("open-pass-modal", { detail: event.id }));
+                }
+              }}
               size="lg"
               disabled={isDisabled}
-              variant={isRegistered ? "outline" : "default"}
-              className={`font-bold text-sm sm:text-base px-8 py-6 w-full sm:w-auto transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider ${isRegistered
-                ? "border border-white/20 text-white hover:bg-white hover:text-black rounded-none"
-                : "bg-[#7a0c0c] hover:bg-[#5a0909] text-white border border-transparent rounded-none"
-                }`}
+              variant={variant}
+              className={cn(
+                "w-full sm:w-auto min-w-[200px] py-6 text-base font-bold tracking-wide uppercase transition-all duration-300",
+                !isRegistered && !isDisabled && !isPassLocked ? "bg-red-600 hover:bg-red-700 hover:scale-105 hover:shadow-lg hover:shadow-red-900/20 border-0" : "",
+                isPassLocked ? "bg-neutral-800 hover:bg-neutral-700 text-white" : ""
+              )}
             >
-              {buttonIcon}
               {buttonText}
+              {buttonIcon}
             </Button>
           ) : (
-            // Skeleton / Loading Button state for SSR
-            <div className="h-14 w-40 bg-white/5 animate-pulse rounded-none" />
+            <div className="h-12 w-48 bg-white/5 animate-pulse rounded-md" />
+          )}
+
+          {/* Helper Text */}
+          {isPassLocked && (
+            <p className="text-xs text-red-400/80 flex items-center gap-1.5">
+              <Lock size={12} /> TechSolstice Pass required
+            </p>
           )}
         </div>
       </div>
     </ExpandableCard>
+  );
+}
+
+// Helper Component for consistency
+function InfoBox({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/10 transition-colors gap-2 text-center group">
+      <div className="text-neutral-500 group-hover:text-red-400 transition-colors [&>svg]:w-5 [&>svg]:h-5">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[10px] uppercase tracking-widest text-neutral-600 font-bold mb-0.5">{label}</p>
+        <p className="text-white font-medium text-sm sm:text-base">{value}</p>
+      </div>
+    </div>
   );
 }

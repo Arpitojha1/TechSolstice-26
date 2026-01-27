@@ -5,20 +5,62 @@ import dynamic from "next/dynamic";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { PatternText } from "@/components/animations/pattern-text";
 
-// Dynamic import with transparent fallback for ASMR background visibility
-const SplineScene = dynamic(() => import("@/components/hero/spline-scene").then((m) => m.SplineScene), {
-  ssr: false,
-  loading: () => <div className="w-full h-full bg-transparent" />
-});
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+const HERO_CONFIG = {
+  /** Text displayed in the hero section */
+  heroText: "TechSolstice'26",
+  /** Font stack for text measurement (must match CSS) */
+  fontFamily: 'Michroma, Doto, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  /** Font weight for text measurement */
+  fontWeight: "700",
+  /** Maximum font size in pixels */
+  maxFontSize: 120,
+  /** Minimum font size in pixels (readability floor for mobile) */
+  minFontSize: 24,
+  /** Horizontal padding in rem (matches px-4 = 1rem each side) */
+  horizontalPaddingRem: 2,
+  /** Debounce delay for resize events in ms */
+  resizeDebounceMs: 100,
+  /** Max iterations for font size calculation (safety limit) */
+  maxIterations: 100,
+  /** Font size step for binary search */
+  fontSizeStep: 2,
+  /** Spline 3D scene URL */
+  splineSceneUrl: "https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode",
+  /** Breakpoint for loading 3D scene */
+  desktopBreakpoint: "(min-width: 1024px)",
+} as const;
+
+// ============================================================================
+// DYNAMIC IMPORTS
+// ============================================================================
+
+const SplineScene = dynamic(
+  () => import("@/components/hero/spline-scene").then((m) => m.SplineScene),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full bg-transparent" />,
+  }
+);
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 export function HeroRobot() {
   const titleRef = useRef<HTMLHeadingElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [fontSize, setFontSize] = useState<number>(120);
+  const [fontSize, setFontSize] = useState<number>(HERO_CONFIG.maxFontSize);
 
-  // Logic: Only load heavy 3D elements if width >= 1024px (Laptops/Desktops)
-  const isLaptopOrLarger = useMediaQuery("(min-width: 1024px)");
+  // Only load heavy 3D elements on desktop
+  const isDesktop = useMediaQuery(HERO_CONFIG.desktopBreakpoint);
 
+  /**
+   * Measures text width and calculates optimal font size to fit container
+   */
   const measureText = useCallback(() => {
     if (!containerRef.current || !titleRef.current) return;
 
@@ -26,28 +68,32 @@ export function HeroRobot() {
     const title = titleRef.current;
     if (container.clientWidth === 0) return;
 
-    const availableWidth = container.clientWidth - 32;
+    // Calculate available width accounting for padding
+    const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    const paddingPx = HERO_CONFIG.horizontalPaddingRem * remInPx;
+    const availableWidth = container.clientWidth - paddingPx;
 
-    // Create canvas only once per measure call
+    // Create measurement context
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const fontFamily = "Michroma, Doto, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif";
-    const weight = "700";
+    // Get text content
+    const text = title.textContent || HERO_CONFIG.heroText;
 
-    let size = 120;
-    ctx.font = `${weight} ${size}px ${fontFamily}`;
-
-    // Get text content safely
-    const text = title.textContent || "TechSolstice'26";
+    // Binary search for optimal font size
+    let size = HERO_CONFIG.maxFontSize;
+    ctx.font = `${HERO_CONFIG.fontWeight} ${size}px ${HERO_CONFIG.fontFamily}`;
     let metrics = ctx.measureText(text);
 
     let iterations = 0;
-    // Cap iterations to prevent infinite loops if something goes wrong
-    while (metrics.width > availableWidth && size > 20 && iterations < 100) {
-      size -= 2;
-      ctx.font = `${weight} ${size}px ${fontFamily}`;
+    while (
+      metrics.width > availableWidth &&
+      size > HERO_CONFIG.minFontSize &&
+      iterations < HERO_CONFIG.maxIterations
+    ) {
+      size -= HERO_CONFIG.fontSizeStep;
+      ctx.font = `${HERO_CONFIG.fontWeight} ${size}px ${HERO_CONFIG.fontFamily}`;
       metrics = ctx.measureText(text);
       iterations++;
     }
@@ -58,22 +104,19 @@ export function HeroRobot() {
   useEffect(() => {
     measureText();
 
-    // Debounce resize handling
+    // Debounced resize handler
     let timeoutId: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         requestAnimationFrame(measureText);
-      }, 100);
+      }, HERO_CONFIG.resizeDebounceMs);
     };
 
     window.addEventListener("resize", handleResize);
 
-    // Use ResizeObserver for container-specific changes
-    const resizeObserver = new ResizeObserver(() => {
-      handleResize();
-    });
-
+    // ResizeObserver for container-specific changes
+    const resizeObserver = new ResizeObserver(handleResize);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
@@ -86,36 +129,37 @@ export function HeroRobot() {
   }, [measureText]);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden" ref={containerRef}>
-
+    <section
+      ref={containerRef}
+      className="relative h-screen w-full overflow-hidden"
+    >
       {/* 3D Scene Layer */}
       <div className="absolute inset-0 z-10">
-        {isLaptopOrLarger ? (
+        {isDesktop ? (
           <React.Suspense fallback={<div className="w-full h-full bg-transparent" />}>
             <SplineScene
-              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              scene={HERO_CONFIG.splineSceneUrl}
               className="w-full h-full"
             />
           </React.Suspense>
         ) : (
-          // Mobile Fallback: Transparent to show ASMR background
           <div className="w-full h-full bg-transparent" />
         )}
       </div>
 
-      {/* Text Overlay Layer */}
-      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4">
+      {/* Text Overlay Layer - with safe area padding for notched devices */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4 sm:px-6 lg:px-8" style={{ paddingLeft: 'max(1rem, env(safe-area-inset-left))', paddingRight: 'max(1rem, env(safe-area-inset-right))' }}>
         <div
           ref={titleRef}
-          className="text-center w-full max-w-full overflow-visible relative"
+          className="text-center w-full max-w-screen overflow-hidden relative"
           style={{
             fontSize: `${fontSize}px`,
             lineHeight: 1.1,
           }}
         >
           <PatternText
-            text="TechSolstice'26"
-            className="michroma-regular !text-[1em] !text-white/90 drop-shadow-2xl whitespace-nowrap"
+            text={HERO_CONFIG.heroText}
+            className="michroma-regular !text-[1em] !text-white/90 drop-shadow-2xl"
           />
         </div>
       </div>

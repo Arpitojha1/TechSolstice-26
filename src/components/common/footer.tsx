@@ -5,9 +5,37 @@ import Image from "next/image";
 import Logo from "@/components/misc/logo";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-// CHANGED: Static import to ensure the animation code is loaded immediately with the page
 import { FlickeringGridResponsive } from "@/components/animations/flickering-grid";
 
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+/** Footer flickering grid display settings */
+const FOOTER_GRID_CONFIG = {
+  /** Text displayed on desktop (>=1024px) */
+  desktopText: "TechSolstice'26",
+  /** Text displayed on tablet (768px-1023px) */
+  tabletText: "Solstice'26",
+  /** Font size for desktop */
+  desktopFontSize: 80,
+  /** Font size for tablet */
+  tabletFontSize: 50,
+  /** Grid square size */
+  squareSize: 3,
+  /** Gap between squares */
+  gridGap: 3,
+  /** Brand color */
+  color: "#D33A4A",
+  /** Maximum opacity of squares */
+  maxOpacity: 0.4,
+  /** Probability of flicker */
+  flickerChance: 0.15,
+} as const;
+
+// ============================================================================
+// SITE CONFIG (EXPORTED)
+// ============================================================================
 export const siteConfig = {
   contactData: {
     eventName: "TechSolstice'26",
@@ -315,15 +343,15 @@ export const Footer = () => {
       {/* Flickering Grid Background - Only on tablet+ */}
       {isTabletOrLarger && (
         <div
-          className="w-full h-37.5 md:h-45 relative z-0 mt-4"
+          className="w-full h-[150px] md:h-[180px] relative z-0 mt-4 overflow-hidden"
           style={{
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 20%)",
             maskImage: "linear-gradient(to bottom, transparent, black 20%)",
           }}
         >
           <FlickerOnView
-            text={isDesktop ? "TechSolstice'26" : "Solstice'26"}
-            baseFontSize={isDesktop ? 80 : 50}
+            text={isDesktop ? FOOTER_GRID_CONFIG.desktopText : FOOTER_GRID_CONFIG.tabletText}
+            baseFontSize={isDesktop ? FOOTER_GRID_CONFIG.desktopFontSize : FOOTER_GRID_CONFIG.tabletFontSize}
           />
         </div>
       )}
@@ -331,18 +359,27 @@ export const Footer = () => {
   );
 };
 
-function FlickerOnView({ text, baseFontSize }: { text: string; baseFontSize: number }) {
+// ============================================================================
+// SUB-COMPONENTS
+// ============================================================================
+
+interface FlickerOnViewProps {
+  text: string;
+  baseFontSize: number;
+}
+
+function FlickerOnView({ text, baseFontSize }: FlickerOnViewProps) {
   return (
-    <div className="absolute inset-0 z-10 w-full">
+    <div className="absolute inset-0 z-10 w-full overflow-hidden">
       <FlickeringGridResponsive
         text={text}
         baseFontSize={baseFontSize}
         className="h-full w-full"
-        squareSize={3}
-        gridGap={3}
-        color="#D33A4A"
-        maxOpacity={0.4}
-        flickerChance={0.15}
+        squareSize={FOOTER_GRID_CONFIG.squareSize}
+        gridGap={FOOTER_GRID_CONFIG.gridGap}
+        color={FOOTER_GRID_CONFIG.color}
+        maxOpacity={FOOTER_GRID_CONFIG.maxOpacity}
+        flickerChance={FOOTER_GRID_CONFIG.flickerChance}
       />
     </div>
   );

@@ -26,14 +26,15 @@ const DEFAULT_SPEAKER: SpeakerProfile = {
   role: "Keynote Speaker",
   designation: "Industry Pioneer",
   description: [
-    "We are honored to host a pioneer who has significantly influenced the intersection of technology and industry.",
-    "This session will provide deep insights into the future of innovation, curated for those ready to lead the next era.",
+    'Get ready to hear from a visionary mind shaping the future of technology.',
+    'We’re bringing a trailblazer from the tech world to the Tech Conclave — and the reveal is happening soon!',
+    'Tech Conclave is about to level up. Stay tuned!',
   ],
   imageUrl: null, // Set to a URL string to replace the User icon
   badgeText: "Coming Soon",
   revealText: "Speaker Reveal",
   eventNumber: "01.",
-  eventType: "Main Event",
+  eventType: "TechConclave",
 };
 
 // --- COMPONENT ---
