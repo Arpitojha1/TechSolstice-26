@@ -17,7 +17,7 @@ export interface SpeakerProfile {
   badgeText: string;
   revealText: string; // "Speaker Reveal"
   eventNumber: string; // "01."
-  eventType: string; // "Main Event"
+  eventType: string; // "TechConclave"
 }
 
 const DEFAULT_SPEAKER: SpeakerProfile = {

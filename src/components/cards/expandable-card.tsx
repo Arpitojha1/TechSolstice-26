@@ -16,6 +16,7 @@ interface ExpandableCardProps {
   isFlipped?: boolean;
   className?: string;
   classNameExpanded?: string;
+  bottomRightContent?: React.ReactNode;
   [key: string]: any;
 }
 
@@ -29,6 +30,7 @@ export function ExpandableCard({
   className,
   classNameExpanded,
   collapsedChildren, // Optional: Can be used for small badges in collapsed state
+  bottomRightContent,
   ...props
 }: ExpandableCardProps) {
   const [active, setActive] = React.useState(false);
@@ -186,15 +188,23 @@ export function ExpandableCard({
           <div className="flex-grow" />
 
           {/* Bottom: Minimal Details or Text */}
-          <div className="mt-4">
-            {collapsedChildren ? (
-              <div className="text-sm text-neutral-400">
-                {collapsedChildren}
-              </div>
-            ) : (
-              <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-widest group-hover:text-red-400 transition-colors">
-                <span>View Details</span>
-                <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          <div className="mt-4 flex justify-between items-end">
+            <div className="flex-grow">
+              {collapsedChildren ? (
+                <div className="text-sm text-neutral-400">
+                  {collapsedChildren}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 uppercase tracking-widest group-hover:text-red-400 transition-colors">
+                  <span>View Details</span>
+                  <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              )}
+            </div>
+
+            {bottomRightContent && (
+              <div className="ml-4">
+                {bottomRightContent}
               </div>
             )}
           </div>

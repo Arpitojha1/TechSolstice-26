@@ -159,6 +159,14 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
       }
       backContent={backContentElement}
       className={cn(isRegistered ? "border-green-500/30 bg-green-950/5" : "")}
+      bottomRightContent={
+        event.prize_pool ? (
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Prize Pool</span>
+            <span className="text-red-400 font-bold michroma-regular text-sm">₹{event.prize_pool}</span>
+          </div>
+        ) : null
+      }
     >
       <div className="space-y-8 pb-8">
 
