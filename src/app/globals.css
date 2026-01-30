@@ -8,7 +8,7 @@
   --animate-shadanim: shadanim 15s linear infinite;
 
   /* Strict Red Override */
-  --color-red-50: #7D0D2C;
+  /* --color-red-50: #7D0D2C;
   --color-red-100: #7D0D2C;
   --color-red-200: #7D0D2C;
   --color-red-300: #7D0D2C;
@@ -18,7 +18,7 @@
   --color-red-700: #7D0D2C;
   --color-red-800: #7D0D2C;
   --color-red-900: #7D0D2C;
-  --color-red-950: #7D0D2C;
+  --color-red-950: #7D0D2C; */
 }
 
 :root {

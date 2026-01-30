@@ -157,6 +157,19 @@ export function HeroRobot() {
             lineHeight: 1.1,
           }}
         >
+          {/* ========== HERO TEXT COLOR OPTIONS ========== */}
+          {/* 
+           * TEXT COLOR: !text-white/90
+           *   - white/90 = White at 90% opacity (slightly transparent)
+           *   - Change 'white' to any Tailwind color: red-500, pink-500, cyan-400, etc.
+           *   - Change /90 to adjust opacity: /100 (full), /75, /50 (half transparent)
+           *   - Examples: !text-pink-400/90, !text-cyan-300/80, !text-red-500/100
+           *
+           * DROP SHADOW: drop-shadow-2xl
+           *   - Adds depth/glow behind text for readability
+           *   - Options: drop-shadow-sm, drop-shadow, drop-shadow-md, drop-shadow-lg, drop-shadow-xl, drop-shadow-2xl
+           *   - For colored glow, use custom: drop-shadow-[0_0_15px_rgba(255,0,100,0.8)]
+           */}
           <PatternText
             text={HERO_CONFIG.heroText}
             className="michroma-regular !text-[1em] !text-white/90 drop-shadow-2xl"

@@ -19,7 +19,8 @@ const ASMRStaticBackground: React.FC = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    // Use srgb colorSpace for consistent colors across devices (especially iOS)
+    const ctx = canvas.getContext("2d", { colorSpace: 'srgb' });
     if (!ctx) return;
 
     let width = (canvas.width = window.innerWidth);
@@ -30,9 +31,15 @@ const ASMRStaticBackground: React.FC = () => {
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
     const DPR = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
 
-    const PARTICLE_COUNT = isMobile ? 160 : Math.round(600 / (2 / DPR));
-    const MAGNETIC_RADIUS = isMobile ? 180 : 280;
+    // ========== PARTICLE BEHAVIOR SETTINGS ==========
+    // PARTICLE_COUNT: Number of particles on screen. Higher = denser effect, but impacts performance
+    // NUKE MODE: Mobile has 280 particles for intense red coverage
+    const PARTICLE_COUNT = isMobile ? 165 : Math.round(700 / (2 / DPR));
+    // MAGNETIC_RADIUS: How close cursor must be to attract particles (in pixels). Larger = wider influence area
+    const MAGNETIC_RADIUS = isMobile ? 200 : 300;
+    // VORTEX_STRENGTH: How much particles swirl around cursor. Higher = more spinning/orbital motion
     const VORTEX_STRENGTH = 0.07;
+    // PULL_STRENGTH: How strongly particles are pulled toward cursor. Higher = faster attraction
     const PULL_STRENGTH = 0.12;
 
     const mouse = { x: -1000, y: -1000 };
@@ -61,14 +68,25 @@ const ASMRStaticBackground: React.FC = () => {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        // Unified size for consistency
-        this.size = Math.random() * 1.6 + 0.4;
-        this.vx = (Math.random() - 0.5) * 0.2;
-        this.vy = (Math.random() - 0.5) * 0.2;
-        const isGlass = Math.random() > 0.7;
-        // Cyberpunk palette: glassy pink highlights vs deeper neon red shards
-        this.color = isGlass ? "255,160,180" : "255,20,80";
-        this.alpha = Math.random() * 0.35 + 0.08;
+        // ========== PARTICLE SIZE ==========
+        // NUKE MODE: Bigger particles (0.8 to 3.0 px) for more visible red
+        this.size = isMobile ? (Math.random() * 2.5 + 0.8) : (Math.random() * 2.2 + 0.6);
+
+        // ========== PARTICLE VELOCITY ==========
+        // vx/vy: Initial drift speed. Change 0.2 for faster/slower ambient movement
+        this.vx = (Math.random() - 0.5) * 0.25;
+        this.vy = (Math.random() - 0.5) * 0.25;
+
+        // ========== PARTICLE COLOR PALETTE ==========
+        // NUKE MODE: Bright vivid red - 25% less bright
+        // Mix of pure red and slightly darker red for variety
+        const isBright = Math.random() > 0.5;
+        // Reduced another ~5% from current values (93 -> 88, 81 -> 77, 7 -> 6)
+        this.color = isBright ? "88,0,0" : "77,6,6";
+
+        // ========== PARTICLE OPACITY ==========
+        // NUKE MODE: Full opacity for maximum brightness
+        this.alpha = 1.0;
         this.rotation = Math.random() * Math.PI * 2;
         this.rotationSpeed = (Math.random() - 0.5) * 0.05;
       }
@@ -115,9 +133,16 @@ const ASMRStaticBackground: React.FC = () => {
         const finalAlpha = Math.min(this.alpha + this.frictionGlow, 0.98);
         ctx.fillStyle = `rgba(${this.color}, ${finalAlpha})`;
 
+        // ========== GLOW EFFECT ON CURSOR INTERACTION ==========
+        // NUKE MODE: Always emit a subtle glow, stronger when near cursor
+        // Base glow for all particles (25% less bright)
+        ctx.shadowBlur = isMobile ? 12 : 8;
+        ctx.shadowColor = `rgba(88,0,0, 0.6)`;
+
+        // Extra glow when near cursor
         if (this.frictionGlow > 0.2) {
-          ctx.shadowBlur = 18 * this.frictionGlow;
-          ctx.shadowColor = `rgba(255,60,140, ${Math.min(this.frictionGlow * 1.2, 0.95)})`;
+          ctx.shadowBlur = 25 * this.frictionGlow;
+          ctx.shadowColor = `rgba(77,6,6, ${Math.min(this.frictionGlow * 1.5, 1.0)})`;
         } else {
           ctx.shadowBlur = 0;
         }
@@ -173,9 +198,32 @@ const ASMRStaticBackground: React.FC = () => {
         }
       }
 
-      // subtle red wash for cyberpunk atmosphere (shortens trails)
-      // Unified color/tint for both mobile and desktop
-      ctx.fillStyle = "rgba(25,6,12,0.04)";
+      // ========== BACKGROUND FILL / TRAIL EFFECT ==========
+      // This rectangle is drawn each frame with low opacity, creating the "trail" effect
+      // The color tints the entire canvas and controls how fast trails fade
+      // 
+      // FORMAT: "rgba(R, G, B, A)" where:
+      //   - R,G,B (0-255): Base color tint for the background
+      //   - A (0.0-1.0): Fade speed. Lower = longer trails, Higher = shorter trails
+      //
+      // Current "rgba(25,6,12,0.04)": Very dark red/maroon tint with slow fade (long trails)
+      //   - 25,6,12 = Dark reddish-brown for cyberpunk atmosphere
+      //   - 0.04 = Very slow fade creating long ghostly trails
+      //
+      // COLOR EXAMPLES:
+      //   - Pure black trails: "rgba(0,0,0,0.04)" - neutral, no color tint
+      //   - Blue/cyan mood: "rgba(6,12,25,0.04)" - cool cyberpunk
+      //   - Purple mood: "rgba(15,6,25,0.04)" - violet atmosphere
+      //   - Green mood: "rgba(6,20,12,0.04)" - matrix-style
+      //
+      // TRAIL LENGTH:
+      //   - 0.02 = Very long trails (ghostly)
+      //   - 0.04 = Long trails (current - smooth)
+      //   - 0.08 = Medium trails
+      //   - 0.15 = Short trails (snappy)
+      // NUKE MODE: Very dark red tint (10,0,0) for subtle ambient red glow on black
+      // Mobile uses slower fade (0.02) for longer, more visible red trails
+      ctx.fillStyle = isMobile ? "rgba(8,0,0,0.02)" : "rgba(5,0,0,0.025)";
       ctx.fillRect(0, 0, width, height);
 
       // Draw particles (limit per frame for performance on mobile)
@@ -207,8 +255,9 @@ const ASMRStaticBackground: React.FC = () => {
       // Immediately reinitialize and redraw to prevent flash
       init();
       // Draw one frame immediately to ensure canvas is never empty
-      ctx.fillStyle = isMobile ? "rgba(25,6,12,0.06)" : "rgba(25,6,12,0.04)";
-      ctx.fillRect(0, 0, width, height);
+      // ========== RESIZE BACKGROUND COLOR ==========
+      // NUKE MODE: Match the dark red tint from render()
+      ctx.fillStyle = isMobile ? "rgba(8,0,0,0.02)" : "rgba(5,0,0,0.025)";
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.update();
@@ -239,6 +288,9 @@ const ASMRStaticBackground: React.FC = () => {
     <div
       className="fixed inset-0 z-0 pointer-events-none"
       style={{
+        // ========== CONTAINER BACKGROUND COLOR ==========
+        // Base color behind the entire effect. Should be dark to make particles visible
+        // Change to any dark hex color: '#000000' (black), '#0a0a0a' (near-black), '#0d0d1a' (dark blue)
         backgroundColor: '#000000',
         WebkitTapHighlightColor: 'transparent',
         WebkitTouchCallout: 'none',
@@ -247,27 +299,51 @@ const ASMRStaticBackground: React.FC = () => {
         touchAction: 'none'
       }}
     >
+      {/* ========== INNER WRAPPER BACKGROUND ========== */}
+      {/* This div's backgroundColor should match container for seamless look */}
       <div className="absolute inset-0" style={{ backgroundColor: '#000000' }}>
         <canvas
           ref={canvasRef}
           className="w-full h-full block absolute inset-0"
           style={{
             transform: "translateZ(0)",
-            filter: "blur(9px)",
+            // ========== CANVAS BLUR EFFECT ==========
+            // NUKE MODE: Less blur on mobile (6px) for sharper red particles
+            // Desktop keeps 8px for smooth glow
+            filter: "blur(7px)",
+            // ========== CANVAS BACKGROUND COLOR ==========
+            // Should match container background for seamless effect
             backgroundColor: '#000000',
             willChange: 'transform',
             WebkitTapHighlightColor: 'transparent',
             userSelect: 'none',
             WebkitUserSelect: 'none',
-            touchAction: 'none'
+            touchAction: 'none',
+            // Force hardware acceleration and consistent color rendering on iOS
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
+            imageRendering: 'auto'
           }}
         />
 
-        {/* Black-tinted overlay with subtle backdrop blur to darken and soften the background */}
+        {/* ========== OVERLAY LAYER ========== */}
+        {/* NUKE MODE: Red radial glow from center for ambient red atmosphere */}
+        {/* Mobile gets stronger red glow, desktop is subtler */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-black/0 md:bg-black/5 backdrop-blur-none pointer-events-none"
-          style={{ mixBlendMode: 'multiply' }}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(80,0,0,0.15) 0%, rgba(20,0,0,0.08) 50%, rgba(0,0,0,0) 100%)',
+            mixBlendMode: 'screen'
+          }}
+        />
+        {/* Secondary vignette for depth */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.3) 100%)'
+          }}
         />
       </div>
     </div>
