@@ -37,6 +37,11 @@ const ASMRStaticBackground: React.FC = () => {
 
     const mouse = { x: -1000, y: -1000 };
 
+    // Simulation state for initial animation
+    let isSimulating = true;
+    const simulationStart = Date.now();
+    const SIMULATION_DURATION = 2500; // 2.5s swipe
+
     class Particle {
       x = 0;
       y = 0;
@@ -56,7 +61,8 @@ const ASMRStaticBackground: React.FC = () => {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.size = Math.random() * (isMobile ? 1.2 : 1.6) + 0.4;
+        // Unified size for consistency
+        this.size = Math.random() * 1.6 + 0.4;
         this.vx = (Math.random() - 0.5) * 0.2;
         this.vy = (Math.random() - 0.5) * 0.2;
         const isGlass = Math.random() > 0.7;
@@ -149,8 +155,27 @@ const ASMRStaticBackground: React.FC = () => {
     };
 
     const render = () => {
+      // Handle initial simulation
+      if (isSimulating) {
+        const elapsed = Date.now() - simulationStart;
+        if (elapsed < SIMULATION_DURATION) {
+          const progress = elapsed / SIMULATION_DURATION;
+          // Smooth sine wave motion across the screen
+          const x = width * (0.2 + 0.6 * Math.sin(progress * Math.PI)); // Sweep 20% -> 80% -> 20%
+          const y = height * (0.5 + 0.2 * Math.cos(progress * Math.PI * 2)); // Circle motion
+
+          mouse.x = x;
+          mouse.y = y;
+        } else {
+          isSimulating = false;
+          mouse.x = -1000;
+          mouse.y = -1000;
+        }
+      }
+
       // subtle red wash for cyberpunk atmosphere (shortens trails)
-      ctx.fillStyle = isMobile ? "rgba(25,6,12,0.06)" : "rgba(25,6,12,0.04)";
+      // Unified color/tint for both mobile and desktop
+      ctx.fillStyle = "rgba(25,6,12,0.04)";
       ctx.fillRect(0, 0, width, height);
 
       // Draw particles (limit per frame for performance on mobile)
@@ -165,12 +190,14 @@ const ASMRStaticBackground: React.FC = () => {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
+      isSimulating = false; // Cancel simulation on user interaction
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches[0]) {
+        isSimulating = false; // Cancel simulation on user interaction
         mouse.x = e.touches[0].clientX;
         mouse.y = e.touches[0].clientY;
       }
@@ -193,6 +220,9 @@ const ASMRStaticBackground: React.FC = () => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
 
+    // Also cancel on touch start to be responsive immediately
+    window.addEventListener("touchstart", () => { isSimulating = false; }, { passive: true });
+
     init();
     render();
 
@@ -200,6 +230,7 @@ const ASMRStaticBackground: React.FC = () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("touchmove", handleTouchMove as EventListener);
+      window.removeEventListener("touchstart", () => { isSimulating = false; });
       cancelAnimationFrame(animationFrameId);
     };
   }, []);

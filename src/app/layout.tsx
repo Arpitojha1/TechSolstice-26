@@ -23,16 +23,66 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TechSolstice'26",
-  description: "Official website for TechSolstice - 2026",
+  title: {
+    default: "TechSolstice'26 | MIT Bengaluru",
+    template: "%s | TechSolstice'26"
+  },
+  description: "TechSolstice stands as the flagship annual tech and innovation fest of Manipal Institute of Technology, Bengaluru — a celebration of creativity, technology, and entrepreneurship.",
+  keywords: [
+    "TechSolstice", "mit bangalore techfest", "tech solstice", "manipal blr tech fest",
+    "MIT Bengaluru", "MAHE", "Technical Fest", "Hackathon", "Robotics", "Coding",
+    "Engineering", "College Fest", "Tech Fest India", "Innovation", "Entrepreneurship"
+  ],
+  authors: [{ name: "TechSolstice Team" }],
+  creator: "TechSolstice Team",
+  publisher: "Manipal Institute of Technology, Bengaluru",
+  metadataBase: new URL('https://techsolstice.mitblr.in'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "TechSolstice'26 | MIT Bengaluru",
+    description: "TechSolstice stands as the flagship annual tech and innovation fest of Manipal Institute of Technology, Bengaluru. A celebration of creativity, technology, and entrepreneurship.",
+    url: 'https://techsolstice.mitblr.in',
+    siteName: "TechSolstice'26",
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/logos/TechSolsticeLogo.png',
+        width: 1200,
+        height: 630,
+        alt: "TechSolstice'26 Logo",
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "TechSolstice'26 | MIT Bengaluru",
+    description: "Flagship annual tech and innovation fest of MIT Bengaluru. Feb 20-22, 2026.",
+    images: ['/logos/TechSolsticeLogo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: '/favicon.ico',
+    apple: '/favicon.ico',
   },
   // Performance optimization
   other: {
     'preload': 'true'
   }
 };
+
 
 const RootLayout = ({
   children,
@@ -113,6 +163,54 @@ const RootLayout = ({
           </LenisProvider>
         </Providers>
       </body>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "name": "TechSolstice (MIT Bengaluru)",
+                "url": "https://techsolstice.mitblr.in",
+                "logo": "https://techsolstice.mitblr.in/logos/TechSolsticeLogo.png",
+                "description": "Manipal Institute of Technology Bengaluru (MIT-BLR) is one of the leading Institutions of Manipal Academy of Higher Education (MAHE) that offers BTech programs. The MIT- BLR is approved by the All-India Council of Technical Education (AICTE) and the Ministry of Education (MHRD).",
+                "sameAs": [
+                  "https://www.instagram.com/techsolstice.mitblr",
+                  "https://www.linkedin.com/company/techsolstice",
+                  "https://www.youtube.com/@TechSolstice"
+                ]
+              },
+              {
+                "@type": "Event",
+                "name": "TechSolstice'26",
+                "description": "TechSolstice stands as the flagship annual tech and innovation fest of Manipal Institute of Technology, Bengaluru — a celebration of creativity, technology, and entrepreneurship. It brings together the brightest minds from premier institutions across India to collaborate, compete, and create. Organized entirely by students, TechSolstice’26 embodies the spirit of innovation, precision, and passion.",
+                "startDate": "2026-02-20",
+                "endDate": "2026-02-22",
+                "eventStatus": "https://schema.org/EventScheduled",
+                "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+                "location": {
+                  "@type": "Place",
+                  "name": "Manipal Institute of Technology, Bengaluru",
+                  "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "Govindapura, Yelahanka",
+                    "addressLocality": "Bengaluru",
+                    "postalCode": "560064",
+                    "addressRegion": "Karnataka",
+                    "addressCountry": "IN"
+                  }
+                },
+                "organizer": {
+                  "@type": "Organization",
+                  "name": "MIT Bengaluru Student Council",
+                  "url": "https://manipal.edu/mitblr"
+                }
+              }
+            ]
+          })
+        }}
+      />
     </html>
   );
 }
