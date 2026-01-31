@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { GooeyText } from "@/components/animations/gooey-text-morphing";
 
 // ============================================================================
@@ -43,7 +44,7 @@ export default function FestInfo() {
       <div className="container relative mx-auto px-6 z-10 md:px-12 text-center">
 
         {/* Minimalist Wrapper */}
-        <div className="mx-auto max-w-4xl p-4 md:p-8 relative">
+        <div className="mx-auto max-w-6xl p-4 md:p-8 relative">
 
           {/* Animated Gooey Text - Core Values */}
           <div className="relative z-10 mb-8">
@@ -73,21 +74,40 @@ export default function FestInfo() {
             </p>
           </div>
 
-          {/* Body Text: Professional and Impactful */}
-          <div className="max-w-2xl mx-auto text-sm md:text-base text-neutral-400 leading-relaxed space-y-6">
-            <p className="text-neutral-300 font-light tracking-wide italic">
-              TechSolstice represents the pinnacle of collegiate innovation—a convergence of technical excellence and creative vision.
-            </p>
+          {/* Info Grid: Institute & Fest */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start text-left mt-16 mb-16">
 
-            <p className="font-light">
-              We bring together aspiring engineers and visionaries from across the nation for an intensive three-day symposium. From <span className="text-white border-b border-white/10 pb-0.5">36-hour hackathons</span> to large-scale <span className="text-white border-b border-white/10 pb-0.5">robotic engineering</span> challenges, this is the definitive arena for technical mastery.
-            </p>
-
-            <div className="pt-4">
-              <span className="text-[10px] uppercase tracking-[0.2em] md:tracking-[0.4em] text-neutral-600 font-black">
-                Scale of Impact
-              </span>
+            {/* Left: About Institute */}
+            <div className="flex flex-row items-start gap-4">
+              <div className="relative w-16 h-16 shrink-0 mt-1">
+                <Image
+                  src="/logos/manipalLogo copy.png"
+                  alt="MIT-BLR Logo"
+                  fill
+                  className="object-contain"
+                  sizes="64px"
+                />
+              </div>
+              <div className="space-y-3">
+                <h3 className="text-white text-sm md:text-md font-bold michroma-regular tracking-wider uppercase">
+                  About The Institute
+                </h3>
+                <p className="text-neutral-400 text-xs md:text-sm leading-relaxed">
+                  Manipal Institute of Technology Bengaluru (MIT-BLR), a constituent unit of MAHE, delivers world-class technical education. We foster innovation, leadership, and teamwork, empowering students to become future-ready engineering professionals.
+                </p>
+              </div>
             </div>
+
+            {/* Right: About TechSolstice */}
+            <div className="flex flex-col items-start md:items-end text-left md:text-right space-y-3">
+              <h3 className="text-white text-sm md:text-md font-bold michroma-regular tracking-wider uppercase">
+                About TechSolstice
+              </h3>
+              <p className="text-neutral-400 text-xs md:text-sm leading-relaxed max-w-lg">
+                TechSolstice is MIT-BLR's flagship technical fest—a celebration of creativity and entrepreneurship. Organized entirely by students, it brings together the brightest minds to collaborate, compete, and create through cutting-edge events.
+              </p>
+            </div>
+
           </div>
 
           {/* Call-to-Action Stats */}
