@@ -29,7 +29,7 @@ const mockEvents: Event[] = [
         id: "2",
         name: "B",
         solsticeId: "456123",
-        team: "pp",
+        team: "Pp",
         present: false,
       },
     ],
