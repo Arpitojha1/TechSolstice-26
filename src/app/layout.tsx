@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ChatbotWidget } from "@/components/chat/chatbot-widget";
@@ -82,7 +81,6 @@ const RootLayout = ({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <LenisProvider>
-            <SpeedInsights />
             <Analytics />
             <ScrollToTop />
             {/* Background layer - lowest z-index */}

@@ -2,42 +2,25 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-// ============================================
-// TEMPORARILY DISABLED ROUTES - Redirect to home
-// These routes are disabled for the current website display phase
-// ============================================
-const temporarilyDisabledRoutes = [
-  '/login',
-  '/complete-profile',
-  '/profile',
-  '/admin-dashboard',
-]
-
 // Routes that require authentication
 const protectedRoutes: string[] = [
-  // '/profile',        // TEMPORARILY DISABLED
-  // '/complete-profile', // TEMPORARILY DISABLED
-  //'/passes',
+  '/profile',
+  '/complete-profile',
+  '/passes',
 ]
 
 // Routes that require admin access (checked server-side)
 const adminRoutes: string[] = [
-  // '/admin-dashboard', // TEMPORARILY DISABLED
+  '/admin-dashboard',
 ]
 
 // Routes that should redirect to profile if authenticated
 const authRoutes: string[] = [
-  // '/login' // TEMPORARILY DISABLED
+  '/login',
 ]
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
-
-  // TEMPORARY: Redirect disabled routes to home page
-  const isDisabledRoute = temporarilyDisabledRoutes.some(route => path.startsWith(route))
-  if (isDisabledRoute) {
-    return NextResponse.redirect(new URL('/', request.url))
-  }
 
   // Check if route is protected, admin, or auth route
   const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))

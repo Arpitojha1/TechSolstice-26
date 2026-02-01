@@ -1,12 +1,4 @@
-/*
- * ============================================
- * TEMPORARILY DISABLED PAGE
- * This page is disabled for the current website display phase.
- * Access is blocked via middleware redirect to home page.
- * Remove the redirect in middleware.ts to re-enable.
- * ============================================
- */
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { requireAuth, getUserProfile, isProfileComplete } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Layout } from "@/components/common/layout";
@@ -57,6 +49,18 @@ const ProfilePage = async () => {
     `)
     .eq("user_id", userId);
 
+  // 4. Fetch User Passes
+  const { data: userPasses } = await supabase
+    .from("user_passes")
+    .select(`
+      *,
+      pass:passes (
+        name,
+        price
+      )
+    `)
+    .eq("user_id", userId);
+
   // Normalize data structure for Client Component to prevent type errors
   const joinedEvents = (rawMemberships || []).map((m: any) => ({
     reg_id: m.id,
@@ -68,15 +72,20 @@ const ProfilePage = async () => {
   return (
     <Layout>
       <div className="min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Ambient Background specific to Profile */}
-        <div className="fixed inset-0 -z-10 bg-[#050505]">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-[128px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[128px]" />
+        {/* Ambient Background specific to Profile - Updated to match FestInfo Theme */}
+        <div className="fixed inset-0 -z-10 bg-black">
+          {/* Faint Grid Texture */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M60 0H0V60\' fill=\'none\' stroke=\'white\' stroke-opacity=\'0.02\' stroke-width=\'1\'/%3E%3C/svg%3E')] opacity-50" />
+          
+          {/* Red/Orange Glows */}
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-[128px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-[128px]" />
         </div>
 
         <ProfileClient
           userData={profile}
           joinedEvents={joinedEvents}
+          passes={userPasses || []}
         />
       </div>
     </Layout>

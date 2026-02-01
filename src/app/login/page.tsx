@@ -1,21 +1,22 @@
-/*
- * ============================================
- * TEMPORARILY DISABLED PAGE
- * This page is disabled for the current website display phase.
- * Access is blocked via middleware redirect to home page.
- * Remove the redirect in middleware.ts to re-enable.
- * ============================================
- */
-
 'use client'
 
-import { signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { signIn, useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Chrome } from 'lucide-react'
 
 export default function LoginPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
+
+  // Redirect to profile if already logged in
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      router.replace('/profile')
+    }
+  }, [session, status, router])
 
   const handleLogin = async () => {
     setLoading(true)
@@ -35,13 +36,13 @@ export default function LoginPage() {
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md z-10"
       >
         <div className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.05] rounded-[2.5rem] p-8 md:p-12 shadow-2xl overflow-hidden text-center space-y-10">
-          
+
           <div className="space-y-3">
             <h1 className="text-3xl md:text-5xl font-bold text-white michroma-regular tracking-tight leading-tight uppercase">
               Access
@@ -82,7 +83,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-10 text-center">
           <p className="text-[10px] text-neutral-600 uppercase tracking-[0.5em] font-black opacity-40 italic">Technical Solstice '26</p>
         </div>

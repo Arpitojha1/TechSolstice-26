@@ -1,12 +1,3 @@
-/*
- * ============================================
- * TEMPORARILY DISABLED PAGE
- * This page is disabled for the current website display phase.
- * Access is blocked via middleware redirect to home page.
- * Remove the redirect in middleware.ts to re-enable.
- * ============================================
- */
-
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -66,14 +57,14 @@ const CompleteProfile = () => {
 
   useEffect(() => {
     if (isUniversityStudent === true && selectedDepartment) {
-      setFormData(prev => ({ 
-        ...prev, 
-        collegeName: `MAHE-${selectedDepartment}` 
+      setFormData(prev => ({
+        ...prev,
+        collegeName: `MAHE-${selectedDepartment}`
       }))
     } else if (isUniversityStudent === false) {
-      setFormData(prev => ({ 
-        ...prev, 
-        collegeName: '' 
+      setFormData(prev => ({
+        ...prev,
+        collegeName: ''
       }))
     }
   }, [isUniversityStudent, selectedDepartment])
@@ -161,7 +152,7 @@ const CompleteProfile = () => {
       {/* Subtle Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-lg z-10"
@@ -196,7 +187,7 @@ const CompleteProfile = () => {
                       <ChevronRight className="w-4 h-4 text-neutral-500 group-hover:text-white" />
                     </div>
                   </button>
-                  
+
                   <button
                     onClick={() => handleSelectStudentType(false)}
                     className="group relative flex items-center justify-between w-full rounded-3xl bg-white/[0.02] hover:bg-white/[0.06] border border-white/[0.05] hover:border-blue-500/30 p-7 transition-all duration-500 ease-out active:scale-[0.98]"
@@ -290,11 +281,10 @@ const CompleteProfile = () => {
                         value={formData.collegeName}
                         onChange={(e) => !isUniversityStudent && setFormData({ ...formData, collegeName: e.target.value })}
                         disabled={isUniversityStudent}
-                        className={`w-full rounded-2xl border px-5 py-4 text-sm transition-all focus:outline-none outline-none ${
-                          isUniversityStudent
-                            ? 'border-white/[0.01] bg-white/[0.01] text-neutral-600 cursor-not-allowed italic'
-                            : 'border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.03] text-white placeholder-neutral-800 focus:border-blue-500/40'
-                        }`}
+                        className={`w-full rounded-2xl border px-5 py-4 text-sm transition-all focus:outline-none outline-none ${isUniversityStudent
+                          ? 'border-white/[0.01] bg-white/[0.01] text-neutral-600 cursor-not-allowed italic'
+                          : 'border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.03] text-white placeholder-neutral-800 focus:border-blue-500/40'
+                          }`}
                         placeholder={isUniversityStudent ? 'Determined by Dept' : 'e.g. Stanford University'}
                         required
                       />
@@ -313,7 +303,7 @@ const CompleteProfile = () => {
                   </div>
 
                   {error && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       className="text-red-500 text-[10px] text-center font-black uppercase tracking-[0.2em]"
@@ -330,7 +320,7 @@ const CompleteProfile = () => {
                     >
                       {loading ? 'Submitting...' : 'Confirm Profile'}
                     </button>
-                    
+
                     <button
                       type="button"
                       onClick={handleCancel}

@@ -10,18 +10,15 @@ const supabase = createClient(
 )
 
 const PassesPage = async () => {
-  /* // --- COMMENTED OUT LOGIC FOR FUTURE USE ---
+  // Auth & Profile Check
   const session = await requireAuth()
   const userId = session.user.id
 
-  // 1. Get Profile & Admin Status
+  // Get Profile & Admin Status
   const profile = await getUserProfile(userId)
   const adminStatus = await isAdmin(userId)
-  
-  const isvisible = false; 
-  */
 
-  // --- NEW COMING SOON UI ---
+  // --- COMING SOON UI ---
   return (
     <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-black">
 

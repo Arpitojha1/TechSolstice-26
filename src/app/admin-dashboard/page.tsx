@@ -1,12 +1,3 @@
-/*
- * ============================================
- * TEMPORARILY DISABLED PAGE
- * This page is disabled for the current website display phase.
- * Access is blocked via middleware redirect to home page.
- * Remove the redirect in middleware.ts to re-enable.
- * ============================================
- */
-
 "use client";
 
 import { useEffect, useState } from "react";
