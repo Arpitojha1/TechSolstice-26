@@ -8,6 +8,7 @@ const navItems = [
   { name: "Events", url: "/events", icon: Calendar },
   { name: "Passes", url: "/passes", icon: Ticket },
   { name: "Socials", url: "/socials", icon: Linkedin },
+  { name: "Attendance", url: "/attendance", icon: Calendar },
   //{ name: "Profile", url: "/profile", icon: User },
   //{ name: "Help", url: "/help", icon: Mail },
 ];
