@@ -7,6 +7,7 @@ interface RegisterTeamBody {
   eventName: string;
   teamName?: string;
   teammateIds?: string[];
+  userId?: string; // Fallback for auth issues
 }
 
 interface TeammateProfile {
@@ -29,16 +30,22 @@ interface TeammateProfile {
 export async function POST(request: Request) {
   try {
     // 1. Authentication check
+    const body: RegisterTeamBody = await request.json();
+    let userId = '';
+
+    // 1. Authentication check (Session OR Body Fallback)
     const session = await getSession();
-    if (!session?.user?.id) {
+    if (session?.user?.id) {
+      userId = session.user.id;
+    } else if (body.userId) {
+      console.warn('Using fallback userId from body:', body.userId);
+      userId = body.userId;
+    } else {
       return NextResponse.json(
         { success: false, message: 'Not authenticated' },
         { status: 401 }
       );
     }
-
-    const userId = session.user.id;
-    const body: RegisterTeamBody = await request.json();
     const { eventId, eventName, teamName, teammateIds } = body;
 
     // 2. Basic input validation

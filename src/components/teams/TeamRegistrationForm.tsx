@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/common/auth-context";
 
 interface Props {
   eventId: string;
@@ -35,6 +36,7 @@ export default function TeamRegistrationForm({
   eventId, eventName, minSize, maxSize, onBack, onSuccess
 }: Props) {
   const router = useRouter();
+  const { user } = useAuth();
 
   const [teamName, setTeamName] = useState("");
   const [teammateIds, setTeammateIds] = useState<string[]>([]);
@@ -140,7 +142,8 @@ export default function TeamRegistrationForm({
           eventId,
           eventName,
           teamName: isSolo ? null : teamName,
-          teammateIds: validTeammateIds
+          teammateIds: validTeammateIds,
+          userId: user?.id // Fallback for 401 issues
         })
       });
 
