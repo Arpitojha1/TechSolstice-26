@@ -109,7 +109,8 @@ export function isProfileComplete(profile: any): boolean {
     profile &&
     profile.full_name &&
     profile.mobile_number &&
-    profile.college_name
+    profile.college_name &&
+    profile.registration_number
   );
 }
 

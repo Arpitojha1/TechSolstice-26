@@ -27,12 +27,7 @@ export default function LoginPage() {
     }
   }, []);
 
-  // Redirect to profile if already logged in
-  useEffect(() => {
-    if (status === 'authenticated' && session) {
-      router.replace('/profile')
-    }
-  }, [session, status, router])
+
 
   const handleLogin = async () => {
     setLoading(true);
