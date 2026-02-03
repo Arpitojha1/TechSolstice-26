@@ -62,7 +62,9 @@ export default function TeamRegistrationForm({
 
     setLookupLoading(prev => ({ ...prev, [index]: true }));
     try {
-      const res = await fetch(`/api/profile-lookup?solsticeId=${id}`);
+      const res = await fetch(`/api/profile-lookup?solsticeId=${id}`, {
+        credentials: 'include'
+      });
       const data = await res.json();
       if (data.success && data.profile) {
         setNamePreviews(prev => ({ ...prev, [index]: data.profile.full_name }));
@@ -133,6 +135,7 @@ export default function TeamRegistrationForm({
       const res = await fetch('/api/register-team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           eventId,
           eventName,
