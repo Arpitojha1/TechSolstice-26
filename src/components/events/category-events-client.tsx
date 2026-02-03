@@ -1,23 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { EventCard, type Event } from "@/components/cards/event-card";
 
 export function CategoryEventsClient({
-  events,
+  events: initialEvents,
   registeredEventIds,
   accessibleEventIds,
   categoryTitle,
+  categoryDbValue,
 }: {
   events: Event[];
   registeredEventIds: string[];
   accessibleEventIds: string[];
   categoryTitle: string;
+  categoryDbValue: string;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [events, setEvents] = useState<Event[]>(initialEvents);
+
+  useEffect(() => {
+    // Fetch fresh stats (registered counts) from API to bypass RLS
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(`/api/events/stats?category=${categoryDbValue}`);
+        const data = await res.json();
+        if (data.success && data.stats) {
+          setEvents(prevEvents => prevEvents.map(e => ({
+            ...e,
+            registered_count: data.stats[e.id] ?? e.registered_count
+          })));
+        }
+      } catch (err) {
+        console.error("Failed to fetch event stats", err);
+      }
+    };
+    fetchStats();
+  }, [categoryDbValue]);
 
   const filteredEvents = events.filter((event) =>
     event.name.toLowerCase().includes(searchTerm.toLowerCase())

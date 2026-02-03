@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -68,6 +67,7 @@ export function CategoryPageClient({
             registeredEventIds={registeredEventIds}
             accessibleEventIds={accessibleEventIds}
             categoryTitle={category.title}
+            categoryDbValue={category.dbValue}
           />
         </Suspense>
       </div>

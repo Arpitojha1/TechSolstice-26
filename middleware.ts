@@ -1,77 +1,65 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { updateSession } from '@/lib/supabase-middleware';
 
 // Routes that require authentication
 const protectedRoutes: string[] = [
   '/profile',
   '/complete-profile',
   '/passes',
-]
+];
 
 // Routes that require admin access (checked server-side)
 const adminRoutes: string[] = [
   '/admin-dashboard',
-]
+];
 
 // Routes that should redirect to profile if authenticated
 const authRoutes: string[] = [
   '/login',
-]
+];
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
+  const path = request.nextUrl.pathname;
 
-  // Check if route is protected, admin, or auth route
-  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route))
-  const isAdminRoute = adminRoutes.some(route => path.startsWith(route))
-  const isAuthRoute = authRoutes.some(route => path.startsWith(route))
+  // Check route types
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
+  const isAdminRoute = adminRoutes.some(route => path.startsWith(route));
+  const isAuthRoute = authRoutes.some(route => path.startsWith(route));
 
-  // Get the token from the request (JWT stored in cookie)
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  })
+  // Get user and update session cookies
+  const { user, supabaseResponse, supabase } = await updateSession(request);
 
   // Redirect to login if accessing protected/admin route without auth
-  if ((isProtectedRoute || isAdminRoute) && !token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if ((isProtectedRoute || isAdminRoute) && !user) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // SERVER-SIDE ADMIN CHECK for admin routes
-  if (isAdminRoute && token) {
-    const userId = token.id as string
-
+  if (isAdminRoute && user) {
     try {
-      // Query Supabase admins table
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/admins?user_id=eq.${userId}&select=user_id`,
-        {
-          headers: {
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-          },
-        }
-      )
+      const { data, error } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
 
-      const data = await response.json()
-
-      // If not admin (empty array), redirect to profile
-      if (!data || data.length === 0) {
-        return NextResponse.redirect(new URL('/profile', request.url))
+      // If not admin (empty or error), redirect to profile
+      if (error || !data) {
+        return NextResponse.redirect(new URL('/profile', request.url));
       }
     } catch (error) {
-      console.error('Admin check failed in middleware:', error)
-      return NextResponse.redirect(new URL('/profile', request.url))
+      console.error('Admin check failed in middleware:', error);
+      return NextResponse.redirect(new URL('/profile', request.url));
     }
   }
 
   // Redirect to profile if authenticated user tries to access login
-  if (isAuthRoute && token) {
-    return NextResponse.redirect(new URL('/profile', request.url))
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(new URL('/profile', request.url));
   }
 
-  return NextResponse.next()
+  return supabaseResponse;
 }
 
 // Configure which routes to run middleware on
@@ -83,8 +71,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      * - public folder
-     * - api routes (except auth)
      */
     '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+};

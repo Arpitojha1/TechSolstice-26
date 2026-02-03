@@ -1,14 +1,18 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import type { Session } from "next-auth";
+import { useAuth } from "@/components/common/auth-context";
 
 export function useUser() {
-  const { data: session, status } = useSession();
+  const { user, loading } = useAuth();
 
   return {
-    user: session?.user || null,
-    loading: status === "loading",
-    session,
+    user: user ? {
+      id: user.id,
+      email: user.email || '',
+      name: user.user_metadata?.full_name || user.user_metadata?.name || '',
+      image: user.user_metadata?.avatar_url || user.user_metadata?.picture || '',
+    } : null,
+    loading,
+    session: user ? { user } : null,
   };
 }

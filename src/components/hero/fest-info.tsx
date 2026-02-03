@@ -79,14 +79,20 @@ export default function FestInfo() {
 
             {/* Left: About Institute */}
             <div className="flex flex-row items-start gap-4">
-              <div className="relative w-16 h-16 shrink-0 mt-1">
-                <Image
-                  src="/logos/manipalLogo copy.png"
-                  alt="MIT-BLR Logo"
-                  fill
-                  className="object-contain"
-                  sizes="64px"
-                />
+              <div className="relative w-16 h-16 shrink-0 mt-1 hover:opacity-80 transition-opacity">
+                <a
+                  href="https://www.manipal.edu/mu/campuses/mahe-bengaluru/academics/institution-list/mitblr.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src="/logos/manipalLogo copy.png"
+                    alt="MIT-BLR Logo"
+                    fill
+                    className="object-contain"
+                    sizes="64px"
+                  />
+                </a>
               </div>
               <div className="space-y-3">
                 <h3 className="text-white text-sm md:text-md font-bold michroma-regular tracking-wider uppercase">

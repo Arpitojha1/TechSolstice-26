@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/static-components */
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,6 +26,7 @@ export type Event = {
   is_reg_open: boolean;
   registration_starts_at: string | null;
   rulebook_url: string | null;
+  registered_count?: number;
 };
 
 interface EventCardProps {
@@ -45,7 +48,10 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
 
   const isComingSoon = mounted ? now < regStart : false;
   const isLocked = !event.is_reg_open;
-  const isPassLocked = !hasAccess && !isRegistered;
+
+  // Hackathon events are free to register (no pass required, but still needs sign-in)
+  const isFreeEvent = event.name.toUpperCase().includes('36 - HOUR HACKATHON');
+  const isPassLocked = !hasAccess && !isRegistered && !isFreeEvent;
 
   const eventDate = mounted && event.starts_at
     ? new Date(event.starts_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
@@ -99,7 +105,7 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
       isLocked={isLocked}
       onBack={() => setIsFlipped(false)}
     />
-  ) : hasAccess ? (
+  ) : (hasAccess || isFreeEvent) ? (
     <TeamRegistrationForm
       eventId={event.id}
       eventName={event.name}
@@ -237,7 +243,7 @@ export function EventCard({ event, isRegistered, hasAccess }: EventCardProps) {
           {mounted ? (
             <Button
               onClick={() => {
-                if (isRegistered || hasAccess) {
+                if (isRegistered || hasAccess || isFreeEvent) {
                   setIsFlipped(true);
                 } else if (isPassLocked) {
                   window.dispatchEvent(new CustomEvent("open-pass-modal", { detail: event.id }));

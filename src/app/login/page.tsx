@@ -1,15 +1,31 @@
-'use client'
+'use client';
 
-import { signIn, useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { Chrome } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { createClient } from '@/lib/supabase-browser';
+import { useAuth } from '@/components/common/auth-context';
 
 export default function LoginPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Redirect to profile if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace('/profile');
+    }
+  }, [user, authLoading, router]);
+
+  // Check for error in URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'auth_failed') {
+      setError('Authentication failed. Please try again.');
+    }
+  }, []);
 
   // Redirect to profile if already logged in
   useEffect(() => {
@@ -19,17 +35,29 @@ export default function LoginPage() {
   }, [session, status, router])
 
   const handleLogin = async () => {
-    setLoading(true)
+    setLoading(true);
+    setError(null);
+
     try {
-      await signIn('google', {
-        callbackUrl: '/profile',
-        redirect: true,
-      })
-    } catch (error) {
-      console.error('Login error:', error)
-      setLoading(false)
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+      // If successful, user will be redirected to Google
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('An error occurred. Please try again.');
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-transparent px-4 py-12 relative overflow-hidden font-sans">
@@ -51,9 +79,15 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-6">
+            {error && (
+              <div className="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-xl py-3 px-4">
+                {error}
+              </div>
+            )}
+
             <button
               onClick={handleLogin}
-              disabled={loading}
+              disabled={loading || authLoading}
               className="group relative flex w-full items-center justify-center gap-4 rounded-2xl bg-white/[0.95] hover:bg-white px-6 py-5 text-xs font-black uppercase tracking-[0.2em] text-neutral-900 transition-all duration-500 shadow-2xl shadow-blue-500/10 active:scale-[0.97] disabled:opacity-50 outline-none"
             >
               {!loading && (
@@ -89,5 +123,5 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

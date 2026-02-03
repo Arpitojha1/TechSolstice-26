@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, ArrowLeft, Loader2 } from "lucide-react";
+import {
+  Plus, Trash2, ArrowLeft, Loader2, AlertCircle,
+  CheckCircle2, User, X
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-
-// Supabase client for database operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { cn } from "@/lib/utils";
 
 interface Props {
   eventId: string;
@@ -22,6 +19,18 @@ interface Props {
   onSuccess: () => void;
 }
 
+const SOLSTICE_ID_PATTERN = /^TS-[A-Z0-9]{4,10}$/i;
+
+function useDebounce(fn: (id: string, index: number) => void, delay: number) {
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+
+  return useCallback((id: string, index: number) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    const newId = setTimeout(() => fn(id, index), delay);
+    setTimeoutId(newId);
+  }, [fn, delay, timeoutId]);
+}
+
 export default function TeamRegistrationForm({
   eventId, eventName, minSize, maxSize, onBack, onSuccess
 }: Props) {
@@ -30,120 +39,270 @@ export default function TeamRegistrationForm({
   const [teamName, setTeamName] = useState("");
   const [teammateIds, setTeammateIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<number, string>>({});
+  const [successData, setSuccessData] = useState<{ teamCode?: string } | null>(null);
+  const [namePreviews, setNamePreviews] = useState<Record<number, string | null>>({});
+  const [lookupLoading, setLookupLoading] = useState<Record<number, boolean>>({});
 
   const isSolo = maxSize === 1;
 
-  const addTeammate = () => { if (teammateIds.length + 1 < maxSize) setTeammateIds([...teammateIds, ""]); };
-  const removeTeammate = (index: number) => { const newIds = [...teammateIds]; newIds.splice(index, 1); setTeammateIds(newIds); };
-  const updateTeammateId = (index: number, value: string) => { const newIds = [...teammateIds]; newIds[index] = value.toUpperCase().trim(); setTeammateIds(newIds); };
+  const validateFormat = (id: string): string | null => {
+    const trimmed = id.trim().toUpperCase();
+    if (!trimmed) return null;
+    if (!SOLSTICE_ID_PATTERN.test(trimmed)) return "Invalid Format";
+    return null;
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const lookupName = async (id: string, index: number) => {
+    if (!id || !SOLSTICE_ID_PATTERN.test(id)) {
+      setNamePreviews(prev => ({ ...prev, [index]: null }));
+      return;
+    }
+
+    setLookupLoading(prev => ({ ...prev, [index]: true }));
+    try {
+      const res = await fetch(`/api/profile-lookup?solsticeId=${id}`);
+      const data = await res.json();
+      if (data.success && data.profile) {
+        setNamePreviews(prev => ({ ...prev, [index]: data.profile.full_name }));
+      } else {
+        setNamePreviews(prev => ({ ...prev, [index]: null }));
+      }
+    } catch {
+      setNamePreviews(prev => ({ ...prev, [index]: null }));
+    }
+    setLookupLoading(prev => ({ ...prev, [index]: false }));
+  };
+
+  const debouncedLookup = useDebounce(lookupName, 500);
+
+  const addTeammate = () => {
+    if (teammateIds.length + 1 < maxSize) {
+      setTeammateIds([...teammateIds, ""]);
+    }
+  };
+
+  const removeTeammate = (index: number) => {
+    const newIds = [...teammateIds];
+    newIds.splice(index, 1);
+    setTeammateIds(newIds);
+
+    // Clean up state
+    const newErrors = { ...fieldErrors };
+    delete newErrors[index];
+    setFieldErrors(newErrors);
+    setNamePreviews(prev => { const p = { ...prev }; delete p[index]; return p; });
+  };
+
+  const updateTeammateId = (index: number, value: string) => {
+    const formatted = value.toUpperCase().trim();
+    const newIds = [...teammateIds];
+    newIds[index] = formatted;
+    setTeammateIds(newIds);
+
+    const formatError = validateFormat(formatted);
+    const newErrors = { ...fieldErrors };
+    if (formatError) {
+      newErrors[index] = formatError;
+      setNamePreviews(prev => ({ ...prev, [index]: null }));
+    } else {
+      delete newErrors[index];
+      debouncedLookup(formatted, index);
+    }
+    setFieldErrors(newErrors);
+    setError(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!isSolo && !teamName.trim()) {
+      setError("Team name required");
+      return;
+    }
+    if (Object.keys(fieldErrors).length > 0) {
+      setError("Fix ID errors");
+      return;
+    }
+
     setLoading(true);
+    setError(null);
 
     try {
-      if (!isSolo && !teamName.trim()) {
-        alert("Please enter a Team Name"); setLoading(false); return;
-      }
-
       const validTeammateIds = teammateIds.filter(id => id.trim() !== "");
 
-      if (!isSolo && (validTeammateIds.length + 1) < minSize) {
-        alert(`This event requires at least ${minSize} members.`); setLoading(false); return;
-      }
-
-      const { data, error } = await supabase.rpc('register_team', {
-        p_event_id: eventId,
-        p_team_name: isSolo ? null : teamName,
-        p_teammate_codes: validTeammateIds
+      const res = await fetch('/api/register-team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId,
+          eventName,
+          teamName: isSolo ? null : teamName,
+          teammateIds: validTeammateIds
+        })
       });
 
-      if (error) throw error;
+      const data = await res.json();
 
       if (data.success) {
-        alert(isSolo ? "Registered Successfully!" : `Team Created Successfully!`);
-        router.refresh();
-        onSuccess();
+        setSuccessData({ teamCode: data.teamCode });
       } else {
-        alert("Registration Failed: " + data.message);
+        setError(data.message || "Registration failed");
       }
-
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Something went wrong");
+    } catch {
+      setError("Server error");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="h-full flex flex-col p-6 bg-[#0a0a0a] text-white">
-      <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
-        <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 text-neutral-400">
-          <ArrowLeft size={20} />
-        </Button>
-        <div>
-          <h3 className="text-lg font-bold text-cyan-400 leading-none">
-            {isSolo ? "Solo Entry" : "Create Team"}
-          </h3>
-          <p className="text-xs text-neutral-500 mt-1">{eventName}</p>
+  const validTeammateCount = teammateIds.filter(id => id.trim() !== "").length;
+  const totalMembers = 1 + validTeammateCount;
+  const meetsMinimum = totalMembers >= minSize;
+
+  // ===== SUCCESS =====
+  if (successData) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+        <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mb-4">
+          <CheckCircle2 size={32} className="text-green-500" />
         </div>
+        <h3 className="text-xl font-bold text-white mb-6">
+          {isSolo ? "Registration Confirmed" : "Team Created"}
+        </h3>
+        {!isSolo && successData.teamCode && (
+          <div className="mb-8">
+            <span className="text-[10px] text-neutral-500 uppercase tracking-widest">Team Code</span>
+            <p className="text-3xl font-mono font-bold text-white mt-1">{successData.teamCode}</p>
+          </div>
+        )}
+        <Button onClick={() => { router.refresh(); onSuccess(); }} className="rounded-full px-8 bg-white text-black hover:bg-neutral-200">
+          Done
+        </Button>
+      </div>
+    );
+  }
+
+  // ===== FORM =====
+  return (
+    <div className="h-full flex flex-col bg-[#050505] text-white">
+      {/* Minimal Header */}
+      <div className="flex items-center px-4 py-4 border-b border-white/5">
+        <button onClick={onBack} className="p-2 -ml-2 text-neutral-400 hover:text-white transition-colors">
+          <ArrowLeft size={18} />
+        </button>
+        <span className="ml-2 text-sm font-medium text-neutral-200">
+          {isSolo ? "Solo Register" : "Create Team"}
+        </span>
+        <span className="ml-auto text-[10px] text-neutral-600 uppercase tracking-widest border border-white/5 px-2 py-1 rounded-sm">
+          {totalMembers}/{maxSize}
+        </span>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-5 overflow-y-auto pr-1">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        {/* Error Toast */}
+        {error && (
+          <div className="bg-red-500/10 text-red-400 text-xs px-4 py-3 rounded border border-red-500/20 flex items-center gap-2">
+            <AlertCircle size={14} />
+            {error}
+          </div>
+        )}
+
+        {/* Team Name */}
         {!isSolo && (
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-neutral-400 ml-1">Team Name</label>
+          <div className="space-y-4">
             <Input
-              placeholder="e.g. Code Warriors"
+              autoFocus
+              placeholder="Team Name"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
+              className="bg-transparent border-0 border-b border-white/10 rounded-none px-0 text-2xl font-medium focus-visible:ring-0 focus-visible:border-white/40 placeholder:text-neutral-700 transition-colors h-auto py-2"
             />
           </div>
         )}
 
+        {/* Teammates */}
         {!isSolo && (
           <div className="space-y-3">
-            <div className="flex justify-between items-end pb-1 border-b border-white/5">
-              <label className="text-xs font-medium text-neutral-400 ml-1">Teammates (Solstice IDs)</label>
-              <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-cyan-400">
-                {teammateIds.length + 1} / {maxSize} Members
-              </span>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] uppercase tracking-widest text-neutral-500 font-medium">Teammates</label>
+              {!isSolo && !meetsMinimum && (
+                <span className="text-[10px] text-red-500/70">Min {minSize} required</span>
+              )}
             </div>
-            {teammateIds.map((id, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  placeholder="TS-XXXXXX"
-                  value={id}
-                  onChange={(e) => updateTeammateId(index, e.target.value)}
-                  className="bg-white/5 border-white/10 font-mono uppercase text-sm"
-                />
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeTeammate(index)}>
-                  <Trash2 size={16} className="text-red-400" />
-                </Button>
+
+            {/* Captain (You) */}
+            <div className="flex items-center gap-3 py-2 border-b border-white/5 text-neutral-400">
+              <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-[10px]">You</div>
+              <span className="text-sm">Captain</span>
+            </div>
+
+            {teammateIds.map((id, i) => (
+              <div key={i} className="group relative">
+                <div className="flex items-center gap-3">
+                  {lookupLoading[i] ? (
+                    <Loader2 size={14} className="animate-spin text-neutral-600" />
+                  ) : namePreviews[i] ? (
+                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <User size={12} className="text-green-500" />
+                    </div>
+                  ) : fieldErrors[i] ? (
+                    <AlertCircle size={14} className="text-red-500" />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-neutral-600">{i + 1}</div>
+                  )}
+
+                  <div className="flex-1 relative">
+                    <input
+                      value={id}
+                      onChange={(e) => updateTeammateId(i, e.target.value)}
+                      placeholder="TS-XXXXXX"
+                      className={cn(
+                        "w-full bg-transparent border-b border-white/5 py-3 text-sm font-mono uppercase focus:outline-none focus:border-white/30 transition-colors placeholder:text-neutral-800",
+                        fieldErrors[i] && "border-red-500/50 text-red-400",
+                        namePreviews[i] && "text-green-500"
+                      )}
+                    />
+                    {namePreviews[i] && (
+                      <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-neutral-500 pointer-events-none">
+                        {namePreviews[i]}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => removeTeammate(i)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-neutral-600 hover:text-red-400"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
             ))}
+
             {teammateIds.length + 1 < maxSize && (
-              <Button type="button" variant="outline" size="sm" onClick={addTeammate} className="w-full border-dashed text-xs h-9">
-                <Plus size={14} className="mr-2" /> Add Teammate
-              </Button>
+              <button
+                onClick={addTeammate}
+                className="flex items-center gap-3 py-3 text-sm text-neutral-500 hover:text-white transition-colors w-full"
+              >
+                <div className="w-6 h-6 rounded-full border border-dashed border-neutral-700 flex items-center justify-center">
+                  <Plus size={12} />
+                </div>
+                <span>Add Teammate</span>
+              </button>
             )}
           </div>
         )}
+      </div>
 
-        <div className="mt-auto bg-blue-500/5 border border-blue-500/10 p-4 rounded-xl text-xs text-blue-200/80 leading-relaxed">
-          {isSolo ? (
-            <p>You are registering as an individual. Your Solstice ID will be used for entry.</p>
-          ) : (
-            <p>You will be the team Captain. Add your friends' Solstice IDs now, or edit the team later.</p>
-          )}
-        </div>
-
-        <Button type="submit" disabled={loading} className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold h-12 rounded-xl text-sm transition-all active:scale-95 disabled:opacity-70">
-          {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : (isSolo ? "Confirm Registration" : "Create Team")}
+      <div className="p-6 border-t border-white/5">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading || (!isSolo && !meetsMinimum)}
+          className="w-full h-12 rounded-full bg-white text-black hover:bg-neutral-200 font-medium disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="animate-spin" /> : (isSolo ? "Register" : "Create Team")}
         </Button>
-      </form>
+      </div>
     </div>
   );
 }

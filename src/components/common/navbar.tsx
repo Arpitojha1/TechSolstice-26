@@ -6,9 +6,9 @@ import { Home, Calendar, Ticket, Mail, User, Linkedin } from "lucide-react";
 const navItems = [
   { name: "Home", url: "/", icon: Home },
   { name: "Events", url: "/events", icon: Calendar },
-  { name: "Passes", url: "/passes", icon: Ticket },
-  { name: "Socials", url: "/socials", icon: Linkedin },
-  //{ name: "Profile", url: "/profile", icon: User },
+  { name: "Profile", url: "/profile", icon: User },
+  //{ name: "Passes", url: "/passes", icon: Ticket },
+  //{ name: "Socials", url: "/socials", icon: Linkedin },
   //{ name: "Help", url: "/help", icon: Mail },
 ];
 

@@ -1,150 +1,152 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { createClient } from "@supabase/supabase-js"
-import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, ArrowLeft } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { createClient } from '@/lib/supabase-browser';
+import { useAuth } from '@/components/common/auth-context';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
-const MANIPAL_DEPARTMENTS = ['DLHS', 'DOC', 'MIT', 'MIRM', 'MLS', 'SMI']
+const MANIPAL_DEPARTMENTS = ['DLHS', 'DOC', 'MIT', 'MIRM', 'MLS', 'SMI'];
 
 const CompleteProfile = () => {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [step, setStep] = useState<'student-type' | 'details'>('student-type')
+  const { user, loading: authLoading, signOut } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<'student-type' | 'details'>('student-type');
 
-  const [isUniversityStudent, setIsUniversityStudent] = useState<boolean | undefined>(undefined)
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('')
+  const [isUniversityStudent, setIsUniversityStudent] = useState<boolean | undefined>(undefined);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
 
   const [formData, setFormData] = useState({
     fullName: '',
     mobileNumber: '',
     collegeName: '',
     registrationNumber: '',
-  })
+  });
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
+    if (!authLoading && !user) {
+      router.push('/login');
     }
-    if (session?.user?.name) {
-      setFormData(prev => ({ ...prev, fullName: session.user.name || '' }))
+    if (user?.user_metadata?.full_name || user?.user_metadata?.name) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.user_metadata?.full_name || user.user_metadata?.name || ''
+      }));
     }
-  }, [status, session, router])
+  }, [authLoading, user, router]);
 
   useEffect(() => {
     async function checkProfile() {
-      if (!session?.user?.id) return
+      if (!user?.id) return;
+
+      const supabase = createClient();
       const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', session.user.id)
-        .single()
+        .eq('user_id', user.id)
+        .single();
+
       if (profile && profile.mobile_number && profile.full_name && profile.college_name) {
-        router.push('/profile')
+        router.push('/profile');
       }
     }
-    checkProfile()
-  }, [session, router])
+    checkProfile();
+  }, [user, router]);
 
   useEffect(() => {
     if (isUniversityStudent === true && selectedDepartment) {
       setFormData(prev => ({
         ...prev,
         collegeName: `MAHE-${selectedDepartment}`
-      }))
+      }));
     } else if (isUniversityStudent === false) {
       setFormData(prev => ({
         ...prev,
         collegeName: ''
-      }))
+      }));
     }
-  }, [isUniversityStudent, selectedDepartment])
+  }, [isUniversityStudent, selectedDepartment]);
 
   const handleSelectStudentType = (value: boolean) => {
-    setIsUniversityStudent(value)
-    setSelectedDepartment('')
-    setError(null)
-    setStep('details')
-  }
+    setIsUniversityStudent(value);
+    setSelectedDepartment('');
+    setError(null);
+    setStep('details');
+  };
 
   const handleCancel = async () => {
-    const { signOut } = await import('next-auth/react')
-    await signOut({ callbackUrl: '/' })
-  }
+    await signOut();
+    router.push('/');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    if (!formData.fullName || !formData.mobileNumber || !formData.collegeName) {
-      setError('Please fill in all required fields')
-      setLoading(false)
-      return
+    if (!formData.fullName || !formData.mobileNumber || !formData.collegeName || !formData.registrationNumber) {
+      setError('Please fill in all required fields');
+      setLoading(false);
+      return;
     }
 
     if (!/^[0-9]{10}$/.test(formData.mobileNumber)) {
-      setError('Mobile number must be exactly 10 digits')
-      setLoading(false)
-      return
+      setError('Mobile number must be exactly 10 digits');
+      setLoading(false);
+      return;
     }
 
     if (isUniversityStudent === true && !selectedDepartment) {
-      setError('Please select a department')
-      setLoading(false)
-      return
+      setError('Please select a department');
+      setLoading(false);
+      return;
     }
 
     try {
-      if (!session?.user) {
-        setError('Not authenticated')
-        return
+      if (!user) {
+        setError('Not authenticated');
+        return;
       }
 
+      const supabase = createClient();
       const { error: insertError } = await supabase
         .from('profiles')
         .insert({
-          user_id: session.user.id,
-          email: session.user.email,
+          user_id: user.id,
+          email: user.email,
           full_name: formData.fullName,
           mobile_number: formData.mobileNumber,
           college_name: formData.collegeName,
           registration_number: formData.registrationNumber || null,
           is_university_student: isUniversityStudent,
-        })
+        });
 
       if (insertError) {
         if (insertError.code === '23505') {
-          setError('This mobile number is already registered')
+          setError('This mobile number is already registered');
         } else {
-          setError('Failed to create profile. Please try again.')
+          setError('Failed to create profile. Please try again.');
         }
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
-      router.push('/profile')
+      router.push('/profile');
     } catch (err) {
-      setError('An unexpected error occurred')
-      setLoading(false)
+      setError('An unexpected error occurred');
+      setLoading(false);
     }
-  }
+  };
 
-  if (status === 'loading') {
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -291,14 +293,20 @@ const CompleteProfile = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[9px] uppercase tracking-[0.25em] text-neutral-500 font-black ml-1">Registration</label>
+                      <label className="text-[9px] uppercase tracking-[0.25em] text-neutral-500 font-black ml-1">Registration Number</label>
                       <input
                         type="text"
                         value={formData.registrationNumber}
                         onChange={(e) => setFormData({ ...formData, registrationNumber: e.target.value })}
                         className="w-full rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.03] px-5 py-4 text-white text-sm placeholder-neutral-800 focus:border-blue-500/40 focus:outline-none transition-all outline-none"
-                        placeholder="Reg Number (Optional)"
+                        placeholder="Registration / Roll Number"
+                        required
                       />
+                      {!isUniversityStudent && (
+                        <p className="text-[9px] text-neutral-500 mt-1 ml-1 font-mono">
+                          * This is your college roll number / ID card number
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -340,7 +348,7 @@ const CompleteProfile = () => {
         <p className="text-[10px] text-neutral-600 uppercase tracking-[0.5em] font-black opacity-40">Technical Solstice '26</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CompleteProfile
+export default CompleteProfile;

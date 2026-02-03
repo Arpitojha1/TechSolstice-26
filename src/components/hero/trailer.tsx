@@ -164,16 +164,15 @@ const Trailer: React.FC<TrailerProps> = ({ videoId = "comtgOhuXIg" }) => {
               <div className="absolute top-0 right-0 p-32 bg-red-600/5 blur-[60px] rounded-full pointer-events-none" />
 
               <h3 className="text-2xl font-bold text-white mb-4 michroma-regular uppercase">
-                The Legacy Continues
+                Experience the Hype
               </h3>
 
               <div className="space-y-4 text-neutral-300 text-sm sm:text-base leading-relaxed font-light">
                 <p>
-                  <span className="text-red-500 font-bold">TechSolstice</span>, the flagship annual technical and cultural fest of{" "}
-                  <span className="font-semibold text-white">MIT Bengaluru</span>, returns with an electrifying fusion of innovation and artistry.
+                  <span className="text-red-500 font-bold">Relive the energy.</span> Witness the chaos, the creativity, and the code that defined our legacy.
                 </p>
                 <p>
-                  A grand celebration of creativity, talent, and technology that transforms the campus into a vibrant arena of competition. From cutting-edge hackathons to mesmerizing cultural performances, it is the ultimate platform to <span className="text-white italic">Collaborate, Compete, and Create.</span>
+                  A glimpse into the adrenaline of <span className="text-white italic">TechSolstice</span>. Are you ready for what comes next?
                 </p>
               </div>
 

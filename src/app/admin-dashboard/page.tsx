@@ -1,15 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/lib/supabase-browser";
+import { useAuth } from "@/components/common/auth-context";
 
-// Supabase client for database operations only
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 import {
   Table,
   TableBody,
@@ -63,7 +58,7 @@ export type AdminEvent = {
 };
 
 const AdminDashboard = () => {
-  const { data: session, status } = useSession();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [events, setEvents] = useState<AdminEvent[]>([]);
@@ -78,20 +73,20 @@ const AdminDashboard = () => {
   // Check if user is admin
   useEffect(() => {
     async function checkAdminStatus() {
-      if (status === 'unauthenticated') {
+      if (authLoading) return;
+
+      if (!user) {
         router.push('/login');
         return;
       }
 
-      if (status === 'loading' || !session?.user?.id) {
-        return;
-      }
+      const supabase = createClient();
 
       // Check if user exists in admins table
       const { data, error } = await supabase
         .from('admins')
         .select('user_id')
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .single();
 
       if (error || !data) {
@@ -103,11 +98,12 @@ const AdminDashboard = () => {
     }
 
     checkAdminStatus();
-  }, [session, status, router]);
+  }, [user, authLoading, router]);
 
   // --- FETCH DATA ---
   const fetchEvents = async () => {
     setLoading(true);
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("events")
       .select("*")
@@ -134,6 +130,7 @@ const AdminDashboard = () => {
     // Optimistic Update
     setEvents(events.map(e => e.id === id ? { ...e, is_reg_open: !currentStatus } : e));
 
+    const supabase = createClient();
     const { error } = await supabase
       .from("events")
       .update({ is_reg_open: !currentStatus })
@@ -152,6 +149,7 @@ const AdminDashboard = () => {
     const previousEvents = [...events];
     setEvents(events.filter(e => e.id !== id));
 
+    const supabase = createClient();
     const { error } = await supabase.from("events").delete().eq("id", id);
 
     if (error) {
@@ -176,6 +174,8 @@ const AdminDashboard = () => {
         imageUrl: formData.imageUrl || null,
         venue: formData.venue || null,
       };
+
+      const supabase = createClient();
 
       if (selectedEvent) {
         const { error } = await supabase
@@ -208,7 +208,7 @@ const AdminDashboard = () => {
   const activeEvents = events.filter(e => e.is_reg_open).length;
 
   // Show loading while checking admin status or fetching data
-  if (status === 'loading' || isAdmin === null || loading) {
+  if (authLoading || isAdmin === null || loading) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center text-cyan-400">
         <Loader2 className="animate-spin h-8 w-8" />
@@ -393,7 +393,7 @@ const AdminDashboard = () => {
       </Dialog>
     </div>
   );
-}
+};
 
 import { memo } from 'react';
 export default memo(AdminDashboard);

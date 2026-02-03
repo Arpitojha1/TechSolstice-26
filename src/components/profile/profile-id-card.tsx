@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Mail, Phone, QrCode, GraduationCap, FileDigit, Ticket } from "lucide-react";
+import { Mail, Phone, QrCode, GraduationCap, FileDigit, Ticket, Copy, Check } from "lucide-react";
 import FlipCard from "@/components/cards/FlipCard";
 import { useEffect, useState } from "react";
 // import QRCode from "qrcode"
@@ -20,9 +20,8 @@ interface ProfileIdCardProps {
     user_id: string;
     pass_id: string;
     ticket_cut?: boolean;
-    phone_no?: number | null;
-    reg_no?: number | null;
-    created_at?: string;
+    phone_no?: number | string | null;
+    reg_no?: number | string | null;
     pass: {
       name: string;
       price: number;
@@ -34,6 +33,7 @@ interface ProfileIdCardProps {
 export default function ProfileIdCard({ user, passes = [] }: ProfileIdCardProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [activePassIndex, setActivePassIndex] = useState(0);
+  const [copied, setCopied] = useState(false);
   const SPECIAL_PASS_ID = "20046249-fecd-4dd3-a6aa-888328312623";
 
   useEffect(() => {
@@ -59,69 +59,97 @@ export default function ProfileIdCard({ user, passes = [] }: ProfileIdCardProps)
 
   // --- FRONT DESIGN ---
   const Front = (
-    <div className="h-full w-full rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-5 flex flex-col items-center relative overflow-hidden group">
-      {/* Holographic Gradients */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50" />
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-red-600/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-orange-600/10 rounded-full blur-3xl" />
+    <div className="h-full w-full rounded-2xl border border-white/10 bg-black/80 backdrop-blur-xl p-6 flex flex-col relative overflow-hidden group shadow-2xl">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-red-600/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-600/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2" />
 
-      {/* Avatar Section */}
-      <div className="relative mb-3 mt-2">
-        <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-40 animate-pulse" />
-        {/* <img
-          src={user.avatarUrl || "https://github.com/shadcn.png"}
-          alt={user.name}
-          className="relative w-24 h-24 rounded-full object-cover border-2 border-white/10 shadow-2xl"
-        /> */}
-        {/* <div className="absolute bottom-1 right-1 w-3.5 h-3.5 bg-green-500 border-2 border-black rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]" /> */}
+      {/* Header */}
+      <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+        <div className="flex flex-col">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 font-bold mb-1">Pass ID</span>
+          <h3 className="text-white font-bold michroma-regular tracking-wide text-xs">TECHSOLSTICE</h3>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-orange-600 opacity-80 animate-pulse blur-sm" />
       </div>
 
-      <h2 className="text-xl font-bold text-white tracking-tight text-center mb-1 line-clamp-1 michroma-regular uppercase">
-        {user.name || "Anonymous"}
-      </h2>
+      {/* Main Identity */}
+      <div className="flex flex-col items-center mb-6">
+        {/* ID Badge with Copy */}
+        <div className="mb-3 flex items-center justify-center gap-2 w-full">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              if (user.solsticeId) {
+                navigator.clipboard.writeText(user.solsticeId);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }
+            }}
+            className="group/id relative bg-white/5 border border-white/10 px-4 py-2 rounded-lg backdrop-blur-md hover:border-red-500/50 hover:bg-white/10 transition-all cursor-pointer w-full text-center flex items-center justify-between"
+            title="Click to copy ID"
+          >
+            <span className="text-[9px] text-neutral-500 uppercase tracking-widest font-medium">Solstice ID</span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono font-bold text-red-500 tracking-wider shadow-red-500/50 drop-shadow-[0_0_8px_rgba(220,38,38,0.4)]">
+                {user.solsticeId || "PENDING"}
+              </span>
+              {copied ? <Check size={12} className="text-green-500" /> : <Copy size={12} className="text-neutral-600 group-hover/id:text-white transition-colors" />}
+            </div>
+          </div>
+        </div>
 
-      {/* ID Badge */}
-      <div className="mb-4 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full backdrop-blur-md group-hover:border-red-500/30 transition-colors">
-        <span className="text-[10px] text-neutral-500 mr-2 uppercase tracking-widest font-medium">ID</span>
-        <span className="font-mono font-extrabold text-red-500 tracking-wider text-sm shadow-red-500/50 drop-shadow-[0_0_5px_rgba(220,38,38,0.5)]">
-          {user.solsticeId || "PENDING"}
+        <h2 className="text-2xl font-bold text-white tracking-tight text-center michroma-regular capitalize leading-tight">
+          {user.name || "Anonymous"}
+        </h2>
+        <span className="text-xs text-neutral-400 mt-1 font-mono">{user.email}</span>
+      </div>
+
+      {/* Details Grid */}
+      <div className="w-full space-y-3 mt-auto mb-4">
+        <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-colors">
+          <div className="grid grid-cols-2 gap-y-3">
+            {/* College */}
+            <div className="col-span-2">
+              <div className="flex items-center gap-2 mb-1">
+                <GraduationCap className="w-3 h-3 text-red-500/70" />
+                <span className="text-[10px] uppercase tracking-wider text-neutral-500">Institution</span>
+              </div>
+              <p className="text-xs text-neutral-300 font-medium truncate pl-5">
+                {user.college || "Not Set"}
+              </p>
+            </div>
+
+            {/* Reg No */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <FileDigit className="w-3 h-3 text-red-500/70" />
+                <span className="text-[10px] uppercase tracking-wider text-neutral-500">Reg No.</span>
+              </div>
+              <p className="text-xs text-neutral-300 font-mono pl-5">
+                {user.regNumber || "N/A"}
+              </p>
+            </div>
+
+            {/* Phone */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Phone className="w-3 h-3 text-red-500/70" />
+                <span className="text-[10px] uppercase tracking-wider text-neutral-500">Phone</span>
+              </div>
+              <p className="text-xs text-neutral-300 font-mono pl-5">
+                {user.phone || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute bottom-3 left-0 w-full text-center">
+        <span className="text-[9px] text-neutral-600 uppercase tracking-[0.2em] group-hover:text-red-500 transition-colors">
+          Tap to view Passes
         </span>
-      </div>
-
-      {/* Details List */}
-      <div className="w-full space-y-2.5 text-sm">
-        {/* Contact Group */}
-        <div className="bg-white/5 rounded-lg p-3 space-y-2 border border-white/5">
-          <div className="flex items-center gap-3">
-            <Mail className="w-3.5 h-3.5 text-red-500/70 shrink-0" />
-            <span className="truncate text-neutral-300 text-xs font-mono">{user.email}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Phone className="w-3.5 h-3.5 text-red-500/70 shrink-0" />
-            <span className="text-neutral-300 text-xs font-mono">{user.phone || "No Phone"}</span>
-          </div>
-        </div>
-
-        {/* Academic Group - VISIBILITY FIX: Removed the conditional check */}
-        <div className="bg-white/5 rounded-lg p-3 space-y-2 border border-white/5">
-          <div className="flex items-start gap-3">
-            <GraduationCap className="w-3.5 h-3.5 text-red-500/70 shrink-0 mt-0.5" />
-            <span className={`text-xs line-clamp-2 leading-tight uppercase tracking-wide ${user.college ? "text-neutral-300" : "text-neutral-600 italic"}`}>
-              {user.college || "College Not Set"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <FileDigit className="w-3.5 h-3.5 text-red-500/70 shrink-0" />
-            <span className={`text-xs font-mono ${user.regNumber ? "text-neutral-300" : "text-neutral-600 italic"}`}>
-              {user.regNumber || "Reg No. Not Set"}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-2 text-[9px] text-neutral-300 uppercase tracking-widest group-hover:text-red-500 transition-colors">
-        Click to Flip 
       </div>
     </div>
   );
@@ -153,20 +181,19 @@ export default function ProfileIdCard({ user, passes = [] }: ProfileIdCardProps)
               </div>
             )}
           </div>
-          
+
           <div className="w-full space-y-2 overflow-y-auto max-h-[120px] pr-1 custom-scrollbar">
             {passes.map((pass, idx) => (
-              <div 
+              <div
                 key={pass.id}
                 onClick={(e) => {
                   e.stopPropagation();
                   setActivePassIndex(idx);
                 }}
-                className={`p-2 rounded-md border text-xs cursor-pointer transition-all flex items-center gap-2 ${
-                  idx === activePassIndex 
-                    ? "bg-red-500/10 border-red-500/50 text-red-400" 
-                    : "bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10"
-                }`}
+                className={`p-2 rounded-md border text-xs cursor-pointer transition-all flex items-center gap-2 ${idx === activePassIndex
+                  ? "bg-red-500/10 border-red-500/50 text-red-400"
+                  : "bg-white/5 border-white/10 text-neutral-400 hover:bg-white/10"
+                  }`}
               >
                 <Ticket className="w-3 h-3 shrink-0" />
                 <div className="text-left overflow-hidden">
